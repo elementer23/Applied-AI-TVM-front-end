@@ -19,11 +19,18 @@ jobs:
         with:
           node-version: 22
 
+      - name: Change to project directory
+        working-directory: tvm-front-end
+        run: echo "Switched to tvm-front-end directory"
+
       - name: Install dependencies
+        working-directory: tvm-front-end
         run: npm install
 
       - name: Run tests
+        working-directory: tvm-front-end
         run: npm test
 
       - name: Build project
+        working-directory: tvm-front-end
         run: npm run build
