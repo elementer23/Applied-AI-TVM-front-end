@@ -22,7 +22,7 @@ function App() {
         <div className="main-container">
             <LeftSection />
             <RightSection />
-            <Services />
+           {/* <Services /> */} 
         </div>
     );
 }

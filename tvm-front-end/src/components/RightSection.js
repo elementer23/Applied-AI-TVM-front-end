@@ -13,7 +13,7 @@ function RightSection() {
 
   return (
     <div className="section right-section">
-      <div className="section-header full-width-header">
+      <div className="section-header ">
         <img className='image-header' src="/images/tvmLogo.png" alt="Logo" />
         <img className='profile-header' src="/images/TVM_profile.png" alt="Profile" />
       </div>

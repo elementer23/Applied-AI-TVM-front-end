@@ -68,9 +68,8 @@
 }
 
 .image-header {
-  height: 50px;
+  height: 25px;
 }
-
 
 .chat-section {
   width: 100%;
@@ -167,9 +166,7 @@
 }
 
 .guidlines-content p {
-  border-bottom: 2px solid rgba(79,193,93,100);
   text-align: center;
-  padding-bottom: 8px;
 }
 
 ul {
