@@ -4,7 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="124b6a27-b034-42a3-8e1e-5d39529aecab" name="Changes" comment="" />
+    <list default="true" id="124b6a27-b034-42a3-8e1e-5d39529aecab" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/tvm-front-end/.env.dist" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tvm-front-end/src/Services.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/ci.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/ci.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tvm-front-end/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/tvm-front-end/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tvm-front-end/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/tvm-front-end/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tvm-front-end/src/App.test.js" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -26,7 +33,7 @@
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "dev",
+    "git-widget-placeholder": "Merging dev",
     "ignore.virus.scanning.warn.message": "true",
     "last_opened_file_path": "C:/Users/kimmy/Documents/GitHub/Applied-AI-TVM-front-end",
     "node.js.detected.package.eslint": "true",
@@ -56,6 +63,7 @@
       <workItem from="1747231970271" duration="18000" />
       <workItem from="1747387661465" duration="823000" />
       <workItem from="1747388896432" duration="233000" />
+      <workItem from="1747818184415" duration="85000" />
     </task>
     <servers />
   </component>
