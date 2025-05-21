@@ -1,0 +1,72 @@
+.login-screen-container {
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: 1fr 5fr;
+    background-color: white;
+}
+
+.login-screen-header {
+    grid-row: 1/2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    padding: 20px;
+    border-bottom: 8px solid rgba(79,193,93,100);
+}
+
+.image-header {
+    height: 75px;
+}
+
+.login-screen-content {
+    grid-row: 2/3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-form {
+    background-color: rgba(79,193,93,0.25);
+    padding: 32px;
+    border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    min-width: 320px;
+    border-bottom: 8px solid rgba(79,193,93,100);
+    border-top: 8px solid rgba(79,193,93,100);
+}
+
+.login-form h2 {
+    color: #4fc15d;
+    margin-bottom: 50px;
+    text-align: center;;
+}
+
+.login-form input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #4fc15d;
+    margin-bottom: 25px;
+    box-sizing: border-box;
+}
+
+.login-form input[type="password"] {
+    margin-bottom: 50px;
+}
+
+.login-form button {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background: #4fc15d;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.login-form button:hover {
+    background: #45a049;
+}
