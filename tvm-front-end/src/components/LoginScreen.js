@@ -3,9 +3,6 @@ import { Login } from "../Services";
 import "../LoginScreen.css";
 
 function LoginScreen({ onLogin }) {
-    // const [username, setUsername] = useState("");
-    // const [password, setPassword] = useState("");
-
     const [request, setRequest] = useState({
         username: "",
         password: "",
@@ -18,8 +15,10 @@ function LoginScreen({ onLogin }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         // For now, just call onLogin (no real auth)
-        await Login(request);
-        onLogin();
+        const check = await Login(request);
+        if (check) {
+            onLogin();
+        }
     };
 
     return (

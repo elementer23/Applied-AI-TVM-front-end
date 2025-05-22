@@ -29,11 +29,22 @@ export async function Login(requested_data) {
     form.append("username", requested_data.username);
     form.append("password", requested_data.password);
 
-    const response = await api.post("/token", form, {
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-        },
-    });
+    try {
+        const response = await api.post("/token", form, {
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+        });
 
-    console.log(response.data.access_token);
+        if (response.status === 200) {
+            localStorage.setItem("token", response.data.access_token);
+            return true;
+        }
+
+        console.log(response.data.access_token);
+    } catch (error) {
+        console.error(error);
+    }
+
+    return false;
 }
