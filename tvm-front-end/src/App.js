@@ -1,22 +1,14 @@
-import "./App.css";
-import LeftSection from "./components/LeftSection";
-import RightSection from "./components/RightSection";
+import React from "react";
+import { Routes, Route } from "react-router-dom";
 import LoginScreen from "./components/LoginScreen";
-
-import React, { useState } from "react";
+import Main from "./Main";
 
 function App() {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-    if (!isLoggedIn) {
-        return <LoginScreen onLogin={() => setIsLoggedIn(true)} />;
-    }
-
     return (
-        <div className="main-container">
-            <LeftSection />
-            <RightSection />
-        </div>
+        <Routes>
+            <Route path="/" element={<LoginScreen />} />
+            <Route path="/main" element={<Main />} />
+        </Routes>
     );
 }
 

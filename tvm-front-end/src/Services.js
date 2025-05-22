@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const api = axios.create({
     baseURL: process.env.REACT_APP_API_BASE_URL,
@@ -20,9 +20,11 @@ export async function Request(question) {
     //in this case "output", then it needs to be the same on the front-end as well. Or else you might send something
     //which will work, but you won't get anything in return.
     setAnswer(response.data.output);
+
+    console.log(answer);
 }
 
-export async function Login(requested_data) {
+export async function Login(requested_data, navigate) {
     console.log(requested_data);
 
     const form = new URLSearchParams();
@@ -38,13 +40,36 @@ export async function Login(requested_data) {
 
         if (response.status === 200) {
             localStorage.setItem("token", response.data.access_token);
-            return true;
+            navigate("/main");
+        } else {
+            console.error(response.status + " Authentication failed!");
         }
 
         console.log(response.data.access_token);
     } catch (error) {
         console.error(error);
     }
+}
 
-    return false;
+export async function VerifyToken(navigate) {
+    useEffect(() => {
+        const tokenVerification = async () => {
+            const token = localStorage.getItem("token");
+            console.log(token);
+
+            try {
+                const response = await api.get(`/verify-token/${token}`);
+
+                if (response.status !== 200) {
+                    throw new Error("Token verification failed");
+                }
+            } catch (error) {
+                console.error(error);
+                localStorage.removeItem("token");
+                navigate("/");
+            }
+        };
+
+        tokenVerification();
+    }, [navigate]);
 }
