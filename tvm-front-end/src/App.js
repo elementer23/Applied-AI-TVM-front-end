@@ -1,5 +1,4 @@
 import "./App.css";
-import Services from "./Services";
 import LeftSection from "./components/LeftSection";
 import RightSection from "./components/RightSection";
 import LoginScreen from "./components/LoginScreen";
@@ -17,7 +16,6 @@ function App() {
         <div className="main-container">
             <LeftSection />
             <RightSection />
-           {/* <Services /> */} 
         </div>
     );
 }
