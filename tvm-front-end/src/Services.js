@@ -1,12 +1,6 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
-
-const api = axios.create({
-    baseURL: process.env.REACT_APP_API_BASE_URL,
-});
+import api from "./api";
 
 export async function Request(requestedInput) {
-    const [requestedOutput, setRequestedOutput] = useState("");
     //Keep in mind that the given variable in this case "input", will have to be equal to the
     //field variable in the back-end. Meaning that if there is a class in the back-end called i don't know,
     //InputData and it has a field called input. Then input will be the variable to send with on the front-end.
@@ -22,15 +16,14 @@ export async function Request(requestedInput) {
         //which will work, but you won't get anything in return.
 
         if (response.status === 200) {
-            setRequestedOutput(response.data.output);
+            return response.data.output;
         } else {
-            setRequestedOutput("");
+            return "";
         }
     } catch (error) {
         console.error("Error for request: " + error.message);
+        return "";
     }
-
-    return requestedOutput;
 }
 
 export async function Login(requested_data, navigate) {
@@ -47,6 +40,7 @@ export async function Login(requested_data, navigate) {
 
         if (response.status === 200) {
             localStorage.setItem("token", response.data.access_token);
+            localStorage.setItem("refresh_token", response.data.refresh_token);
             navigate("/main");
         } else {
             console.error(response.status + " Authentication failed!");
@@ -54,26 +48,4 @@ export async function Login(requested_data, navigate) {
     } catch (error) {
         console.error("Error in Login: " + error.message);
     }
-}
-
-export async function VerifyToken(navigate) {
-    useEffect(() => {
-        const tokenVerification = async () => {
-            const token = localStorage.getItem("token");
-
-            try {
-                const response = await api.get(`/verify-token/${token}`);
-
-                if (response.status !== 200) {
-                    throw new Error("Token verification failed");
-                }
-            } catch (error) {
-                console.error("Error for token verification: " + error.message);
-                localStorage.removeItem("token");
-                navigate("/");
-            }
-        };
-
-        tokenVerification();
-    }, [navigate]);
 }
