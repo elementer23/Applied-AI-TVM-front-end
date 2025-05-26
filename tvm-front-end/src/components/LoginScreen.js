@@ -3,7 +3,7 @@ import { Login } from "../Services";
 import "../LoginScreen.css";
 import { useNavigate } from "react-router-dom";
 
-function LoginScreen({ onLogin }) {
+function LoginScreen() {
     const [request, setRequest] = useState({
         username: "",
         password: "",
@@ -17,11 +17,7 @@ function LoginScreen({ onLogin }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // For now, just call onLogin (no real auth)
-        const check = await Login(request, navigate);
-        if (check) {
-            onLogin();
-        }
+        await Login(request, navigate);
     };
 
     return (
