@@ -4,6 +4,10 @@ const api = axios.create({
     baseURL: process.env.REACT_APP_API_BASE_URL,
 });
 
+//calling the interceptor from axios, which checks
+//on any changes that have happened during the call off an endpoint.
+//will intercept changes in the call based upon tokens.
+//Will also naturally handle refreshes on the front-end, for tokens.
 api.interceptors.response.use(
     (response) => response,
     async function (error) {
@@ -11,7 +15,7 @@ api.interceptors.response.use(
 
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
-            const refreshToken = localStorage.getItem("refresh_token");
+            const refreshToken = sessionStorage.getItem("refresh_token");
 
             if (!refreshToken) {
                 window.location.href = "/";
@@ -29,16 +33,16 @@ api.interceptors.response.use(
                 const newAccessToken = currentResponse.data.access_token;
                 const newRefreshToken = currentResponse.data.refresh_token;
 
-                localStorage.setItem("token", newAccessToken);
-                localStorage.setItem("refresh_token", newRefreshToken);
+                sessionStorage.setItem("token", newAccessToken);
+                sessionStorage.setItem("refresh_token", newRefreshToken);
 
                 originalRequest.headers[
                     "Authorization"
                 ] = `Bearer ${newAccessToken}`;
                 return api(originalRequest);
             } catch (err) {
-                localStorage.removeItem("token");
-                localStorage.removeItem("refresh_token");
+                sessionStorage.removeItem("token");
+                sessionStorage.removeItem("refresh_token");
                 window.location.href = "/";
 
                 return Promise.reject(err);
@@ -49,8 +53,9 @@ api.interceptors.response.use(
     }
 );
 
+//request intercept to check whether authorization is allowed, based on the token
 api.interceptors.request.use(function (config) {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
 
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
