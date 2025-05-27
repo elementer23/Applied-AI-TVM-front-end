@@ -1,0 +1,9 @@
+.errorComponent {
+    width: 33%;
+    padding: 20px;
+    margin: auto;
+    background-color: #f44336;
+    color: white;
+    border: 1px;
+    border-radius: 10px;
+}

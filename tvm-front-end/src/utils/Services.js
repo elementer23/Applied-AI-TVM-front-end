@@ -1,4 +1,5 @@
 import api from "./api";
+import { LoginError } from "./errorHandler";
 
 /**
  * Request function, this function expects text like input
@@ -63,11 +64,19 @@ export async function Login(requested_data, navigate) {
                 response.data.refresh_token
             );
             navigate("/main");
+            return { success: true };
         } else {
             console.error(response.status + " Authentication failed!");
         }
     } catch (error) {
         console.error("Error in Login: " + error.message);
+        const { current_state, message } = LoginError(error);
+
+        return {
+            success: false,
+            current_state,
+            message,
+        };
     }
 }
 
