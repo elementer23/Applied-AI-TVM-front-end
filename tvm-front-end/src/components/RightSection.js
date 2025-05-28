@@ -1,10 +1,19 @@
 import React, { useRef } from "react";
+import { Request } from "../Services";
+import { useState } from "react";
+import Header from "./Header";
 
 function RightSection() {
+    const [input, setInput] = useState("");
+    const [output, setOutput] = useState("");
     const fileInputRef = useRef();
 
+    const handleSend = async () => {
+        const response = await Request(input);
+        setOutput(response);
+    };
+
     const handleFileUpload = (e) => {
-        // Handle file upload logic here
         const file = e.target.files[0];
         if (file) {
             alert(`Selected file: ${file.name}`);
@@ -13,18 +22,7 @@ function RightSection() {
 
     return (
         <div className="section right-section">
-            <div className="section-header ">
-                <img
-                    className="image-header"
-                    src="/images/tvmLogo.png"
-                    alt="Logo"
-                />
-                <img
-                    className="profile-header"
-                    src="/images/TVM_profile.png"
-                    alt="Profile"
-                />
-            </div>
+            <Header />
             <div className="chat-section">
                 <div className="chat-messages">
                     {/* Chat messages will go here */}
@@ -43,9 +41,14 @@ function RightSection() {
             <div className="chat-input-row">
                 <input
                     type="text"
+                    value={input}
+                    onChange={(e) => e.target.value}
                     className="chat-input"
                     placeholder="Tekstvak voor eventuele toelichting"
                 />
+                <button className="send-btn" onClick={handleSend}>
+                    Verstuur
+                </button>
                 <button
                     className="upload-btn"
                     onClick={() => fileInputRef.current.click()}
