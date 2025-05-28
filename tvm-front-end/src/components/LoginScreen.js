@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { Login } from "../Services";
-import "../LoginScreen.css";
+import { Login } from "../utils/Services";
+import "../css/LoginScreen.css";
+import "../css/Error.css";
 import { useNavigate } from "react-router-dom";
 
 function LoginScreen() {
@@ -8,6 +9,8 @@ function LoginScreen() {
         username: "",
         password: "",
     });
+
+    const [error, setError] = useState(null);
 
     const navigate = useNavigate();
 
@@ -17,7 +20,10 @@ function LoginScreen() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        await Login(request, navigate);
+        const out = await Login(request, navigate);
+        if (!out.success) {
+            setError(out.message);
+        }
     };
 
     return (
@@ -34,6 +40,7 @@ function LoginScreen() {
                     alt="Profile"
                 />
             </div>
+            {error && <div className="errorComponent">{error}</div>}
             <div className="login-screen-content">
                 <form onSubmit={handleSubmit} className="login-form">
                     <h2>Login</h2>
