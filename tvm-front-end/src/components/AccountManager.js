@@ -2,12 +2,15 @@ import { useState } from "react";
 import Header from "./Header";
 import "../css/LoginScreen.css";
 import { RegisterUser } from "../utils/Services";
+import "../css/Error.css";
 
 function AccountManager() {
     const [formData, setFormData] = useState({
         username: "",
         password: "",
     });
+    const [error, setError] = useState(null);
+    const [success, setSuccess] = useState(null);
     const [message, setMessage] = useState("");
 
     const handleChange = (e) => {
@@ -22,13 +25,21 @@ function AccountManager() {
             password: event.target.password.value,
         };
 
-        await RegisterUser(formData);
+        const out = await RegisterUser(formData);
+
+        if (!out.success) {
+            setError(out.message);
+        } else {
+            setSuccess("You successfully created a new account");
+        }
     };
 
     return (
         <div className="account-manager-container">
             <div className="section right-section">
                 <Header />
+                {error && <div className="errorComponent">{error}</div>}
+                {success && <div className="successComponent">{success}</div>}
                 <div className="account-section">
                     <form className="login-form" onSubmit={handleSubmit}>
                         <h1>Account aanmaken</h1>

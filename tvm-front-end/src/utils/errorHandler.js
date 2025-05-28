@@ -21,6 +21,11 @@ export function RegisterError(error) {
                 current_state: error.response.status,
                 message: "Username already registered!",
             };
+        } else if (error.response?.status === 403) {
+            return {
+                current_state: error.response.status,
+                message: "Insufficient account level!",
+            };
         }
     }
 
