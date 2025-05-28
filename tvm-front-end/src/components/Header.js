@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { Logout } from "../utils/Services";
 
 function Header() {
     const navigate = useNavigate();
@@ -16,6 +17,8 @@ function Header() {
             navigate("/textChanger");
         } else if (option === "main") {
             navigate("/main");
+        } else if (option === "logout") {
+            Logout(navigate);
         }
         setShowDropdown(false);
     };
@@ -49,6 +52,12 @@ function Header() {
                                 onClick={() => handleNavigation("dashboard")}
                             >
                                 Dashboard
+                            </li>
+                            <li
+                                className="dropdown-item"
+                                onClick={() => handleNavigation("logout")}
+                            >
+                                Uitloggen
                             </li>
                         </ul>
                     </div>
