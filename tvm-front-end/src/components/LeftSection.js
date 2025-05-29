@@ -1,4 +1,4 @@
-function LeftSection({ conversations, onSelectConversation}) {
+function LeftSection({ conversations, onSelectConversation }) {
     return (
         <div className="section left-section">
             <div></div>
@@ -10,11 +10,17 @@ function LeftSection({ conversations, onSelectConversation}) {
                     {conversations.map((conversation) => (
                         <li
                             key={conversation.id}
-                            onClick={() => onSelectConversation(conversation.id)}
+                            onClick={() =>
+                                onSelectConversation(conversation.id)
+                            }
                             style={{ cursor: "pointer" }}
                         >
-                            <strong>{conversation.title}</strong>{" "} 
-                            <i>{new Date(conversation.created_at).toLocaleDateString()}</i>
+                            <strong>{conversation.title}</strong>{" "}
+                            <i>
+                                {new Date(
+                                    conversation.created_at
+                                ).toLocaleDateString()}
+                            </i>
                         </li>
                     ))}
                 </ul>

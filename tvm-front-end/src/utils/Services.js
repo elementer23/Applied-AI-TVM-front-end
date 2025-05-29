@@ -288,7 +288,7 @@ export async function GetConversationMessages(conversationId) {
         );
 
         if (response.status === 200) {
-            for (var item in response.data) {
+            for (var item of response.data) {
                 arr.push(item);
             }
 
@@ -322,7 +322,7 @@ export async function GetAllConversations() {
         });
 
         if (response.status === 200) {
-            for (var item in response.data) {
+            for (var item of response.data) {
                 arr.push(item);
             }
 

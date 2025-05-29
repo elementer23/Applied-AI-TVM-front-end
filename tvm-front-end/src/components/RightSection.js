@@ -8,7 +8,13 @@ function RightSection({ messages, conversationId }) {
     const fileInputRef = useRef();
 
     const handleSend = async () => {
-        console.log("Bericht verzenden:", input, "naar gesprek:", conversationId);
+        console.log(
+            "Bericht verzenden:",
+            input,
+            "naar gesprek:",
+            conversationId
+        );
+        await Request(input);
         setInput("");
     };
 
@@ -27,7 +33,10 @@ function RightSection({ messages, conversationId }) {
                     {messages.map((message) => (
                         <div key={message.id} className="chat-message">
                             <p>
-                                <strong>{message.sender === "user" ? "jij" : "AI"}:</strong>{""}
+                                <strong>
+                                    {message.sender === "user" ? "jij" : "AI"}:
+                                </strong>
+                                {""}
                                 {message.content}
                             </p>
                         </div>
