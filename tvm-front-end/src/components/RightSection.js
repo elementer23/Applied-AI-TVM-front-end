@@ -3,7 +3,12 @@ import { Request } from "../utils/Services";
 import { useState } from "react";
 import Header from "./Header";
 
-function RightSection({ messages, conversationId }) {
+function RightSection({
+    messages,
+    conversationId,
+    reFetchMessages,
+    reFetchConversations,
+}) {
     const [input, setInput] = useState("");
     const fileInputRef = useRef();
 
@@ -16,6 +21,8 @@ function RightSection({ messages, conversationId }) {
         );
         await Request(input);
         setInput("");
+        await reFetchMessages();
+        await reFetchConversations();
     };
 
     const handleFileUpload = (e) => {

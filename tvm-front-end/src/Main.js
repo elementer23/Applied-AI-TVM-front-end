@@ -2,30 +2,30 @@ import "./css/App.css";
 import LeftSection from "./components/LeftSection";
 import RightSection from "./components/RightSection";
 import { useEffect, useState } from "react";
-import { GetAllConversations, GetConversationMessages } from "./utils/Services";    
+import { GetAllConversations, GetConversationMessages } from "./utils/Services";
 
 function Main() {
     const [conversations, setConversations] = useState([]);
     const [selectedConversationId, setSelectedConversationId] = useState(null);
     const [messages, setMessages] = useState([]);
 
-    useEffect(() => {
-        async function fetchConversations() {
-            const data = await GetAllConversations();
-            setConversations(data); 
-        }
+    async function fetchConversations() {
+        const data = await GetAllConversations();
+        setConversations(data);
+    }
 
+    useEffect(() => {
         fetchConversations();
     }, []);
 
-    useEffect(() => {
-        async function fetchMessages() {
-            if (selectedConversationId) {
-                const data = await GetConversationMessages(selectedConversationId);
-                setMessages(data);
-            }
+    async function fetchMessages() {
+        if (selectedConversationId) {
+            const data = await GetConversationMessages(selectedConversationId);
+            setMessages(data);
         }
+    }
 
+    useEffect(() => {
         fetchMessages();
     }, [selectedConversationId]);
 
@@ -37,7 +37,9 @@ function Main() {
             />
             <RightSection
                 messages={messages}
-                conversationId={selectedConversationId}          
+                conversationId={selectedConversationId}
+                reFetchMessages={fetchMessages}
+                reFetchConversations={fetchConversations}
             />
         </div>
     );
