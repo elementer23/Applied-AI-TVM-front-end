@@ -219,7 +219,7 @@ li {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 50px;
-  margin-top: 100px;
+  margin-top: 80px;
 }
 
 .text-change-category {
