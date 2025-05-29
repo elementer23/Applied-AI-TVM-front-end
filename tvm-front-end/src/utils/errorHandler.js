@@ -1,3 +1,10 @@
+/**
+ * This function is a shorthand error storing fuction,
+ * to retrieve and initialize messages and states depending on the
+ * corresponding server errors. This one is specifically for logging in.
+ * @param {*} error
+ * @returns a status and message
+ */
 export function LoginError(error) {
     if (error.response) {
         if (error.response?.status === 400) {
@@ -14,6 +21,13 @@ export function LoginError(error) {
     };
 }
 
+/**
+ * This function is a shorthand error storing fuction,
+ * to retrieve and initialize messages and states depending on the
+ * corresponding server errors. This one is specifically for registering.
+ * @param {*} error
+ * @returns a status and message
+ */
 export function RegisterError(error) {
     if (error.response) {
         if (error.response?.status === 400) {
@@ -35,6 +49,14 @@ export function RegisterError(error) {
     };
 }
 
+/**
+ * This function is a shorthand error storing fuction,
+ * to retrieve and initialize messages and states depending on the
+ * corresponding server errors. This one is specifically for
+ * requests while talking to the AI.
+ * @param {*} error
+ * @returns a status and message
+ */
 export function RequestError(error) {
     if (error.response) {
         if (error.response?.status === 500) {
