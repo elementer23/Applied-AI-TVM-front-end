@@ -10,31 +10,11 @@ import { LoginError, RegisterError } from "./errorHandler";
  * @returns a string
  */
 export async function Request(requestedInput) {
-    const token = sessionStorage.getItem("token");
-
-    //Keep in mind that the given variable in this case "input", will have to be equal to the
-    //field variable in the back-end. Meaning that if there is a class in the back-end called i don't know,
-    //InputData and it has a field called input. Then input will be the variable to send with on the front-end.
-    //And if it's called something like message, then the variable on the front-end needs to be called message too.
-    //If it doesn't equal, then it won't receive the data and it will not perform an action.. most likely resulting
-    //in an error. So keep that in mind. back-end: input -> { input: requestedInput } else
-    //back-end: message -> { message: requestedInput }.
-
     try {
-        const response = await api.post(
-            "/run",
-            { input: requestedInput },
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            }
-        );
-
+        const response = await api.post("/run", { input: requestedInput });
         //The comment from above applies to what is returned as well. If you return something through a certain name like
         //in this case "output", then it needs to be the same on the front-end as well. Or else you might send something
         //which will work, but you won't get anything in return.
-
         return response.data.output;
     } catch (error) {
         console.error("Fout bij request:", error);
@@ -66,10 +46,7 @@ export async function Login(requested_data, navigate) {
         if (response.status === 200) {
             //set the token and refresh_token upon logging in
             sessionStorage.setItem("token", response.data.access_token);
-            sessionStorage.setItem(
-                "refresh_token",
-                response.data.refresh_token
-            );
+            sessionStorage.setItem("refresh_token", response.data.refresh_token);
             navigate("/main");
             return { success: true };
         } else {
@@ -78,7 +55,6 @@ export async function Login(requested_data, navigate) {
     } catch (error) {
         console.error("Error in Login: " + error.message);
         const { current_state, message } = LoginError(error);
-
         return {
             success: false,
             current_state,
@@ -88,27 +64,21 @@ export async function Login(requested_data, navigate) {
 }
 
 /**
- * This function registers a new user into the database.
+ * This function registers a new user into the database (requires admin permissions).
  * Will add a new user upon success, will not create a new user upon failure.
  * Will return an error upon failure or a message upon success.
  * @param {*} requested_data
  * @returns data depending on the outcome
  */
 export async function RegisterUser(requested_data) {
-    const token = sessionStorage.getItem("token");
-
+    // Form with new user credentials
     const form = new URLSearchParams();
     form.append("username", requested_data.username);
     form.append("password", requested_data.password);
-    form.append("role", "user");
+    form.append("role", requested_data.role || "user");
 
     try {
-        const response = await api.post("/users/?" + form.toString(), null, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-
+        const response = await api.post("/users/?" + form.toString(), null);
         if (response.status === 200) {
             return { success: true };
         } else {
@@ -117,7 +87,6 @@ export async function RegisterUser(requested_data) {
     } catch (error) {
         console.error("Fout bij Registeren: " + error.message);
         const { current_state, message } = RegisterError(error);
-
         return { success: false, current_state, message };
     }
 }
@@ -134,7 +103,6 @@ export async function RegisterUser(requested_data) {
 export async function Logout(navigate) {
     try {
         const response = await api.post("/logout");
-
         if (response.status === 200) {
             sessionStorage.removeItem("token");
             sessionStorage.removeItem("refresh_token");
@@ -155,21 +123,13 @@ export async function Logout(navigate) {
  * @param {*} navigate
  */
 export async function DeleteAllPersonalConversations(confirmation, navigate) {
-    const token = sessionStorage.getItem("token");
-
+    if (!confirmation) return;
     try {
-        if (confirmation) {
-            const response = await api.delete("/conversations", {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            if (response.status === 200) {
-                navigate("/main");
-            } else {
-                console.error("Iets ging fout bij het verwijderen!");
-            }
+        const response = await api.delete("/conversations");
+        if (response.status === 200) {
+            navigate("/main");
+        } else {
+            console.error("Iets ging fout bij het verwijderen!");
         }
     } catch (error) {
         console.error("Fout bij gesprekken verwijderen: " + error.message);
@@ -186,16 +146,9 @@ export async function DeleteAllPersonalConversations(confirmation, navigate) {
  * @param {*} navigate
  * @returns a new conversation
  */
-export async function startNewConversation(navigate) {
-    const token = sessionStorage.getItem("token");
-
+export async function StartNewConversation(navigate) {
     try {
-        const response = await api.post("/conversations", {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-
+        const response = await api.post("/conversations");
         if (response.status === 200) {
             navigate("/main");
             return {
@@ -203,9 +156,7 @@ export async function startNewConversation(navigate) {
                 createdAt: response.data.created_at,
             };
         } else {
-            console.error(
-                "Iets ging fout bij het maken van een nieuw gesprek!"
-            );
+            console.error("Iets ging fout bij het maken van een nieuw gesprek!");
         }
     } catch (error) {
         console.error("Fout bij nieuwe gesprek starten: " + error.message);
@@ -223,36 +174,14 @@ export async function startNewConversation(navigate) {
  * @param {*} navigate
  * @returns a boolean or nothing
  */
-export async function DeleteSingleConversation(
-    confirmation,
-    conversationId,
-    navigate
-) {
-    const token = sessionStorage.getItem("token");
-
-    if (!Number.isInteger(conversationId)) {
-        return false;
-    }
-
+export async function DeleteSingleConversation(confirmation, conversationId, navigate) {
+    if (!confirmation || !Number.isInteger(conversationId)) return false;
     try {
-        if (confirmation) {
-            const response = await api.delete(
-                `/conversations/${conversationId}`,
-                { conversation_id: conversationId },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-
-            if (response.status === 200) {
-                navigate("/main");
-            } else {
-                console.error(
-                    "Er ging iets fout bij het verwijderen van een gesprek"
-                );
-            }
+        const response = await api.delete(`/conversations/${conversationId}`);
+        if (response.status === 200) {
+            navigate("/main");
+        } else {
+            console.error("Er ging iets fout bij het verwijderen van een gesprek");
         }
     } catch (error) {
         console.error("Fout bij verwijderen gesprek: " + error.message);
@@ -269,30 +198,11 @@ export async function DeleteSingleConversation(
  * @returns a boolean or array
  */
 export async function GetConversationMessages(conversationId) {
-    const token = sessionStorage.getItem("token");
-
-    if (!Number.isInteger(conversationId)) {
-        return false;
-    }
-
+    if (!Number.isInteger(conversationId)) return false;
     try {
-        let arr = [];
-        const response = await api.get(
-            `/conversations/${conversationId}/messages`,
-            { conversation_id: conversationId },
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            }
-        );
-
+        const response = await api.get(`/conversations/${conversationId}/messages`);
         if (response.status === 200) {
-            for (var item of response.data) {
-                arr.push(item);
-            }
-
-            return arr;
+            return response.data;
         } else {
             console.error("Iets ging er fout bij het ophalen van berichten");
             return [];
@@ -311,30 +221,84 @@ export async function GetConversationMessages(conversationId) {
  * @returns an array
  */
 export async function GetAllConversations() {
-    const token = sessionStorage.getItem("token");
-
     try {
-        let arr = [];
-        const response = await api.get("/conversations", {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-
+        const response = await api.get("/conversations");
         if (response.status === 200) {
-            for (var item of response.data) {
-                arr.push(item);
-            }
-
-            return arr;
+            return response.data;
         } else {
-            console.error(
-                "Iets ging er fout bij het ophalen van alle gesprekken!"
-            );
+            console.error("Iets ging er fout bij het ophalen van alle gesprekken!");
             return [];
         }
     } catch (error) {
         console.error("Fout bij het ophalen van gesprekken: " + error.message);
         return [];
+    }
+}
+
+/**
+ * Haal info over huidige gebruiker op.
+ * Will return username and role upon success,
+ * or null upon failure.
+ * @returns {Promise<{username: string, role: string}>}
+ */
+export async function GetCurrentUser() {
+    try {
+        const response = await api.get("/me");
+        return response.data;
+    } catch (error) {
+        console.error("Fout bij ophalen huidige gebruiker:", error);
+        return null;
+    }
+}
+
+/**
+ * Verifieer een token (optioneel voor checks).
+ * Will return success info or null upon failure.
+ * @param {string} token
+ * @returns {Promise<object>}
+ */
+export async function VerifyToken(token) {
+    try {
+        const response = await api.get(`/verify-token/${token}`);
+        return response.data;
+    } catch (error) {
+        console.error("Fout bij token verificatie:", error);
+        return null;
+    }
+}
+
+/**
+ * Refresh het access token (meestal via interceptor, hier voor fallback).
+ * Will return new tokens upon success or null upon failure.
+ * @param {string} refreshToken
+ * @returns {Promise<object>}
+ */
+export async function RefreshAccessToken(refreshToken) {
+    try {
+        const response = await api.post("/token/refresh", {
+            refresh_token: refreshToken,
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Fout bij refresh token:", error);
+        return null;
+    }
+}
+
+/**
+ * Revoke refresh token (optioneel, admin-only).
+ * Will return success message or null upon failure.
+ * @param {string} refreshToken
+ * @returns {Promise<object>}
+ */
+export async function RevokeRefreshToken(refreshToken) {
+    try {
+        const response = await api.post("/token/revoke", {
+            refresh_token: refreshToken,
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Fout bij revoke token:", error);
+        return null;
     }
 }
