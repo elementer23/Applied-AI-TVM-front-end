@@ -53,15 +53,84 @@ api.interceptors.response.use(
     }
 );
 
-//request intercept to check whether authorization is allowed, based on the token
 api.interceptors.request.use(function (config) {
     const token = sessionStorage.getItem("token");
-
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }
-
     return config;
 });
+
+export async function loginUser(username, password) {
+    const form = new URLSearchParams();
+    form.append("username", username);
+    form.append("password", password);
+
+    const response = await api.post("/token", form, {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    });
+    return response.data;
+}
+
+export async function refreshAccessToken(refreshToken) {
+    const response = await api.post("/token/refresh", {
+        refresh_token: refreshToken,
+    });
+    return response.data;
+}
+
+export async function revokeRefreshToken(refreshToken) {
+    const response = await api.post("/token/revoke", {
+        refresh_token: refreshToken,
+    });
+    return response.data;
+}
+
+export async function logout() {
+    const response = await api.post("/logout", {});
+    return response.data;
+}
+
+export async function createUser({ username, password, role = "user" }) {
+    const response = await api.post(
+        "/users/",
+        null,
+        {
+            params: { username, password, role },
+        }
+    );
+    return response.data;
+}
+
+export async function getCurrentUser() {
+    const response = await api.get("/me");
+    return response.data;
+}
+
+export async function verifyToken(token) {
+    const response = await api.get(`/verify-token/${token}`);
+    return response.data;
+}
+
+export async function getConversations() {
+    const response = await api.get("/conversations");
+    return response.data;
+}
+
+export async function createConversation(data) {
+    // TODO: Vul 'data' aan zodra de backend structuur duidelijk is.
+    const response = await api.post("/conversations", data);
+    return response.data;
+}
+
+export async function deleteConversation(conversationId) {
+    const response = await api.delete(`/conversations/${conversationId}`);
+    return response.data;
+}
+
+export async function runCrew(input) {
+    const response = await api.post("/run", { input });
+    return response.data;
+}
 
 export default api;
