@@ -225,3 +225,20 @@ li {
   color: #4fc15d;
   text-align: center;
 }
+
+.navigate-button {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background-color: rgba(79, 193, 93, 0.9);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.navigate-button:hover {
+  background-color: #45a049;
+}
