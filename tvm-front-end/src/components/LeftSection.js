@@ -1,4 +1,4 @@
-function LeftSection() {
+function LeftSection({ conversations, onSelectConversation}) {
     return (
         <div className="section left-section">
             <div></div>
@@ -7,26 +7,16 @@ function LeftSection() {
                     <strong>Gesprek geschiedenis</strong>
                 </p>
                 <ul>
-                    <li>
-                        <strong>Gesprek geschiedenis 1</strong>{" "}
-                        <i>01/02/2025</i>
-                    </li>
-                    <li>
-                        <strong>Gesprek geschiedenis 2</strong>{" "}
-                        <i>02/02/2025</i>
-                    </li>
-                    <li>
-                        <strong>Gesprek geschiedenis 3</strong>{" "}
-                        <i>03/02/2025</i>
-                    </li>
-                    <li>
-                        <strong>Gesprek geschiedenis 4</strong>{" "}
-                        <i>04/02/2025</i>
-                    </li>
-                    <li>
-                        <strong>Gesprek geschiedenis 5</strong>{" "}
-                        <i>05/02/2025</i>
-                    </li>
+                    {conversations.map((conversation) => (
+                        <li
+                            key={conversation.id}
+                            onClick={() => onSelectConversation(conversation.id)}
+                            style={{ cursor: "pointer" }}
+                        >
+                            <strong>{conversation.title}</strong>{" "} 
+                            <i>{new Date(conversation.created_at).toLocaleDateString()}</i>
+                        </li>
+                    ))}
                 </ul>
             </div>
             <div className="guidelines-content">

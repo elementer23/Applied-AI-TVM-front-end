@@ -3,14 +3,13 @@ import { Request } from "../utils/Services";
 import { useState } from "react";
 import Header from "./Header";
 
-function RightSection() {
+function RightSection({ messages, conversationId }) {
     const [input, setInput] = useState("");
-    const [output, setOutput] = useState("");
     const fileInputRef = useRef();
 
     const handleSend = async () => {
-        const response = await Request(input);
-        setOutput(response);
+        console.log("Bericht verzenden:", input, "naar gesprek:", conversationId);
+        setInput("");
     };
 
     const handleFileUpload = (e) => {
@@ -25,26 +24,23 @@ function RightSection() {
             <Header />
             <div className="chat-section">
                 <div className="chat-messages">
-                    {/* Chat messages will go here */}
-                    <img
-                        className="chat-image"
-                        src="/images/AI_profile.png"
-                        alt="Logo"
-                    />
-                    <div className="chat-message">
-                        <p className="message-text">
-                            Waar kan ik je mee van dienst zijn?
-                        </p>
-                    </div>
+                    {messages.map((message) => (
+                        <div key={message.id} className="chat-message">
+                            <p>
+                                <strong>{message.sender === "user" ? "jij" : "AI"}:</strong>{""}
+                                {message.content}
+                            </p>
+                        </div>
+                    ))}
                 </div>
             </div>
             <div className="chat-input-row">
                 <input
                     type="text"
                     value={input}
-                    onChange={(e) => e.target.value}
+                    onChange={(e) => setInput(e.target.value)}
                     className="chat-input"
-                    placeholder="Tekstvak voor eventuele toelichting"
+                    placeholder="Typ je bericht hier..."
                 />
                 <button className="send-btn" onClick={handleSend}>
                     Verstuur
