@@ -34,3 +34,20 @@ export function RegisterError(error) {
         message: "Network error",
     };
 }
+
+export function RequestError(error) {
+    if (error.response) {
+        if (error.response?.status === 500) {
+            return {
+                current_state: error.response.status,
+                message:
+                    "Something went wrong during the retrieval of the answer",
+            };
+        }
+    }
+
+    return {
+        current_state: null,
+        message: "Network error",
+    };
+}

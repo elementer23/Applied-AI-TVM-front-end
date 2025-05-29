@@ -1,5 +1,5 @@
 import api from "./api";
-import { LoginError, RegisterError } from "./errorHandler";
+import { LoginError, RegisterError, RequestError } from "./errorHandler";
 
 /**
  * Request function, this function expects text like input
@@ -7,10 +7,19 @@ import { LoginError, RegisterError } from "./errorHandler";
  * Will return an answer depending on the given input
  * and will return an empty string upon a failed attempt.
  * @param {*} requestedInput
- * @returns a string
+ * @param {*} conversationId
+ * @returns output depending on the outcome
  */
-export async function Request(requestedInput) {
+export async function Request(requestedInput, conversationId) {
     const token = sessionStorage.getItem("token");
+
+    let data = {
+        input: requestedInput,
+    };
+
+    if (conversationId !== null) {
+        data.conversation_id = conversationId;
+    }
 
     //Keep in mind that the given variable in this case "input", will have to be equal to the
     //field variable in the back-end. Meaning that if there is a class in the back-end called i don't know,
@@ -21,24 +30,30 @@ export async function Request(requestedInput) {
     //back-end: message -> { message: requestedInput }.
 
     try {
-        const response = await api.post(
-            "/run",
-            { input: requestedInput },
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            }
-        );
+        const response = await api.post("/run", data, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
 
         //The comment from above applies to what is returned as well. If you return something through a certain name like
         //in this case "output", then it needs to be the same on the front-end as well. Or else you might send something
         //which will work, but you won't get anything in return.
 
-        return response.data.output;
+        if (response.status === 200) {
+            return {
+                success: true,
+                current_response: response.data.output,
+            };
+        }
     } catch (error) {
-        console.error("Fout bij request:", error);
-        return "Er is iets misgegaan...";
+        console.error("Fout bij request:", error.message);
+        const { current_state, message } = RequestError(error);
+        return {
+            success: false,
+            current_state,
+            message,
+        };
     }
 }
 
