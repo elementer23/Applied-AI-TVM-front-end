@@ -1,4 +1,4 @@
-import { startNewConversation } from "../utils/Services";
+import { StartNewConversation } from "../utils/Services";
 
 function LeftSection({
     conversations,
@@ -6,10 +6,11 @@ function LeftSection({
     reFetchConversations,
 }) {
     const handleNewConversation = async () => {
-        const out = await startNewConversation();
+        const out = await StartNewConversation();
 
         if (out.success) {
             await reFetchConversations();
+            onSelectConversation(out.id);
         }
     };
 

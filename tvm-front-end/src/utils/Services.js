@@ -44,6 +44,7 @@ export async function Request(requestedInput, conversationId) {
             return {
                 success: true,
                 current_response: response.data.output,
+                current_conversation_id: response.data.conversation_id,
             };
         }
     } catch (error) {
@@ -200,7 +201,7 @@ export async function DeleteAllPersonalConversations(confirmation, navigate) {
  * and the created date and time the conversation was made.
  * @returns a new conversation
  */
-export async function startNewConversation() {
+export async function StartNewConversation() {
     const token = sessionStorage.getItem("token");
 
     try {
