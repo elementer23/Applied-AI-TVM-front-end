@@ -353,3 +353,69 @@ export async function GetAllConversations() {
         return [];
     }
 }
+
+/**
+ * This function retrieves the current logged in user.
+ * Will return an username and a role that befits the current user.
+ * Will return corresponding data upon success and nothing upon failure.
+ * Will show an error upon failure.
+ * @returns a boolean or a set of data.
+ */
+export async function GetCurrentUser() {
+    const token = sessionStorage.getItem("token");
+
+    try {
+        const response = await api.get("/me", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                current_response: response.data,
+            };
+        }
+    } catch (error) {
+        console.error("Fout bij ophalen huidige gebruiker:", error.message);
+        return { success: false };
+    }
+}
+
+/**
+ * This function revokes the refresh token upon use.
+ * Will return a set of data and a success response upon success,
+ * will return a failure response upon failure.
+ * Will show an error upon failure.
+ * Keep in mind, this function can only be executed with admin level authentication.
+ * @returns a boolean or data response
+ */
+export async function RevokeRefreshToken() {
+    const refreshToken = sessionStorage("refresh_token");
+    const token = sessionStorage("token");
+
+    try {
+        const response = await api.post(
+            "/token/revoke",
+            {
+                refresh_token: refreshToken,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                current_response: response.data,
+            };
+        }
+    } catch (error) {
+        console.error("Fout bij revoke token:", error);
+        return { success: false };
+    }
+}

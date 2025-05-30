@@ -1,7 +1,7 @@
 import "./css/App.css";
 import LeftSection from "./components/LeftSection";
 import RightSection from "./components/RightSection";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { GetAllConversations, GetConversationMessages } from "./utils/Services";
 
 function Main() {
@@ -18,16 +18,16 @@ function Main() {
         fetchConversations();
     }, []);
 
-    async function fetchMessages() {
+    const fetchMessages = useCallback(async () => {
         if (selectedConversationId) {
             const data = await GetConversationMessages(selectedConversationId);
             setMessages(data);
         }
-    }
+    }, [selectedConversationId]);
 
     useEffect(() => {
         fetchMessages();
-    }, [selectedConversationId]);
+    }, [fetchMessages]);
 
     return (
         <div className="main-container">
