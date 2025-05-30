@@ -44,6 +44,7 @@ export async function Request(requestedInput, conversationId) {
             return {
                 success: true,
                 current_response: response.data.output,
+                current_conversation_id: response.data.conversation_id,
             };
         }
     } catch (error) {
@@ -198,10 +199,9 @@ export async function DeleteAllPersonalConversations(confirmation, navigate) {
  * Will throw an error upon failure.
  * Will return the current user the conversation correlates to
  * and the created date and time the conversation was made.
- * @param {*} navigate
  * @returns a new conversation
  */
-export async function startNewConversation(navigate) {
+export async function StartNewConversation() {
     const token = sessionStorage.getItem("token");
 
     try {
@@ -212,8 +212,10 @@ export async function startNewConversation(navigate) {
         });
 
         if (response.status === 200) {
-            navigate("/main");
+            // navigate("/main");
             return {
+                success: true,
+                id: response.data.id,
                 userId: response.data.user_id,
                 createdAt: response.data.created_at,
             };
@@ -224,6 +226,7 @@ export async function startNewConversation(navigate) {
         }
     } catch (error) {
         console.error("Fout bij nieuwe gesprek starten: " + error.message);
+        return { success: false };
     }
 }
 

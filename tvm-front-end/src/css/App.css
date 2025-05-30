@@ -80,6 +80,7 @@
   flex-direction: row;
   justify-content: flex-start;
   align-items: flex-end;
+  flex-wrap: wrap;
   gap: 20px;
 }
 
@@ -89,13 +90,15 @@
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
   border-bottom-right-radius: 20px;
-  height: 60px;
-  width: 100%;
+  height: auto;
+  width: 90%;
   text-align: center;
 }
 
 .chat-message.user {
   text-align: right;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 0px;
 }
 
 .chat-input-row {

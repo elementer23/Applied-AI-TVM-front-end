@@ -7,6 +7,7 @@ import "../css/Error.css";
 function RightSection({
     messages,
     conversationId,
+    setConversationId,
     reFetchMessages,
     reFetchConversations,
 }) {
@@ -27,6 +28,7 @@ function RightSection({
             setInput("");
             await reFetchMessages();
             await reFetchConversations();
+            setConversationId(out.current_conversation_id);
         } else {
             setError(out.message);
         }
@@ -46,10 +48,17 @@ function RightSection({
             <div className="chat-section">
                 <div className="chat-messages">
                     {messages.map((message) => (
-                        <div key={message.id} className="chat-message">
+                        <div
+                            key={message.id}
+                            className={
+                                message.is_user_message
+                                    ? "chat-message user"
+                                    : "chat-message"
+                            }
+                        >
                             <p>
                                 <strong>
-                                    {message.sender === "user" ? "jij" : "AI"}:
+                                    {message.is_user_message ? "jij" : "AI"}:
                                 </strong>
                                 {""}
                                 {message.content}
