@@ -1,4 +1,18 @@
-function LeftSection({ conversations, onSelectConversation }) {
+import { startNewConversation } from "../utils/Services";
+
+function LeftSection({
+    conversations,
+    onSelectConversation,
+    reFetchConversations,
+}) {
+    const handleNewConversation = async () => {
+        const out = await startNewConversation();
+
+        if (out.success) {
+            await reFetchConversations();
+        }
+    };
+
     return (
         <div className="section left-section">
             <div></div>
@@ -48,7 +62,12 @@ function LeftSection({ conversations, onSelectConversation }) {
                 </ul>
             </div>
             <div className="new-chat">
-                <button className="new-chat-button">Nieuw gesprek</button>
+                <button
+                    className="new-chat-button"
+                    onClick={handleNewConversation}
+                >
+                    Nieuw gesprek
+                </button>
             </div>
         </div>
     );
