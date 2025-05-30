@@ -93,6 +93,7 @@ export async function Login(requested_data, navigate) {
     } catch (error) {
         console.error("Error in Login: " + error.message);
         const { current_state, message } = LoginError(error);
+
         return {
             success: false,
             current_state,
@@ -102,21 +103,27 @@ export async function Login(requested_data, navigate) {
 }
 
 /**
- * This function registers a new user into the database (requires admin permissions).
+ * This function registers a new user into the database.
  * Will add a new user upon success, will not create a new user upon failure.
  * Will return an error upon failure or a message upon success.
  * @param {*} requested_data
  * @returns data depending on the outcome
  */
 export async function RegisterUser(requested_data) {
-    // Form with new user credentials
+    const token = sessionStorage.getItem("token");
+
     const form = new URLSearchParams();
     form.append("username", requested_data.username);
     form.append("password", requested_data.password);
-    form.append("role", requested_data.role || "user");
+    form.append("role", "user");
 
     try {
-        const response = await api.post("/users/?" + form.toString(), null);
+        const response = await api.post("/users/?" + form.toString(), null, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
         if (response.status === 200) {
             return { success: true };
         } else {
@@ -125,6 +132,7 @@ export async function RegisterUser(requested_data) {
     } catch (error) {
         console.error("Fout bij Registeren: " + error.message);
         const { current_state, message } = RegisterError(error);
+
         return { success: false, current_state, message };
     }
 }
@@ -141,6 +149,7 @@ export async function RegisterUser(requested_data) {
 export async function Logout(navigate) {
     try {
         const response = await api.post("/logout");
+
         if (response.status === 200) {
             sessionStorage.removeItem("token");
             sessionStorage.removeItem("refresh_token");
@@ -161,13 +170,21 @@ export async function Logout(navigate) {
  * @param {*} navigate
  */
 export async function DeleteAllPersonalConversations(confirmation, navigate) {
-    if (!confirmation) return;
+    const token = sessionStorage.getItem("token");
+
     try {
-        const response = await api.delete("/conversations");
-        if (response.status === 200) {
-            navigate("/main");
-        } else {
-            console.error("Iets ging fout bij het verwijderen!");
+        if (confirmation) {
+            const response = await api.delete("/conversations", {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (response.status === 200) {
+                navigate("/main");
+            } else {
+                console.error("Iets ging fout bij het verwijderen!");
+            }
         }
     } catch (error) {
         console.error("Fout bij gesprekken verwijderen: " + error.message);
@@ -184,9 +201,16 @@ export async function DeleteAllPersonalConversations(confirmation, navigate) {
  * @param {*} navigate
  * @returns a new conversation
  */
-export async function StartNewConversation(navigate) {
+export async function startNewConversation(navigate) {
+    const token = sessionStorage.getItem("token");
+
     try {
-        const response = await api.post("/conversations");
+        const response = await api.post("/conversations", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
         if (response.status === 200) {
             navigate("/main");
             return {
@@ -219,15 +243,31 @@ export async function DeleteSingleConversation(
     conversationId,
     navigate
 ) {
-    if (!confirmation || !Number.isInteger(conversationId)) return false;
+    const token = sessionStorage.getItem("token");
+
+    if (!Number.isInteger(conversationId)) {
+        return false;
+    }
+
     try {
-        const response = await api.delete(`/conversations/${conversationId}`);
-        if (response.status === 200) {
-            navigate("/main");
-        } else {
-            console.error(
-                "Er ging iets fout bij het verwijderen van een gesprek"
+        if (confirmation) {
+            const response = await api.delete(
+                `/conversations/${conversationId}`,
+                { conversation_id: conversationId },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
             );
+
+            if (response.status === 200) {
+                navigate("/main");
+            } else {
+                console.error(
+                    "Er ging iets fout bij het verwijderen van een gesprek"
+                );
+            }
         }
     } catch (error) {
         console.error("Fout bij verwijderen gesprek: " + error.message);
@@ -244,13 +284,30 @@ export async function DeleteSingleConversation(
  * @returns a boolean or array
  */
 export async function GetConversationMessages(conversationId) {
-    if (!Number.isInteger(conversationId)) return false;
+    const token = sessionStorage.getItem("token");
+
+    if (!Number.isInteger(conversationId)) {
+        return false;
+    }
+
     try {
+        let arr = [];
         const response = await api.get(
-            `/conversations/${conversationId}/messages`
+            `/conversations/${conversationId}/messages`,
+            { conversation_id: conversationId },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
         );
+
         if (response.status === 200) {
-            return response.data;
+            for (var item of response.data) {
+                arr.push(item);
+            }
+
+            return arr;
         } else {
             console.error("Iets ging er fout bij het ophalen van berichten");
             return [];
@@ -269,10 +326,22 @@ export async function GetConversationMessages(conversationId) {
  * @returns an array
  */
 export async function GetAllConversations() {
+    const token = sessionStorage.getItem("token");
+
     try {
-        const response = await api.get("/conversations");
+        let arr = [];
+        const response = await api.get("/conversations", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
         if (response.status === 200) {
-            return response.data;
+            for (var item of response.data) {
+                arr.push(item);
+            }
+
+            return arr;
         } else {
             console.error(
                 "Iets ging er fout bij het ophalen van alle gesprekken!"
@@ -286,69 +355,67 @@ export async function GetAllConversations() {
 }
 
 /**
- * Haal info over huidige gebruiker op.
- * Will return username and role upon success,
- * or null upon failure.
- * @returns {Promise<{username: string, role: string}>}
+ * This function retrieves the current logged in user.
+ * Will return an username and a role that befits the current user.
+ * Will return corresponding data upon success and nothing upon failure.
+ * Will show an error upon failure.
+ * @returns a boolean or a set of data.
  */
 export async function GetCurrentUser() {
-    try {
-        const response = await api.get("/me");
-        return response.data;
-    } catch (error) {
-        console.error("Fout bij ophalen huidige gebruiker:", error);
-        return null;
-    }
-}
+    const token = sessionStorage.getItem("token");
 
-/**
- * Verifieer een token (optioneel voor checks).
- * Will return success info or null upon failure.
- * @param {string} token
- * @returns {Promise<object>}
- */
-export async function VerifyToken(token) {
     try {
-        const response = await api.get(`/verify-token/${token}`);
-        return response.data;
-    } catch (error) {
-        console.error("Fout bij token verificatie:", error);
-        return null;
-    }
-}
-
-/**
- * Refresh het access token (meestal via interceptor, hier voor fallback).
- * Will return new tokens upon success or null upon failure.
- * @param {string} refreshToken
- * @returns {Promise<object>}
- */
-export async function RefreshAccessToken(refreshToken) {
-    try {
-        const response = await api.post("/token/refresh", {
-            refresh_token: refreshToken,
+        const response = await api.get("/me", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
         });
-        return response.data;
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                current_response: response.data,
+            };
+        }
     } catch (error) {
-        console.error("Fout bij refresh token:", error);
-        return null;
+        console.error("Fout bij ophalen huidige gebruiker:", error.message);
+        return { success: false };
     }
 }
 
 /**
- * Revoke refresh token (optioneel, admin-only).
- * Will return success message or null upon failure.
- * @param {string} refreshToken
- * @returns {Promise<object>}
+ * This function revokes the refresh token upon use.
+ * Will return a set of data and a success response upon success,
+ * will return a failure response upon failure.
+ * Will show an error upon failure.
+ * Keep in mind, this function can only be executed with admin level authentication.
+ * @returns a boolean or data response
  */
-export async function RevokeRefreshToken(refreshToken) {
+export async function RevokeRefreshToken() {
+    const refreshToken = sessionStorage("refresh_token");
+    const token = sessionStorage("token");
+
     try {
-        const response = await api.post("/token/revoke", {
-            refresh_token: refreshToken,
-        });
-        return response.data;
+        const response = await api.post(
+            "/token/revoke",
+            {
+                refresh_token: refreshToken,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                current_response: response.data,
+            };
+        }
     } catch (error) {
         console.error("Fout bij revoke token:", error);
-        return null;
+        return { success: false };
     }
 }
