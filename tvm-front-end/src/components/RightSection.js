@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import { Request } from "../utils/Services";
 import { useState } from "react";
 import Header from "./Header";
+import "../css/Error.css";
 
 function RightSection({
     messages,
@@ -10,6 +11,7 @@ function RightSection({
     reFetchConversations,
 }) {
     const [input, setInput] = useState("");
+    const [error, setError] = useState(null);
     const fileInputRef = useRef();
 
     const handleSend = async () => {
@@ -19,10 +21,15 @@ function RightSection({
             "naar gesprek:",
             conversationId
         );
-        await Request(input);
-        setInput("");
-        await reFetchMessages();
-        await reFetchConversations();
+        const out = await Request(input, conversationId);
+
+        if (out.success) {
+            setInput("");
+            await reFetchMessages();
+            await reFetchConversations();
+        } else {
+            setError(out.message);
+        }
     };
 
     const handleFileUpload = (e) => {
@@ -35,6 +42,7 @@ function RightSection({
     return (
         <div className="section right-section">
             <Header />
+            {error && <div className="errorComponent">{error}</div>}
             <div className="chat-section">
                 <div className="chat-messages">
                     {messages.map((message) => (

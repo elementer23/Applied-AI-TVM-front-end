@@ -1,5 +1,5 @@
 import api from "./api";
-import { LoginError, RegisterError } from "./errorHandler";
+import { LoginError, RegisterError, RequestError } from "./errorHandler";
 
 /**
  * Request function, this function expects text like input
@@ -7,18 +7,53 @@ import { LoginError, RegisterError } from "./errorHandler";
  * Will return an answer depending on the given input
  * and will return an empty string upon a failed attempt.
  * @param {*} requestedInput
- * @returns a string
+ * @param {*} conversationId
+ * @returns output depending on the outcome
  */
-export async function Request(requestedInput) {
+export async function Request(requestedInput, conversationId) {
+    const token = sessionStorage.getItem("token");
+
+    let data = {
+        input: requestedInput,
+    };
+
+    if (conversationId !== null) {
+        data.conversation_id = conversationId;
+    }
+
+    //Keep in mind that the given variable in this case "input", will have to be equal to the
+    //field variable in the back-end. Meaning that if there is a class in the back-end called i don't know,
+    //InputData and it has a field called input. Then input will be the variable to send with on the front-end.
+    //And if it's called something like message, then the variable on the front-end needs to be called message too.
+    //If it doesn't equal, then it won't receive the data and it will not perform an action.. most likely resulting
+    //in an error. So keep that in mind. back-end: input -> { input: requestedInput } else
+    //back-end: message -> { message: requestedInput }.
+
     try {
-        const response = await api.post("/run", { input: requestedInput });
+        const response = await api.post("/run", data, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
         //The comment from above applies to what is returned as well. If you return something through a certain name like
         //in this case "output", then it needs to be the same on the front-end as well. Or else you might send something
         //which will work, but you won't get anything in return.
-        return response.data.output;
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                current_response: response.data.output,
+            };
+        }
     } catch (error) {
-        console.error("Fout bij request:", error);
-        return "Er is iets misgegaan...";
+        console.error("Fout bij request:", error.message);
+        const { current_state, message } = RequestError(error);
+        return {
+            success: false,
+            current_state,
+            message,
+        };
     }
 }
 
@@ -46,7 +81,10 @@ export async function Login(requested_data, navigate) {
         if (response.status === 200) {
             //set the token and refresh_token upon logging in
             sessionStorage.setItem("token", response.data.access_token);
-            sessionStorage.setItem("refresh_token", response.data.refresh_token);
+            sessionStorage.setItem(
+                "refresh_token",
+                response.data.refresh_token
+            );
             navigate("/main");
             return { success: true };
         } else {
@@ -156,7 +194,9 @@ export async function StartNewConversation(navigate) {
                 createdAt: response.data.created_at,
             };
         } else {
-            console.error("Iets ging fout bij het maken van een nieuw gesprek!");
+            console.error(
+                "Iets ging fout bij het maken van een nieuw gesprek!"
+            );
         }
     } catch (error) {
         console.error("Fout bij nieuwe gesprek starten: " + error.message);
@@ -174,14 +214,20 @@ export async function StartNewConversation(navigate) {
  * @param {*} navigate
  * @returns a boolean or nothing
  */
-export async function DeleteSingleConversation(confirmation, conversationId, navigate) {
+export async function DeleteSingleConversation(
+    confirmation,
+    conversationId,
+    navigate
+) {
     if (!confirmation || !Number.isInteger(conversationId)) return false;
     try {
         const response = await api.delete(`/conversations/${conversationId}`);
         if (response.status === 200) {
             navigate("/main");
         } else {
-            console.error("Er ging iets fout bij het verwijderen van een gesprek");
+            console.error(
+                "Er ging iets fout bij het verwijderen van een gesprek"
+            );
         }
     } catch (error) {
         console.error("Fout bij verwijderen gesprek: " + error.message);
@@ -200,7 +246,9 @@ export async function DeleteSingleConversation(confirmation, conversationId, nav
 export async function GetConversationMessages(conversationId) {
     if (!Number.isInteger(conversationId)) return false;
     try {
-        const response = await api.get(`/conversations/${conversationId}/messages`);
+        const response = await api.get(
+            `/conversations/${conversationId}/messages`
+        );
         if (response.status === 200) {
             return response.data;
         } else {
@@ -226,7 +274,9 @@ export async function GetAllConversations() {
         if (response.status === 200) {
             return response.data;
         } else {
-            console.error("Iets ging er fout bij het ophalen van alle gesprekken!");
+            console.error(
+                "Iets ging er fout bij het ophalen van alle gesprekken!"
+            );
             return [];
         }
     } catch (error) {
