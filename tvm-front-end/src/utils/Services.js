@@ -478,7 +478,9 @@ export async function UpdateAdvisoryText(textId, adviceText) {
 
     try {
         const response = await api.put(
-             `/advisorytexts/id=${textId}?advice_text=${encodeURIComponent(adviceText)}`,
+            `/advisorytexts/id=${textId}?advice_text=${encodeURIComponent(
+                adviceText
+            )}`,
             null,
             {
                 headers: {
@@ -501,12 +503,16 @@ export async function UpdateAdvisoryText(textId, adviceText) {
 
 // Create a new advisory text
 
-export async function CreateAdvisoryText(adviceText, category, subcategory) {
+export async function CreateAdvisoryText(formData) {
     const token = sessionStorage.getItem("token");
 
     try {
         const response = await api.post(
-             `/advisorytexts/?advice_text=${encodeURIComponent(adviceText)}&category=${category}&subcategory=${subcategory}`,
+            `/advisorytexts/?advice_text=${encodeURIComponent(
+                formData.advice_text
+            )}&category=${formData.category}&subcategory=${
+                formData.subcategory
+            }`,
             null,
             {
                 headers: {
