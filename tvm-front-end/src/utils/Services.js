@@ -5,14 +5,12 @@ import { LoginError, RegisterError, RequestError } from "./errorHandler";
  * Request function, this function expects text like input
  * and will return a proper response from the AI upon a successful attempt.
  * Will return an answer depending on the given input
- * and will return an empty string upon a failed attempt.
- * @param {*} requestedInput
- * @param {*} conversationId
- * @returns output depending on the outcome
+ * and will return an error object upon a failed attempt.
+ * @param {string} requestedInput
+ * @param {number|null} conversationId (optioneel)
+ * @returns {Promise<{success: boolean, current_response?: string, current_state?: string, message?: string}>}
  */
-export async function Request(requestedInput, conversationId) {
-    const token = sessionStorage.getItem("token");
-
+export async function Request(requestedInput, conversationId = null) {
     let data = {
         input: requestedInput,
     };
@@ -30,11 +28,7 @@ export async function Request(requestedInput, conversationId) {
     //back-end: message -> { message: requestedInput }.
 
     try {
-        const response = await api.post("/run", data, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
+        const response = await api.post("/run", data);
 
         //The comment from above applies to what is returned as well. If you return something through a certain name like
         //in this case "output", then it needs to be the same on the front-end as well. Or else you might send something
@@ -81,10 +75,7 @@ export async function Login(requested_data, navigate) {
         if (response.status === 200) {
             //set the token and refresh_token upon logging in
             sessionStorage.setItem("token", response.data.access_token);
-            sessionStorage.setItem(
-                "refresh_token",
-                response.data.refresh_token
-            );
+            sessionStorage.setItem("refresh_token", response.data.refresh_token);
             navigate("/main");
             return { success: true };
         } else {
@@ -93,7 +84,6 @@ export async function Login(requested_data, navigate) {
     } catch (error) {
         console.error("Error in Login: " + error.message);
         const { current_state, message } = LoginError(error);
-
         return {
             success: false,
             current_state,
@@ -103,27 +93,21 @@ export async function Login(requested_data, navigate) {
 }
 
 /**
- * This function registers a new user into the database.
+ * This function registers a new user into the database (requires admin permissions).
  * Will add a new user upon success, will not create a new user upon failure.
  * Will return an error upon failure or a message upon success.
  * @param {*} requested_data
  * @returns data depending on the outcome
  */
 export async function RegisterUser(requested_data) {
-    const token = sessionStorage.getItem("token");
-
+    // Form with new user credentials
     const form = new URLSearchParams();
     form.append("username", requested_data.username);
     form.append("password", requested_data.password);
-    form.append("role", "user");
+    form.append("role", requested_data.role || "user");
 
     try {
-        const response = await api.post("/users/?" + form.toString(), null, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-
+        const response = await api.post("/users/?" + form.toString(), null);
         if (response.status === 200) {
             return { success: true };
         } else {
@@ -132,7 +116,6 @@ export async function RegisterUser(requested_data) {
     } catch (error) {
         console.error("Fout bij Registeren: " + error.message);
         const { current_state, message } = RegisterError(error);
-
         return { success: false, current_state, message };
     }
 }
@@ -149,7 +132,6 @@ export async function RegisterUser(requested_data) {
 export async function Logout(navigate) {
     try {
         const response = await api.post("/logout");
-
         if (response.status === 200) {
             sessionStorage.removeItem("token");
             sessionStorage.removeItem("refresh_token");
@@ -163,32 +145,46 @@ export async function Logout(navigate) {
 }
 
 /**
- * A function to delete all conversations from the database that are binded to the user.
- * Will need a confirmation to make sure that the function has to be executed.
- * Will delete all conversations upon success, will give an error upon failure.
- * @param {*} confirmation
- * @param {*} navigate
+ * Haal info op van de huidige gebruiker (username en rol).
+ * Handig om te checken of iemand admin is, of voor display.
+ * @returns {Promise<{username: string, role: string}>}
  */
-export async function DeleteAllPersonalConversations(confirmation, navigate) {
-    const token = sessionStorage.getItem("token");
-
+export async function GetCurrentUser() {
     try {
-        if (confirmation) {
-            const response = await api.delete("/conversations", {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            if (response.status === 200) {
-                navigate("/main");
-            } else {
-                console.error("Iets ging fout bij het verwijderen!");
-            }
-        }
+        const response = await api.get("/me");
+        return response.data;
     } catch (error) {
-        console.error("Fout bij gesprekken verwijderen: " + error.message);
+        console.error("Fout bij ophalen huidige gebruiker:", error);
+        return null;
     }
+}
+
+/**
+ * Haal alle gebruikers op (alleen voor admin).
+ * @returns {Promise<Array>} lijst van users
+ */
+export async function GetAllUsers() {
+    const response = await api.get("/users/");
+    return response.data;
+}
+
+/**
+ * Pas een gebruiker aan (rol/wachtwoord) - alleen admin.
+ * @param {number} userId 
+ * @param {object} userData (bijv. { role: "admin", password: "nieuwwachtwoord" })
+ */
+export async function UpdateUser(userId, userData) {
+    const response = await api.put(`/users/${userId}`, userData);
+    return response.data;
+}
+
+/**
+ * Verwijder een gebruiker - alleen admin.
+ * @param {number} userId 
+ */
+export async function DeleteUser(userId) {
+    const response = await api.delete(`/users/${userId}`);
+    return response.data;
 }
 
 /**
@@ -201,16 +197,9 @@ export async function DeleteAllPersonalConversations(confirmation, navigate) {
  * @param {*} navigate
  * @returns a new conversation
  */
-export async function startNewConversation(navigate) {
-    const token = sessionStorage.getItem("token");
-
+export async function StartNewConversation(navigate) {
     try {
-        const response = await api.post("/conversations", {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-
+        const response = await api.post("/conversations");
         if (response.status === 200) {
             navigate("/main");
             return {
@@ -218,12 +207,51 @@ export async function startNewConversation(navigate) {
                 createdAt: response.data.created_at,
             };
         } else {
-            console.error(
-                "Iets ging fout bij het maken van een nieuw gesprek!"
-            );
+            console.error("Iets ging fout bij het maken van een nieuw gesprek!");
         }
     } catch (error) {
         console.error("Fout bij nieuwe gesprek starten: " + error.message);
+    }
+}
+
+/**
+ * This function retrieves all conversations that are bonded to the user.
+ * Will return an array with necessary information upon success,
+ * will return an empty array upon failure or once there are no conversations.
+ * Will given an error upon failure.
+ * @returns an array
+ */
+export async function GetAllConversations() {
+    try {
+        const response = await api.get("/conversations");
+        if (response.status === 200) {
+            return response.data;
+        } else {
+            console.error("Iets ging er fout bij het ophalen van alle gesprekken!");
+            return [];
+        }
+    } catch (error) {
+        console.error("Fout bij het ophalen van gesprekken: " + error.message);
+        return [];
+    }
+}
+
+/**
+ * A function to delete all conversations from the database that are binded to the user.
+ * Will need a confirmation to make sure that the function has to be executed.
+ * Will delete all conversations upon success, will give an error upon failure.
+ * @param {*} confirmation
+ * @param {*} navigate
+ */
+export async function DeleteAllPersonalConversations(confirmation, navigate) {
+    if (!confirmation) return;
+    try {
+        const response = await api.delete("/conversations");
+        if (response.status === 200) {
+            navigate("/main");
+        }
+    } catch (error) {
+        console.error("Fout bij gesprekken verwijderen: " + error.message);
     }
 }
 
@@ -238,36 +266,14 @@ export async function startNewConversation(navigate) {
  * @param {*} navigate
  * @returns a boolean or nothing
  */
-export async function DeleteSingleConversation(
-    confirmation,
-    conversationId,
-    navigate
-) {
-    const token = sessionStorage.getItem("token");
-
-    if (!Number.isInteger(conversationId)) {
-        return false;
-    }
-
+export async function DeleteSingleConversation(confirmation, conversationId, navigate) {
+    if (!confirmation || !Number.isInteger(conversationId)) return false;
     try {
-        if (confirmation) {
-            const response = await api.delete(
-                `/conversations/${conversationId}`,
-                { conversation_id: conversationId },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-
-            if (response.status === 200) {
-                navigate("/main");
-            } else {
-                console.error(
-                    "Er ging iets fout bij het verwijderen van een gesprek"
-                );
-            }
+        const response = await api.delete(`/conversations/${conversationId}`);
+        if (response.status === 200) {
+            navigate("/main");
+        } else {
+            console.error("Er ging iets fout bij het verwijderen van een gesprek");
         }
     } catch (error) {
         console.error("Fout bij verwijderen gesprek: " + error.message);
@@ -284,30 +290,11 @@ export async function DeleteSingleConversation(
  * @returns a boolean or array
  */
 export async function GetConversationMessages(conversationId) {
-    const token = sessionStorage.getItem("token");
-
-    if (!Number.isInteger(conversationId)) {
-        return false;
-    }
-
+    if (!Number.isInteger(conversationId)) return false;
     try {
-        let arr = [];
-        const response = await api.get(
-            `/conversations/${conversationId}/messages`,
-            { conversation_id: conversationId },
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            }
-        );
-
+        const response = await api.get(`/conversations/${conversationId}/messages`);
         if (response.status === 200) {
-            for (var item of response.data) {
-                arr.push(item);
-            }
-
-            return arr;
+            return response.data;
         } else {
             console.error("Iets ging er fout bij het ophalen van berichten");
             return [];
@@ -319,103 +306,16 @@ export async function GetConversationMessages(conversationId) {
 }
 
 /**
- * This function retrieves all conversations that are bonded to the user.
- * Will return an array with necessary information upon success,
- * will return an empty array upon failure or once there are no conversations.
- * Will given an error upon failure.
- * @returns an array
+ * (Optioneel) Valideer een token. Alleen nodig als je zelf tokens wil checken buiten standaard login.
+ * @param {string} token
+ * @returns {Promise<object>}
  */
-export async function GetAllConversations() {
-    const token = sessionStorage.getItem("token");
-
+export async function VerifyToken(token) {
     try {
-        let arr = [];
-        const response = await api.get("/conversations", {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-
-        if (response.status === 200) {
-            for (var item of response.data) {
-                arr.push(item);
-            }
-
-            return arr;
-        } else {
-            console.error(
-                "Iets ging er fout bij het ophalen van alle gesprekken!"
-            );
-            return [];
-        }
+        const response = await api.get(`/verify-token/${token}`);
+        return response.data;
     } catch (error) {
-        console.error("Fout bij het ophalen van gesprekken: " + error.message);
-        return [];
-    }
-}
-
-/**
- * This function retrieves the current logged in user.
- * Will return an username and a role that befits the current user.
- * Will return corresponding data upon success and nothing upon failure.
- * Will show an error upon failure.
- * @returns a boolean or a set of data.
- */
-export async function GetCurrentUser() {
-    const token = sessionStorage.getItem("token");
-
-    try {
-        const response = await api.get("/me", {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-
-        if (response.status === 200) {
-            return {
-                success: true,
-                current_response: response.data,
-            };
-        }
-    } catch (error) {
-        console.error("Fout bij ophalen huidige gebruiker:", error.message);
-        return { success: false };
-    }
-}
-
-/**
- * This function revokes the refresh token upon use.
- * Will return a set of data and a success response upon success,
- * will return a failure response upon failure.
- * Will show an error upon failure.
- * Keep in mind, this function can only be executed with admin level authentication.
- * @returns a boolean or data response
- */
-export async function RevokeRefreshToken() {
-    const refreshToken = sessionStorage("refresh_token");
-    const token = sessionStorage("token");
-
-    try {
-        const response = await api.post(
-            "/token/revoke",
-            {
-                refresh_token: refreshToken,
-            },
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            }
-        );
-
-        if (response.status === 200) {
-            return {
-                success: true,
-                current_response: response.data,
-            };
-        }
-    } catch (error) {
-        console.error("Fout bij revoke token:", error);
-        return { success: false };
+        console.error("Fout bij token verificatie:", error);
+        return null;
     }
 }
