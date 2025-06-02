@@ -422,3 +422,131 @@ export async function RevokeRefreshToken() {
         return { success: false };
     }
 }
+
+// Get all the texts
+
+export async function GetAllAdvisoryTexts() {
+    const token = sessionStorage.getItem("token");
+
+    try {
+        const response = await api.get("/advisorytexts/", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                current_response: response.data,
+            };
+        }
+    } catch (error) {
+        console.error("Fout bij ophalen van advies teksten:", error.message);
+        return { success: false };
+    }
+}
+
+// Get a single text by id
+
+export async function GetAdvisoryTextById(textId) {
+    const token = sessionStorage.getItem("token");
+
+    try {
+        const response = await api.get(`/advisorytexts/id=${textId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                current_response: response.data,
+            };
+        }
+    } catch (error) {
+        console.error("Fout bij ophalen van advies tekst:", error.message);
+        return { success: false };
+    }
+}
+
+// Update a single text by id
+
+export async function UpdateAdvisoryText(textId, adviceText) {
+    const token = sessionStorage.getItem("token");
+
+    try {
+        const response = await api.put(
+             `/advisorytexts/id=${textId}?advice_text=${encodeURIComponent(adviceText)}`,
+            null,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                current_response: response.data,
+            };
+        }
+    } catch (error) {
+        console.error("Fout bij updaten van advies tekst:", error.message);
+        return { success: false };
+    }
+}
+
+// Create a new advisory text
+
+export async function CreateAdvisoryText(adviceText, category, subcategory) {
+    const token = sessionStorage.getItem("token");
+
+    try {
+        const response = await api.post(
+             `/advisorytexts/?advice_text=${encodeURIComponent(adviceText)}&category=${category}&subcategory=${subcategory}`,
+            null,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                current_response: response.data,
+            };
+        }
+    } catch (error) {
+        console.error("Fout bij aanmaken van advies tekst:", error.message);
+        return { success: false };
+    }
+}
+
+// Delete a advisory text by id
+
+export async function DeleteAdvisoryText(textId) {
+    const token = sessionStorage.getItem("token");
+
+    try {
+        const response = await api.delete(`/advisorytexts/id=${textId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                current_response: response.data,
+            };
+        }
+    } catch (error) {
+        console.error("Fout bij verwijderen van advies tekst:", error.message);
+        return { success: false };
+    }
+}
