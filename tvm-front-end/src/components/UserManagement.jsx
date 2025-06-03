@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { GetAllUsers, UpdateUser, DeleteUser, RegisterUser } from "../utils/Services";
 import "../css/UserManagement.css";
 
+
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [editing, setEditing] = useState(null);
