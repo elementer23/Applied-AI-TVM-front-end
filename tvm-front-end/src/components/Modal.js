@@ -4,7 +4,7 @@ import { useState } from "react";
 
 const Modal = ({ setIsOpen, onSubmit }) => {
     const [formData, setFormData] = useState({
-        category: "",
+        categoryId: null,
         subcategory: "",
         advice_text: "",
     });
@@ -44,7 +44,7 @@ const Modal = ({ setIsOpen, onSubmit }) => {
                                     type="text"
                                     onChange={handleInput}
                                     className={styles.modalInput}
-                                    name="category"
+                                    name="categoryId"
                                     id="categoryName"
                                     required
                                 />

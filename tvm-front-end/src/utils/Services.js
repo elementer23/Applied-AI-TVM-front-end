@@ -423,8 +423,11 @@ export async function RevokeRefreshToken() {
     }
 }
 
-// Get all the texts
-
+/**
+ * This function will return all advisory texts from the database.
+ * Will return a set of data upon success, will return nothing and an error upon failure.
+ * @returns a boolean or set of data
+ */
 export async function GetAllAdvisoryTexts() {
     const token = sessionStorage.getItem("token");
 
@@ -447,10 +450,17 @@ export async function GetAllAdvisoryTexts() {
     }
 }
 
-// Get a single text by id
-
+/**
+ * This function returns a single advisory text based on the given id.
+ * Will return a set of data upon success and nothing with an error upon failure.
+ * Will return failure once the given id was incorrect, didn't exist or wasn't a number.
+ * @param {*} textId
+ * @returns a boolean or message
+ */
 export async function GetAdvisoryTextById(textId) {
     const token = sessionStorage.getItem("token");
+
+    if (!Number.isInteger(textId)) return { success: false };
 
     try {
         const response = await api.get(`/advisorytexts/id=${textId}`, {
@@ -471,17 +481,35 @@ export async function GetAdvisoryTextById(textId) {
     }
 }
 
-// Update a single text by id
-
-export async function UpdateAdvisoryText(textId, adviceText) {
+/**
+ * This function updates the advisory text, depending on the id, category id and subcategory.
+ * Will return a message upon success, will return nothing and an error upon failure.
+ * Will return failure once the given id's are incorrect, not numbers or don't exist.
+ * @param {*} textId
+ * @param {*} adviceText
+ * @param {*} subcategory
+ * @param {*} categoryId
+ * @returns a boolean or message
+ */
+export async function UpdateAdvisoryText(
+    textId,
+    adviceText,
+    subcategory,
+    categoryId
+) {
     const token = sessionStorage.getItem("token");
+
+    if (!Number.isInteger(textId) || !Number.isInteger(categoryId))
+        return { success: false };
 
     try {
         const response = await api.put(
-            `/advisorytexts/id=${textId}?advice_text=${encodeURIComponent(
-                adviceText
-            )}`,
-            null,
+            `/advisorytexts/id=${textId}`,
+            {
+                category_id: categoryId,
+                sub_category: subcategory,
+                text: adviceText,
+            },
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -492,7 +520,7 @@ export async function UpdateAdvisoryText(textId, adviceText) {
         if (response.status === 200) {
             return {
                 success: true,
-                current_response: response.data,
+                current_content: response.data.content,
             };
         }
     } catch (error) {
@@ -501,19 +529,29 @@ export async function UpdateAdvisoryText(textId, adviceText) {
     }
 }
 
-// Create a new advisory text
-
+/**
+ * This function creates a new advisory text based on
+ * the belonging category id and subcategory.
+ * Will return a message upon success, will return nothing and
+ * an error upon failure. Will fail once the id hasn't been set
+ * or once the categoryId isn't a number or if it doesn't exist.
+ * @param {*} formData
+ * @returns a boolean or message
+ */
 export async function CreateAdvisoryText(formData) {
     const token = sessionStorage.getItem("token");
 
+    if (formData.categoryId === null || !Number.isInteger(formData.categoryId))
+        return { success: false };
+
     try {
         const response = await api.post(
-            `/advisorytexts/?advice_text=${encodeURIComponent(
-                formData.advice_text
-            )}&category=${formData.category}&subcategory=${
-                formData.subcategory
-            }`,
-            null,
+            "/advisorytexts/",
+            {
+                category_id: formData.categoryId,
+                sub_category: formData.subcategory,
+                text: formData.advice_text,
+            },
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -524,7 +562,7 @@ export async function CreateAdvisoryText(formData) {
         if (response.status === 200) {
             return {
                 success: true,
-                current_response: response.data,
+                current_response: response.data.content,
             };
         }
     } catch (error) {
@@ -533,13 +571,48 @@ export async function CreateAdvisoryText(formData) {
     }
 }
 
-// Delete a advisory text by id
-
+/**
+ * This function deletes an advisory text depending on the given id.
+ * Will return a message upon success, will return nothing and an error upon failure.
+ * Will return failure once the given id is incorrect or isn't a number.
+ * @param {*} textId
+ * @returns a boolean or message
+ */
 export async function DeleteAdvisoryText(textId) {
     const token = sessionStorage.getItem("token");
 
+    if (!Number.isInteger(textId)) return { success: false };
+
     try {
         const response = await api.delete(`/advisorytexts/id=${textId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                current_response: response.data.content,
+            };
+        }
+    } catch (error) {
+        console.error("Fout bij verwijderen van advies tekst:", error.message);
+        return { success: false };
+    }
+}
+
+/**
+ * This function retrieves all categories from the database.
+ * Will return data upon a successfull attempt, will return failure
+ * upon a failing attempt. Will show an error upon failure.
+ * @returns a boolean or corresponding data
+ */
+export async function GetAllCategories() {
+    const token = sessionStorage.getItem("token");
+
+    try {
+        const response = await api.get("/categories/", {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -552,7 +625,281 @@ export async function DeleteAdvisoryText(textId) {
             };
         }
     } catch (error) {
-        console.error("Fout bij verwijderen van advies tekst:", error.message);
+        console.error(error.message);
+        return {
+            success: false,
+        };
+    }
+}
+
+/**
+ * This function retrieves a single category belonging to a corresponding id.
+ * Will return data upon success, will return false upon failure.
+ * Will not work if the given id isn't a number.
+ * Will give an error upon failure.
+ * @param {*} categoryId
+ * @returns a boolean or data
+ */
+export async function GetSingleCategory(categoryId) {
+    const token = sessionStorage.getItem("token");
+
+    if (!Number.isInteger(categoryId)) return { success: false };
+
+    try {
+        const response = await api.get(`/categories/${categoryId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                current_response: response.data,
+            };
+        }
+    } catch (error) {
+        console.error(error.message);
+        return {
+            success: false,
+        };
+    }
+}
+
+/**
+ * This function creates a new category by name.
+ * Will return data upon success and will return false upon failure.
+ * Will show a message upon success and an error upon failure.
+ * @param {*} categoryName
+ * @returns a boolean or message
+ */
+export async function CreateNewCategory(categoryName) {
+    const token = sessionStorage.getItem("token");
+
+    try {
+        const response = await api.post(
+            "/categories/",
+            { name: categoryName },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        if (response.status === 200 || response.status === 201) {
+            return {
+                success: true,
+                current_content: response.data.content,
+            };
+        }
+    } catch (error) {
+        console.error(error.message);
+        return {
+            success: false,
+        };
+    }
+}
+
+/**
+ * This function updates a category by category id and a new name.
+ * Will return a success message upon a successful attempt,
+ * will return a failure response upon failure.
+ * Will show an error upon failure.
+ * @param {*} categoryId
+ * @param {*} categoryName
+ * @returns a boolean or message
+ */
+export async function UpdateCategory(categoryId, categoryName) {
+    const token = sessionStorage.getItem("token");
+
+    if (!Number.isInteger(categoryId)) return { success: false };
+
+    try {
+        const response = await api.put(
+            `/categories/${categoryId}`,
+            { name: categoryName },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                current_content: response.data.content,
+            };
+        }
+    } catch (error) {
+        console.error(error.message);
+        return {
+            success: false,
+        };
+    }
+}
+
+/**
+ * This function deletes a single category based on the given id.
+ * Will need a confirmation to continue, to make sure that the action was deliberate.
+ * Will return a message upon success and false with an error upon failure.
+ * @param {*} categoryId
+ * @param {*} confirmation
+ * @returns a boolean or message
+ */
+export async function DeleteSingleCategory(categoryId, confirmation) {
+    const token = sessionStorage.getItem("token");
+
+    if (!Number.isInteger(categoryId) || !confirmation)
+        return { success: false };
+
+    try {
+        const response = await api.delete(`/categories/${categoryId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 200 || response.status === 204) {
+            return {
+                success: true,
+                current_content: response.data.content,
+            };
+        }
+    } catch (error) {
+        console.error(error.message);
+        return {
+            success: false,
+        };
+    }
+}
+
+/**
+ * This function retrieves all of the subcategories from the database.
+ * Will return data upon success, will return nothing and an error upon failure.
+ * @returns a boolean or data
+ */
+export async function GetAllSubcategories() {
+    const token = sessionStorage.getItem("token");
+
+    try {
+        const response = await api.get("/subcategories/", {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                current_response: response.data,
+            };
+        }
+    } catch (error) {
+        console.error(error.message);
+        return { success: false };
+    }
+}
+
+/**
+ * This function retrieves a single subcategory based on the id.
+ * Will return a set of data upon success, will return nothing and an error upon failure.
+ * @param {*} subcategoryId
+ * @returns a boolean or data
+ */
+export async function GetSingleSubcategory(subcategoryId) {
+    const token = sessionStorage.getItem("token");
+
+    if (!Number.isInteger(subcategoryId)) return { success: false };
+
+    try {
+        const response = await api.get(`/subcategories/${subcategoryId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                current_response: response.data,
+            };
+        }
+    } catch (error) {
+        console.error(error.message);
+        return {
+            success: false,
+        };
+    }
+}
+
+/**
+ * This function updates a subcategory based on the id and a new name.
+ * Will return a success message upon a successful attempt,
+ * will return nothing and an error upon failure.
+ * Will return failure once the given id isn't a number or
+ * once the given id doesn't exist.
+ * @param {*} subcategoryId
+ * @param {*} subcategoryName
+ * @returns a boolean or message
+ */
+export async function UpdateSubcategory(subcategoryId, subcategoryName) {
+    const token = sessionStorage.getItem("token");
+
+    if (!Number.isInteger(subcategoryId)) return { success: false };
+
+    try {
+        const response = await api.put(
+            `/subcategories/${subcategoryId}`,
+            {
+                name: subcategoryName,
+            },
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                current_content: response.data.content,
+            };
+        }
+    } catch (error) {
+        console.error(error.message);
+        return {
+            success: false,
+        };
+    }
+}
+
+/**
+ * This function delets a subcategory based on the id.
+ * Will return a message upon success and nothing with an error upon failure.
+ * Will return failure once the given id is not a number or
+ * once the confirmation hasn't been made.
+ * @param {*} subcategoryId
+ * @param {*} confirmation
+ * @returns a boolean or message
+ */
+export async function DeleteSingleSubcategory(subcategoryId, confirmation) {
+    const token = sessionStorage.getItem("token");
+
+    if (!Number.isInteger(subcategoryId) || !confirmation)
+        return { success: false };
+
+    try {
+        const response = await api.delete(`/subcategories/${subcategoryId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 200 || response.status === 204) {
+            return {
+                success: true,
+                current_content: response.data.content,
+            };
+        }
+    } catch (error) {
+        console.error(error.message);
         return { success: false };
     }
 }
