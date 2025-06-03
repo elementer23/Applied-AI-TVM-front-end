@@ -86,13 +86,15 @@
 
 .chat-message {
   margin-bottom: 8px;
+  padding-left: 8px;
+  padding-right: 8px;
   background-color: rgba(79, 193, 93, 0.25);
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
   border-bottom-right-radius: 20px;
   height: auto;
   width: 90%;
-  text-align: center;
+  text-align: left;
 }
 
 .chat-message.user {
