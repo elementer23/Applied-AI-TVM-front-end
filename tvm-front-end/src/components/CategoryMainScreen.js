@@ -1,9 +1,14 @@
 import Header from "./Header";
-import { useEffect ,useState } from "react";
+import { useEffect, useState } from "react";
 import {
+    CreateAdvisoryText,
     GetAllAdvisoryTexts,
     UpdateAdvisoryText,
 } from "../utils/Services";
+import Modal from "./Modal";
+import AdvisoryTextManager from "./AdvisoryTextManager";
+import AddNewAdvisoryText from "./AddNewAdvisoryText";
+import EditAdvisoryText from "./EditAdvisoryText";
 
 /*const dummyTexts = {
     verzekering1: "Dit is de eerste tekst voor de verzekering.",
@@ -12,11 +17,13 @@ import {
     verzekering4: "Dit is de vierde tekst voor de verzekering.",
 };*/
 
-function TextChangerScreen() {
+function CategoryMainScreen() {
     //const [texts, setTexts] = useState(dummyTexts);
     //const [selectedKey, setSelectedKey] = useState("verzekering1");
     const [texts, setTexts] = useState({});
     const [selectedKey, setSelectedKey] = useState(null);
+    const [isOpen, setIsOpen] = useState(false);
+    const [component, setComponent] = useState("advisory_text_manager");
 
     // const handleTextChange = (key, value) => {
     //     setTexts((prevTexts) => ({
@@ -51,13 +58,14 @@ function TextChangerScreen() {
     useEffect(() => {
         async function fetchTexts() {
             const result = await GetAllAdvisoryTexts();
-            if(result.success) {
+            if (result.success) {
                 const fetchedTexts = {};
+                console.log(result.current_response);
                 result.current_response.forEach((text) => {
                     fetchedTexts[text.id] = {
-                        adviceText: text.adviceText_text,
+                        adviceText: text.text,
                         category: text.category,
-                        subcategory: text.subcategory,
+                        subcategory: text.sub_category,
                     };
                 });
                 setTexts(fetchedTexts);
@@ -68,45 +76,105 @@ function TextChangerScreen() {
         fetchTexts();
     }, []);
 
+    const handleFormSubmit = async (formData) => {
+        await CreateAdvisoryText(formData);
+        setIsOpen(false);
+    };
 
-return (
+    const componentHandler = {
+        advisory_text_manager: <AdvisoryTextManager />,
+        add_new_advisory_text: <AddNewAdvisoryText />,
+        edit_advisory_text: <EditAdvisoryText />,
+    };
+
+    return (
         <div className="main-container">
+            {isOpen && (
+                <Modal setIsOpen={setIsOpen} onSubmit={handleFormSubmit} />
+            )}
             <div className="left-change-section">
                 <div></div>
                 <div className="history-content">
-                    <p><strong>Aanpasbare teksten</strong></p>
+                    <p>
+                        <strong>Aanpasbare teksten</strong>
+                    </p>
                     <ul>
-                        {Object.entries(texts).map(([id, obj]) => (
+                        <li className="text-change-item">
+                            <button
+                                className="text-change-button"
+                                onClick={() =>
+                                    setComponent("advisory_text_manager")
+                                }
+                            >
+                                Overzicht
+                            </button>
+                        </li>
+                        <li className="text-change-item">
+                            <button
+                                className="text-change-button"
+                                onClick={() =>
+                                    setComponent("add_new_advisory_text")
+                                }
+                            >
+                                Advies tekst(en) toevoegen
+                            </button>
+                        </li>
+                        <li className="text-change-item">
+                            <button
+                                className="text-change-button"
+                                onClick={() =>
+                                    setComponent("edit_advisory_text")
+                                }
+                            >
+                                Pas advies tekst aan
+                            </button>
+                        </li>
+                        {/* {Object.entries(texts).map(([id, obj]) => (
                             <li key={id} className="text-change-item">
                                 <button
                                     className="text-change-button"
                                     onClick={() => setSelectedKey(id)}
                                     style={{
-                                        color: selectedKey === id ? "#4fc15d" : "black",
+                                        color:
+                                            selectedKey === id
+                                                ? "#4fc15d"
+                                                : "black",
                                     }}
                                 >
                                     {obj.category} - {obj.subcategory}
                                 </button>
                             </li>
-                        ))}
+                        ))} */}
                     </ul>
                 </div>
+                <div className="new-chat">
+                    <button
+                        className="new-chat-button"
+                        onClick={() => setIsOpen(true)}
+                    >
+                        Nieuw advies
+                    </button>
+                </div>
             </div>
-            <div className="section right-section">
+            {componentHandler[component]}
+            {/* <div className="section right-section">
                 <Header />
                 {selectedKey && texts[selectedKey] && (
                     <>
                         <h3>
                             Tekst aanpassen:{" "}
                             <em>
-                                {texts[selectedKey].category} - {texts[selectedKey].subcategory}
+                                {texts[selectedKey].category} -{" "}
+                                {texts[selectedKey].subcategory}
                             </em>
                         </h3>
                         <div className="change-section">
                             <textarea
                                 rows="10"
                                 value={texts[selectedKey].adviceText}
-                                onChange={(e) => handleTextChange(e.target.value)}
+                                onChange={(e) =>
+                                    handleTextChange(e.target.value)
+                                }
                                 style={{ width: "100%", marginBottom: "10px" }}
                             />
                             <button onClick={handleSave} className="save-btn">
@@ -115,9 +183,9 @@ return (
                         </div>
                     </>
                 )}
-            </div>
+            </div> */}
         </div>
     );
 }
 
-export default TextChangerScreen;
+export default CategoryMainScreen;

@@ -1,0 +1,15 @@
+.advisoryManagerHeader {
+  height: 50px;
+  background: white;
+  overflow: hidden;
+  border-bottom: 2px solid black;
+  align-items: start;
+}
+
+.advisoryManagerHeading {
+  margin: 0;
+  padding: 10px;
+  color: #2c3e50;
+  font-weight: 500;
+  font-size: 30px;
+}
