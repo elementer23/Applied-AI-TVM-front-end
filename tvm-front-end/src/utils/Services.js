@@ -73,8 +73,8 @@ export async function Login(requested_data, navigate) {
         });
 
         if (response.status === 200) {
-            //set the token and refresh_token upon logging in
-            sessionStorage.setItem("token", response.data.access_token);
+            //set the access_token and refresh_token upon logging in
+            sessionStorage.setItem("access_token", response.data.access_token); // <-- aangepast
             sessionStorage.setItem("refresh_token", response.data.refresh_token);
             navigate("/main");
             return { success: true };
@@ -100,15 +100,14 @@ export async function Login(requested_data, navigate) {
  * @returns data depending on the outcome
  */
 export async function RegisterUser(requested_data) {
-    // Form with new user credentials
-    const form = new URLSearchParams();
-    form.append("username", requested_data.username);
-    form.append("password", requested_data.password);
-    form.append("role", requested_data.role || "user");
-
+    // Send JSON data (zoals backend verwacht)
     try {
-        const response = await api.post("/users/?" + form.toString(), null);
-        if (response.status === 200) {
+        const response = await api.post("/users/", {
+            username: requested_data.username,
+            password: requested_data.password,
+            role: requested_data.role || "user",
+        });
+        if (response.status === 200 || response.status === 201) {
             return { success: true };
         } else {
             console.error("Iets ging er fout bij het registeren");
@@ -133,7 +132,7 @@ export async function Logout(navigate) {
     try {
         const response = await api.post("/logout");
         if (response.status === 200) {
-            sessionStorage.removeItem("token");
+            sessionStorage.removeItem("access_token");
             sessionStorage.removeItem("refresh_token");
             navigate("/");
         } else {
