@@ -8,6 +8,7 @@ function AccountManager() {
     const [formData, setFormData] = useState({
         username: "",
         password: "",
+        role: "user"
     });
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
@@ -19,18 +20,17 @@ function AccountManager() {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-
-        const formData = {
-            username: event.target.username.value,
-            password: event.target.password.value,
-        };
+        setError(null);
+        setSuccess(null);
+        setMessage("");
 
         const out = await RegisterUser(formData);
 
         if (!out.success) {
-            setError(out.message);
+            setError(out.message || "Er ging iets mis");
         } else {
-            setSuccess("You successfully created a new account");
+            setSuccess("Account succesvol aangemaakt!");
+            setFormData({ username: "", password: "", role: "user" }); 
         }
     };
 
@@ -49,6 +49,7 @@ function AccountManager() {
                                 type="text"
                                 id="username"
                                 name="username"
+                                value={formData.username}
                                 required
                                 onChange={handleChange}
                             />
@@ -59,9 +60,22 @@ function AccountManager() {
                                 type="password"
                                 id="password"
                                 name="password"
+                                value={formData.password}
                                 required
                                 onChange={handleChange}
                             />
+                        </div>
+                        <div>
+                            <label htmlFor="role">Rol:</label>
+                            <select
+                                id="role"
+                                name="role"
+                                value={formData.role}
+                                onChange={handleChange}
+                            >
+                                <option value="user">user</option>
+                                <option value="admin">admin</option>
+                            </select>
                         </div>
                         <button type="submit">Account aanmaken</button>
                         {message && (
