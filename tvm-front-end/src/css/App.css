@@ -17,6 +17,12 @@
   border-bottom: 8px solid rgba(79,193,93,100);
 }
 
+.loading-indicator {
+  font-style: italic;
+  color: #888;
+  margin-top: 10px;
+}
+
 .section-header {
   border-bottom: 8px solid rgba(79,193,93,100);
   width: 100%;
