@@ -56,12 +56,12 @@ function RightSection({
                                     : "chat-message"
                             }
                         >
-                            <p>
+                            <p style={{ whiteSpace: "pre-wrap" }}>
                                 <strong>
                                     {message.is_user_message ? "jij" : "AI"}:
                                 </strong>
-                                {""}
-                                {message.content}
+                                {"\n"}
+                                {message.content.replace("\n", "\r\n")}
                             </p>
                         </div>
                     ))}
