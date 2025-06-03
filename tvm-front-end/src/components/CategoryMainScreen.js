@@ -6,6 +6,9 @@ import {
     UpdateAdvisoryText,
 } from "../utils/Services";
 import Modal from "./Modal";
+import AdvisoryTextManager from "./AdvisoryTextManager";
+import AddNewAdvisoryText from "./AddNewAdvisoryText";
+import EditAdvisoryText from "./EditAdvisoryText";
 
 /*const dummyTexts = {
     verzekering1: "Dit is de eerste tekst voor de verzekering.",
@@ -14,12 +17,13 @@ import Modal from "./Modal";
     verzekering4: "Dit is de vierde tekst voor de verzekering.",
 };*/
 
-function TextChangerScreen() {
+function CategoryMainScreen() {
     //const [texts, setTexts] = useState(dummyTexts);
     //const [selectedKey, setSelectedKey] = useState("verzekering1");
     const [texts, setTexts] = useState({});
     const [selectedKey, setSelectedKey] = useState(null);
     const [isOpen, setIsOpen] = useState(false);
+    const [component, setComponent] = useState("advisory_text_manager");
 
     // const handleTextChange = (key, value) => {
     //     setTexts((prevTexts) => ({
@@ -77,6 +81,12 @@ function TextChangerScreen() {
         setIsOpen(false);
     };
 
+    const componentHandler = {
+        advisory_text_manager: <AdvisoryTextManager />,
+        add_new_advisory_text: <AddNewAdvisoryText />,
+        edit_advisory_text: <EditAdvisoryText />,
+    };
+
     return (
         <div className="main-container">
             {isOpen && (
@@ -89,7 +99,37 @@ function TextChangerScreen() {
                         <strong>Aanpasbare teksten</strong>
                     </p>
                     <ul>
-                        {Object.entries(texts).map(([id, obj]) => (
+                        <li className="text-change-item">
+                            <button
+                                className="text-change-button"
+                                onClick={() =>
+                                    setComponent("advisory_text_manager")
+                                }
+                            >
+                                Overzicht
+                            </button>
+                        </li>
+                        <li className="text-change-item">
+                            <button
+                                className="text-change-button"
+                                onClick={() =>
+                                    setComponent("add_new_advisory_text")
+                                }
+                            >
+                                Advies tekst(en) toevoegen
+                            </button>
+                        </li>
+                        <li className="text-change-item">
+                            <button
+                                className="text-change-button"
+                                onClick={() =>
+                                    setComponent("edit_advisory_text")
+                                }
+                            >
+                                Pas advies tekst aan
+                            </button>
+                        </li>
+                        {/* {Object.entries(texts).map(([id, obj]) => (
                             <li key={id} className="text-change-item">
                                 <button
                                     className="text-change-button"
@@ -104,7 +144,7 @@ function TextChangerScreen() {
                                     {obj.category} - {obj.subcategory}
                                 </button>
                             </li>
-                        ))}
+                        ))} */}
                     </ul>
                 </div>
                 <div className="new-chat">
@@ -116,7 +156,8 @@ function TextChangerScreen() {
                     </button>
                 </div>
             </div>
-            <div className="section right-section">
+            {componentHandler[component]}
+            {/* <div className="section right-section">
                 <Header />
                 {selectedKey && texts[selectedKey] && (
                     <>
@@ -142,9 +183,9 @@ function TextChangerScreen() {
                         </div>
                     </>
                 )}
-            </div>
+            </div> */}
         </div>
     );
 }
 
-export default TextChangerScreen;
+export default CategoryMainScreen;

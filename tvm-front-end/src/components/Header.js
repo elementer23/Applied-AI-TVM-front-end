@@ -14,7 +14,7 @@ function Header() {
         if (option === "account") {
             navigate("/accountManager");
         } else if (option === "dashboard") {
-            navigate("/textChanger");
+            navigate("/categoryMain");
         } else if (option === "main") {
             navigate("/main");
         } else if (option === "logout") {
