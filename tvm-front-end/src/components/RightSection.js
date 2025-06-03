@@ -13,24 +13,22 @@ function RightSection({
 }) {
     const [input, setInput] = useState("");
     const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(false);
     const fileInputRef = useRef();
 
     const handleSend = async () => {
-        console.log(
-            "Bericht verzenden:",
-            input,
-            "naar gesprek:",
-            conversationId
-        );
+        console.log("Bericht verzenden:", input);
+        setLoading(true);
         const out = await Request(input, conversationId);
+        setLoading(false);
 
         if (out.success) {
-            setInput("");
+            setInput(""); 
             await reFetchMessages();
             await reFetchConversations();
             setConversationId(out.current_conversation_id);
         } else {
-            setError(out.message);
+        setError(out.message);
         }
     };
 
@@ -65,6 +63,11 @@ function RightSection({
                             </p>
                         </div>
                     ))}
+                    {loading && (
+                        <div className="chat-message ai loading-indicator">
+                            <p><strong>AI:</strong> AI-agent is aan het denken...</p>
+                        </div>
+                    )}
                 </div>
             </div>
             <div className="chat-input-row">
