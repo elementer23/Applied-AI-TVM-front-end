@@ -1,17 +1,28 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { Logout } from "../utils/Services";
+import { useState, useEffect } from "react";
+import { Logout, GetCurrentUser } from "../utils/Services";
 
 function Header() {
     const navigate = useNavigate();
     const [showDropdown, setShowDropdown] = useState(false);
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        async function fetchUser() {
+            const userData = await GetCurrentUser();
+            setUser(userData);
+        }
+        fetchUser();
+    }, []);
 
     const toggleDropdown = () => {
         setShowDropdown(!showDropdown);
     };
 
     const handleNavigation = (option) => {
-        if (option === "account") {
+        if (option === "gebruikersbeheer") {
+            navigate("/admin/users");
+        } else if (option === "account") {
             navigate("/accountManager");
         } else if (option === "dashboard") {
             navigate("/textChanger");
@@ -41,6 +52,15 @@ function Header() {
                 {showDropdown && (
                     <div className="dropdown-menu">
                         <ul>
+                            {/* Alleen voor admins zichtbaar */}
+                            {user?.role === "admin" && (
+                                <li
+                                    className="dropdown-item"
+                                    onClick={() => handleNavigation("gebruikersbeheer")}
+                                >
+                                    Gebruikersbeheer
+                                </li>
+                            )}
                             <li
                                 className="dropdown-item"
                                 onClick={() => handleNavigation("account")}

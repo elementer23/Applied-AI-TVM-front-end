@@ -4,15 +4,13 @@ const api = axios.create({
     baseURL: process.env.REACT_APP_API_BASE_URL,
 });
 
-//calling the interceptor from axios, which checks
-//on any changes that have happened during the call off an endpoint.
-//will intercept changes in the call based upon tokens.
-//Will also naturally handle refreshes on the front-end, for tokens.
+// Response interceptor voor token verversen bij 401
 api.interceptors.response.use(
     (response) => response,
     async function (error) {
         const originalRequest = error.config;
 
+        // Alleen bij 401, en niet als we al geprobeerd hebben te refreshen
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
             const refreshToken = sessionStorage.getItem("refresh_token");
@@ -33,18 +31,19 @@ api.interceptors.response.use(
                 const newAccessToken = currentResponse.data.access_token;
                 const newRefreshToken = currentResponse.data.refresh_token;
 
-                sessionStorage.setItem("token", newAccessToken);
+                // **Kies HIER ÉÉN KEY, bijvoorbeeld 'access_token':**
+                sessionStorage.setItem("access_token", newAccessToken);
                 sessionStorage.setItem("refresh_token", newRefreshToken);
 
-                originalRequest.headers[
-                    "Authorization"
-                ] = `Bearer ${newAccessToken}`;
+                // Pas de Authorization header van het originele request aan
+                originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+
+                // Probeer opnieuw met nieuwe token
                 return api(originalRequest);
             } catch (err) {
-                sessionStorage.removeItem("token");
+                sessionStorage.removeItem("access_token");
                 sessionStorage.removeItem("refresh_token");
                 window.location.href = "/";
-
                 return Promise.reject(err);
             }
         }
@@ -53,9 +52,9 @@ api.interceptors.response.use(
     }
 );
 
-//request intercept to check whether authorization is allowed, based on the token
+// Request interceptor: altijd Authorization header meesturen als token aanwezig is
 api.interceptors.request.use(function (config) {
-    const token = sessionStorage.getItem("token");
+    const token = sessionStorage.getItem("access_token"); // Gebruik hier dezelfde key als hierboven
 
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
