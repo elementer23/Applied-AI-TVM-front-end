@@ -1,6 +1,11 @@
 import Header from "./Header";
 import React, { useEffect, useState } from 'react';
-import {GetAdvisoryTextById, GetAllCategories, GetSubCategoryByCategoryId} from "../utils/Services";
+import {
+    GetAdvisoryTextById,
+    GetAllCategories,
+    GetAllSubcategoriesByCategory,
+    UpdateAdvisoryText
+} from "../utils/Services";
 
 function EditAdvisoryText() {
     const [categories, setCategories] = useState([]);
@@ -9,6 +14,7 @@ function EditAdvisoryText() {
     const [subcategories, setSubcategories] = useState([]);
     const [selectedSubcategory, setSelectedSubcategory] = useState('');
 
+    const [textId, setTextId] = useState('');
     const [fetchedText, setFetchedText] = useState(null);
 
     useEffect(() =>
@@ -37,7 +43,7 @@ function EditAdvisoryText() {
 
         async function fetchSubcategories()
         {
-            const result = await GetSubCategoryByCategoryId(parseInt(selectedCategory));
+            const result = await GetAllSubcategoriesByCategory(parseInt(selectedCategory));
             if (result.success)
             {
                 setSubcategories(result.current_response);
@@ -56,6 +62,7 @@ function EditAdvisoryText() {
                 const result = await GetAdvisoryTextById(parseInt(selectedSubcategory));
                 if (result.success)
                 {
+                    setTextId(result.current_response.id);
                     setFetchedText(result.current_response.text);
                 }
             }
@@ -63,6 +70,29 @@ function EditAdvisoryText() {
             fetchText();
         }
     }, [selectedSubcategory]);
+    async function handleSave()
+    {
+        if (!selectedSubcategory || !fetchedText)
+        {
+            alert("Both category and sub-category must be selected.");
+            return;
+        }
+
+        const result = await UpdateAdvisoryText(
+            textId,
+            fetchedText,
+            selectedSubcategory,
+            selectedCategory);
+
+        if (result.success)
+        {
+            alert("Advisory text updated successfully.");
+        }
+        else
+        {
+            alert("Failed to update advisory text.");
+        }
+    }
     return (
         <div>
             <label htmlFor="categories">Category:</label>
@@ -84,7 +114,7 @@ function EditAdvisoryText() {
                 ))}
             </select>
 
-            {selectedCategory && subcategories.length > 0 && (
+            {subcategories.length > 0 && (
                 <select
                     value={selectedSubcategory}
                     onChange={(e) => setSelectedSubcategory(e.target.value)}
@@ -96,10 +126,17 @@ function EditAdvisoryText() {
                         </option>
                     ))}
                 </select>
-            )}{fetchedText && (
+            )}{fetchedText !== null && (
                 <div>
-                    <h3>Advisory Text</h3>
-                    <pre style={{ whiteSpace: 'pre-wrap' }}>{fetchedText}</pre>
+                    <h3>Edit Advisory Text</h3>
+                    <textarea
+                        value={fetchedText}
+                        onChange={(e) => setFetchedText(e.target.value)}
+                        rows={6}
+                        cols={60}
+                    />
+                    <br />
+                    <button onClick={handleSave}>Save</button>
                 </div>
             )}
         </div>

@@ -488,25 +488,25 @@ export async function GetAdvisoryTextById(textId) {
  * @param {*} textId
  * @param {*} adviceText
  * @param {*} subcategory
- * @param {*} categoryId
+ * @param {*} category
  * @returns a boolean or message
  */
 export async function UpdateAdvisoryText(
     textId,
     adviceText,
     subcategory,
-    categoryId
+    category
 ) {
     const token = sessionStorage.getItem("token");
 
-    if (!Number.isInteger(textId) || !Number.isInteger(categoryId))
+    if (!Number.isInteger(textId))
         return { success: false };
 
     try {
         const response = await api.put(
             `/advisorytexts/id=${textId}`,
             {
-                category_id: categoryId,
+                category: category,
                 sub_category: subcategory,
                 text: adviceText,
             },
