@@ -451,19 +451,19 @@ export async function GetAllAdvisoryTexts() {
 }
 
 /**
- * This function returns a single advisory text based on the given id.
+ * This function returns a single advisory text based on the given sub-category id.
  * Will return a set of data upon success and nothing with an error upon failure.
  * Will return failure once the given id was incorrect, didn't exist or wasn't a number.
- * @param {*} textId
+ * @param {*} subCategoryId
  * @returns a boolean or message
  */
-export async function GetAdvisoryTextById(textId) {
+export async function GetAdvisoryTextById(subCategoryId) {
     const token = sessionStorage.getItem("token");
 
-    if (!Number.isInteger(textId)) return { success: false };
+    if (!Number.isInteger(subCategoryId)) return { success: false };
 
     try {
-        const response = await api.get(`/advisorytexts/id=${textId}`, {
+        const response = await api.get(`/advisorytexts/subcategory/${subCategoryId}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -800,6 +800,36 @@ export async function GetAllSubcategories() {
     }
 }
 
+/**
+ * This function returns all sub-categories that belong to a specific category.
+ * @param categoryId The category of which we'd like the sub-categories
+ * @returns a boolean or data
+ */
+export async function GetSubCategoryByCategoryId(categoryId) {
+    const token = sessionStorage.getItem("token");
+
+    if (!Number.isInteger(categoryId)) return { success: false };
+
+    try {
+        const response = await api.get(`/categories/${categoryId}/subcategories`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                current_response: response.data,
+            };
+        }
+    } catch (error) {
+        console.error(error.message);
+        return {
+            success: false,
+        };
+    }
+}
 /**
  * This function retrieves a single subcategory based on the id.
  * Will return a set of data upon success, will return nothing and an error upon failure.
