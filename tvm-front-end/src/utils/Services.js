@@ -559,7 +559,7 @@ export async function CreateAdvisoryText(formData) {
             }
         );
 
-        if (response.status === 200) {
+        if (response.status === 200 || response.status === 201) {
             return {
                 success: true,
                 current_response: response.data.content,
@@ -854,6 +854,7 @@ export async function GetAllSubcategoriesByCategory(categoryId) {
     if (!Number.isInteger(categoryId)) return { success: false };
 
     try {
+        let arr = [];
         const response = await api.get(
             `/categories/${categoryId}/subcategories`,
             {
@@ -864,9 +865,12 @@ export async function GetAllSubcategoriesByCategory(categoryId) {
         );
 
         if (response.status === 200) {
+            for (var item of response.data) {
+                arr.push(item);
+            }
             return {
                 success: true,
-                current_response: response.data,
+                current_response: arr,
             };
         }
     } catch (error) {
