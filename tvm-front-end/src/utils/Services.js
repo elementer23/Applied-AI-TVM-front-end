@@ -451,19 +451,19 @@ export async function GetAllAdvisoryTexts() {
 }
 
 /**
- * This function returns a single advisory text based on the given sub-category id.
+ * This function returns a single advisory text based on the given id.
  * Will return a set of data upon success and nothing with an error upon failure.
  * Will return failure once the given id was incorrect, didn't exist or wasn't a number.
- * @param {*} subCategoryId
+ * @param {*} textId
  * @returns a boolean or message
  */
-export async function GetAdvisoryTextById(subCategoryId) {
+export async function GetAdvisoryTextById(textId) {
     const token = sessionStorage.getItem("token");
 
-    if (!Number.isInteger(subCategoryId)) return { success: false };
+    if (!Number.isInteger(textId)) return { success: false };
 
     try {
-        const response = await api.get(`/advisorytexts/subcategory/${subCategoryId}`, {
+        const response = await api.get(`/advisorytexts/id=${textId}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -559,7 +559,7 @@ export async function CreateAdvisoryText(formData) {
             }
         );
 
-        if (response.status === 200) {
+        if (response.status === 200 || response.status === 201) {
             return {
                 success: true,
                 current_response: response.data.content,
@@ -603,6 +603,42 @@ export async function DeleteAdvisoryText(textId) {
 }
 
 /**
+ * This function returns an advisory text based on the subcategory id.
+ * Will return a set of data upon success, will return nothing and an error upon failure.
+ * Will return failure once the given id was invalid, didn't exist or wasn't a number.
+ * @param {*} subcategoryId
+ * @returns a boolean or a set of data
+ */
+export async function GetAdvisoryTextBySubcategoryId(subcategoryId) {
+    const token = sessionStorage.getItem("token");
+
+    if (!Number.isInteger(subcategoryId)) return { success: false };
+
+    try {
+        const response = await api.get(
+            `/advisorytexts/subcategory/${subcategoryId}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                current_response: response.data,
+            };
+        }
+    } catch (error) {
+        console.error(error.message);
+        return {
+            success: false,
+        };
+    }
+}
+
+/**
  * This function retrieves all categories from the database.
  * Will return data upon a successfull attempt, will return failure
  * upon a failing attempt. Will show an error upon failure.
@@ -612,6 +648,7 @@ export async function GetAllCategories() {
     const token = sessionStorage.getItem("token");
 
     try {
+        let arr = [];
         const response = await api.get("/categories/", {
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -619,9 +656,13 @@ export async function GetAllCategories() {
         });
 
         if (response.status === 200) {
+            for (var item of response.data) {
+                arr.push(item);
+            }
+
             return {
                 success: true,
-                current_response: response.data,
+                current_response: arr,
             };
         }
     } catch (error) {
@@ -801,26 +842,35 @@ export async function GetAllSubcategories() {
 }
 
 /**
- * This function returns all sub-categories that belong to a specific category.
- * @param categoryId The category of which we'd like the sub-categories
- * @returns a boolean or data
+ * This function returns all subcategories that belong to the given category id.
+ * Will return a set of data upon success, will return nothing and an error upon failure.
+ * Will return failure once category id is invalid, not a number or doesn't exist.
+ * @param {*} categoryId
+ * @returns a boolean or a set of data
  */
-export async function GetSubCategoryByCategoryId(categoryId) {
+export async function GetAllSubcategoriesByCategory(categoryId) {
     const token = sessionStorage.getItem("token");
 
     if (!Number.isInteger(categoryId)) return { success: false };
 
     try {
-        const response = await api.get(`/categories/${categoryId}/subcategories`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
+        let arr = [];
+        const response = await api.get(
+            `/categories/${categoryId}/subcategories`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
 
         if (response.status === 200) {
+            for (var item of response.data) {
+                arr.push(item);
+            }
             return {
                 success: true,
-                current_response: response.data,
+                current_response: arr,
             };
         }
     } catch (error) {
@@ -830,6 +880,7 @@ export async function GetSubCategoryByCategoryId(categoryId) {
         };
     }
 }
+
 /**
  * This function retrieves a single subcategory based on the id.
  * Will return a set of data upon success, will return nothing and an error upon failure.
@@ -863,6 +914,7 @@ export async function GetSingleSubcategory(subcategoryId) {
 }
 
 /**
+ * @deprecated
  * This function updates a subcategory based on the id and a new name.
  * Will return a success message upon a successful attempt,
  * will return nothing and an error upon failure.
@@ -901,6 +953,7 @@ export async function UpdateSubcategory(subcategoryId, subcategoryName) {
 }
 
 /**
+ * @deprecated
  * This function delets a subcategory based on the id.
  * Will return a message upon success and nothing with an error upon failure.
  * Will return failure once the given id is not a number or
