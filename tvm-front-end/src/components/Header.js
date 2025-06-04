@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Logout, GetCurrentUser } from "../utils/Services";
 
-function Header() {
+function Header({ variant }) { 
     const navigate = useNavigate();
     const [showDropdown, setShowDropdown] = useState(false);
     const [user, setUser] = useState(null);
@@ -35,7 +35,7 @@ function Header() {
     };
 
     return (
-        <div className="section-header">
+        <header className={`section-header ${variant === 'beheer' ? 'section-header--beheer' : ''}`}>
             <img
                 className="image-header"
                 src="/images/tvmLogo.png"
@@ -52,7 +52,6 @@ function Header() {
                 {showDropdown && (
                     <div className="dropdown-menu">
                         <ul>
-                            {/* Alleen voor admins zichtbaar */}
                             {user?.role === "admin" && (
                                 <li
                                     className="dropdown-item"
@@ -83,7 +82,7 @@ function Header() {
                     </div>
                 )}
             </div>
-        </div>
+        </header>
     );
 }
 

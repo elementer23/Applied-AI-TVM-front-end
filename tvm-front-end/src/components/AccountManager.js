@@ -12,7 +12,7 @@ function AccountManager() {
     });
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
-    const [message, setMessage] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -22,15 +22,23 @@ function AccountManager() {
         event.preventDefault();
         setError(null);
         setSuccess(null);
-        setMessage("");
+        setLoading(true);
 
-        const out = await RegisterUser(formData);
-
-        if (!out.success) {
-            setError(out.message || "Er ging iets mis");
-        } else {
-            setSuccess("Account succesvol aangemaakt!");
-            setFormData({ username: "", password: "", role: "user" }); 
+        try {
+            const out = await RegisterUser(formData);
+            if (!out.success) {
+                setError(out.message || "Er ging iets mis");
+                setSuccess(null);
+            } else {
+                setSuccess("Account succesvol aangemaakt!");
+                setError(null);
+                setFormData({ username: "", password: "", role: "user" });
+            }
+        } catch (err) {
+            setError("Netwerkfout of server niet bereikbaar.");
+            setSuccess(null);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -51,6 +59,7 @@ function AccountManager() {
                                 name="username"
                                 value={formData.username}
                                 required
+                                autoComplete="username"
                                 onChange={handleChange}
                             />
                         </div>
@@ -62,6 +71,7 @@ function AccountManager() {
                                 name="password"
                                 value={formData.password}
                                 required
+                                autoComplete="new-password"
                                 onChange={handleChange}
                             />
                         </div>
@@ -77,10 +87,9 @@ function AccountManager() {
                                 <option value="admin">admin</option>
                             </select>
                         </div>
-                        <button type="submit">Account aanmaken</button>
-                        {message && (
-                            <p style={{ marginTop: "1rem" }}>{message}</p>
-                        )}
+                        <button type="submit" disabled={loading}>
+                            {loading ? "Bezig..." : "Account aanmaken"}
+                        </button>
                     </form>
                 </div>
             </div>

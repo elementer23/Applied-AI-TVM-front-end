@@ -99,23 +99,28 @@ export async function Login(requested_data, navigate) {
  * @param {*} requested_data
  * @returns data depending on the outcome
  */
+
 export async function RegisterUser(requested_data) {
-    // Send JSON data (zoals backend verwacht)
+    const token = sessionStorage.getItem("token");
+
     try {
-        const response = await api.post("/users/", {
-            username: requested_data.username,
-            password: requested_data.password,
-            role: requested_data.role || "user",
+        // Stuur de data als JSON body!
+        const response = await api.post("/users/", requested_data, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
         });
-        if (response.status === 200 || response.status === 201) {
+
+        if (response.status === 200) {
             return { success: true };
         } else {
             console.error("Iets ging er fout bij het registeren");
+            return { success: false, message: "Onbekende fout" };
         }
     } catch (error) {
         console.error("Fout bij Registeren: " + error.message);
-        const { current_state, message } = RegisterError(error);
-        return { success: false, current_state, message };
+        return { success: false, message: error.message };
     }
 }
 
