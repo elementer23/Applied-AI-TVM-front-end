@@ -92,7 +92,8 @@ function EditAdvisoryText() {
         }
     }
     return (
-        <div>
+        <div className="section right-section">
+            <Header/>
             <label htmlFor="categories">Category:</label>
             <select
                 value={selectedCategory}
