@@ -487,15 +487,11 @@ export async function GetAdvisoryTextById(textId) {
  * Will return failure once the given id's are incorrect, not numbers or don't exist.
  * @param {*} textId
  * @param {*} adviceText
- * @param {*} subcategory
- * @param {*} category
  * @returns a boolean or message
  */
 export async function UpdateAdvisoryText(
     textId,
-    adviceText,
-    subcategory,
-    category
+    adviceText
 ) {
     const token = sessionStorage.getItem("token");
 
@@ -506,8 +502,6 @@ export async function UpdateAdvisoryText(
         const response = await api.put(
             `/advisorytexts/id=${textId}`,
             {
-                category: category,
-                sub_category: subcategory,
                 text: adviceText,
             },
             {

@@ -80,9 +80,7 @@ function EditAdvisoryText() {
 
         const result = await UpdateAdvisoryText(
             textId,
-            fetchedText,
-            selectedSubcategory,
-            selectedCategory);
+            fetchedText);
 
         if (result.success)
         {
