@@ -487,27 +487,21 @@ export async function GetAdvisoryTextById(textId) {
  * Will return failure once the given id's are incorrect, not numbers or don't exist.
  * @param {*} textId
  * @param {*} adviceText
- * @param {*} subcategory
- * @param {*} categoryId
  * @returns a boolean or message
  */
 export async function UpdateAdvisoryText(
     textId,
-    adviceText,
-    subcategory,
-    categoryId
+    adviceText
 ) {
     const token = sessionStorage.getItem("token");
 
-    if (!Number.isInteger(textId) || !Number.isInteger(categoryId))
+    if (!Number.isInteger(textId))
         return { success: false };
 
     try {
         const response = await api.put(
             `/advisorytexts/id=${textId}`,
             {
-                category_id: categoryId,
-                sub_category: subcategory,
                 text: adviceText,
             },
             {
