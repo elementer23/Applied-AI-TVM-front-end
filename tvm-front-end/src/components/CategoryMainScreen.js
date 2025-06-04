@@ -1,4 +1,3 @@
-import Header from "./Header";
 import { useEffect, useState } from "react";
 import {
     CreateAdvisoryText,
