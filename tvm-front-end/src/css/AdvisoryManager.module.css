@@ -17,10 +17,31 @@
 
 .advisoryManagerSection {
   padding: 10px;
+  padding-top: 20px;
   font-size: 14px;
   width: 100%;
   height: auto;
   color: #2c3e50;
+}
+
+.advisoryManagerCategoryPlatform {
+  width: 95%;
+  margin: auto;
+  margin-top: 60px;
+  font-size: 20px;
+  color: white;
+  height: auto;
+  background-color: rgba(79, 193, 93, 100);
+  border-radius: 10px;
+  padding-left: 10px;
+  padding-bottom: 10px;
+  padding-top: 10px;
+  transition: all 0.25s ease;
+}
+
+.advisoryManagerCategoryPlatform:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px -10px rgba(23, 171, 45, 0.6);
 }
 
 .successBtn {
