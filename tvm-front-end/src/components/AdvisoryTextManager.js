@@ -7,6 +7,8 @@ import {
     GetAdvisoryTextBySubcategoryId,
     GetAllCategories,
     GetAllSubcategoriesByCategory,
+    UpdateAdvisoryText,
+    DeleteAdvisoryText,
 } from "../utils/Services";
 
 function AdvisoryTextManager() {
@@ -50,6 +52,31 @@ function AdvisoryTextManager() {
         fetchAdviceText();
     }, [subSelectedKey]);
 
+    async function updateAdvisoryText(textId, adviceText) {
+        const data = await UpdateAdvisoryText(textId, adviceText);
+
+        if (data.success) {
+            setAdvisoryText((prevState) => ({
+                ...prevState,
+                text: adviceText,
+            }));
+            console.log(data.current_content);
+        }
+    }
+
+    async function deleteAdvisoryText(textId) {
+        const data = await DeleteAdvisoryText(textId);
+
+        if (data.success) {
+            setAdvisoryText(null);
+            setSubcategories((prevState) =>
+                prevState.filter((subcat) => subcat.id !== subSelectedKey)
+            );
+            setSubSelectedKey(null);
+            console.log(data.current_response);
+        }
+    }
+
     return (
         <div className="section right-section">
             <Header />
@@ -70,6 +97,8 @@ function AdvisoryTextManager() {
                             subSelectedKey={subSelectedKey}
                             setSubSelectedKey={setSubSelectedKey}
                             advisoryText={advisoryText}
+                            onAdvisoryUpdate={updateAdvisoryText}
+                            onAdvisoryDelete={deleteAdvisoryText}
                         />
                     ))}
             </div>

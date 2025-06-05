@@ -9,6 +9,8 @@ function Category({
     subSelectedKey,
     setSubSelectedKey,
     advisoryText,
+    onAdvisoryUpdate,
+    onAdvisoryDelete,
 }) {
     const isSelected = selectedKey === category.id;
 
@@ -29,6 +31,8 @@ function Category({
                             subSelectedKey={subSelectedKey}
                             setSubSelectedKey={setSubSelectedKey}
                             advisoryText={advisoryText}
+                            onAdvisoryUpdate={onAdvisoryUpdate}
+                            onAdvisoryDelete={onAdvisoryDelete}
                         />
                     ))}
                 </div>

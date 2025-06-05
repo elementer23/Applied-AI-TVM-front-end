@@ -6,6 +6,8 @@ function Subcategory({
     subSelectedKey,
     setSubSelectedKey,
     advisoryText,
+    onAdvisoryUpdate,
+    onAdvisoryDelete,
 }) {
     const isSelected = subSelectedKey === subcategory.id;
 
@@ -18,7 +20,13 @@ function Subcategory({
                 <span>{subcategory.name}</span>
             </div>
             {isSelected && advisoryText && (
-                <AdvisoryText text={advisoryText.text} />
+                <AdvisoryText
+                    advisoryText={advisoryText}
+                    onAdvisoryUpdate={(id, newText) =>
+                        onAdvisoryUpdate(id, newText)
+                    }
+                    onAdvisoryDelete={(id) => onAdvisoryDelete(id)}
+                />
             )}
         </div>
     );
