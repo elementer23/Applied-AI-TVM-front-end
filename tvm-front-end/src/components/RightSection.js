@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import { Request } from "../utils/Services";
 import { useState } from "react";
 import Header from "./Header";
@@ -15,6 +15,13 @@ function RightSection({
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
     const fileInputRef = useRef();
+    const chatMessagesRef = useRef();
+
+    useEffect(() => {
+        if (chatMessagesRef.current) {
+            chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
+        }
+    }, [messages, loading]);
 
     const handleSend = async () => {
         console.log("Bericht verzenden:", input);
@@ -44,7 +51,7 @@ function RightSection({
             <Header />
             {error && <div className="errorComponent">{error}</div>}
             <div className="chat-section">
-                <div className="chat-messages">
+                <div className="chat-messages" ref={chatMessagesRef}>
                     {messages.map((message) => (
                         <div
                             key={message.id}
