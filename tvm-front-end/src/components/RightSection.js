@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import { Request } from "../utils/Services";
 import { useState } from "react";
 import Header from "./Header";
@@ -14,16 +14,34 @@ function RightSection({
     const [input, setInput] = useState("");
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [localMessages, setLocalMessages] = useState([]);
     const fileInputRef = useRef();
+    const chatMessagesRef = useRef();
+
+    useEffect(() => {
+        if (chatMessagesRef.current) {
+            chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
+        }
+    }, [messages, loading]);
 
     const handleSend = async () => {
-        console.log("Bericht verzenden:", input);
+        if (!input.trim()) return;
+
+        const newMessage = {
+            id: Date.now(), // tijdelijke unieke id
+            is_user_message: true,
+            content: input,
+        };
+
+        setLocalMessages((prev) => [...prev, newMessage]);
+        setInput(""); // Leeg tekstveld direct na verzenden
         setLoading(true);
+
         const out = await Request(input, conversationId);
         setLoading(false);
 
         if (out.success) {
-            setInput(""); 
+            setLocalMessages([]); // Leeg lokale tijdelijke berichten
             await reFetchMessages();
             await reFetchConversations();
             setConversationId(out.current_conversation_id);
@@ -44,8 +62,8 @@ function RightSection({
             <Header />
             {error && <div className="errorComponent">{error}</div>}
             <div className="chat-section">
-                <div className="chat-messages">
-                    {messages.map((message) => (
+                <div className="chat-messages" ref={chatMessagesRef}>
+                    {[...messages, ...localMessages].map((message) => (
                         <div
                             key={message.id}
                             className={
@@ -71,21 +89,15 @@ function RightSection({
                 </div>
             </div>
             <div className="chat-input-row">
-                <input
-                    type="text"
+                <textarea
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     className="chat-input"
                     placeholder="Typ je bericht hier..."
+                    rows={1}
                 />
                 <button className="send-btn" onClick={handleSend}>
                     Verstuur
-                </button>
-                <button
-                    className="upload-btn"
-                    onClick={() => fileInputRef.current.click()}
-                >
-                    Bestand uploaden
                 </button>
                 <input
                     type="file"

@@ -65,28 +65,6 @@ function LeftSection({
                     ))}
                 </ul>
             </div>
-            <div className="guidelines-content">
-                <p>
-                    <strong>Richtlijn bestanden</strong>
-                </p>
-                <ul>
-                    <li>
-                        <strong>Richtlijn bestand 1</strong> <i>Versie 1</i>
-                    </li>
-                    <li>
-                        <strong>Richtlijn bestand 2</strong> <i>Versie 2</i>
-                    </li>
-                    <li>
-                        <strong>Richtlijn bestand 3</strong> <i>Versie 3</i>
-                    </li>
-                    <li>
-                        <strong>Richtlijn bestand 4</strong> <i>Versie 4</i>
-                    </li>
-                    <li>
-                        <strong>Richtlijn bestand 5</strong> <i>Versie 5</i>
-                    </li>
-                </ul>
-            </div>
             <div className="new-chat">
                 <button
                     className="new-chat-button"
