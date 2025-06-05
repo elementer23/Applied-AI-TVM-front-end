@@ -175,28 +175,23 @@
   color: black;
   border-right: 2px solid rgba(79,193,93,100);
   display: grid;
-  grid-template-rows: 0.13fr 2fr 0fr 0fr;
+  grid-template-rows: 0.13fr 2fr auto auto;
   min-width: 100px;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .history-content {
   grid-row: 2/3;
   border-bottom: 8px solid rgba(79,193,93,100);
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .history-content p {
   border-bottom: 2px solid rgba(79,193,93,100);
   text-align: center;
   padding-bottom: 8px;
-}
-
-.guidlines-content {
-  grid-row: 3/4;
-  border-bottom: 8px solid rgba(79,193,93,100);
-}
-
-.guidlines-content p {
-  text-align: center;
 }
 
 ul {

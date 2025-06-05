@@ -14,6 +14,7 @@ function RightSection({
     const [input, setInput] = useState("");
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [localMessages, setLocalMessages] = useState([]);
     const fileInputRef = useRef();
     const chatMessagesRef = useRef();
 
@@ -24,13 +25,23 @@ function RightSection({
     }, [messages, loading]);
 
     const handleSend = async () => {
-        console.log("Bericht verzenden:", input);
+        if (!input.trim()) return;
+
+        const newMessage = {
+            id: Date.now(), // tijdelijke unieke id
+            is_user_message: true,
+            content: input,
+        };
+
+        setLocalMessages((prev) => [...prev, newMessage]);
+        setInput(""); // Leeg tekstveld direct na verzenden
         setLoading(true);
+
         const out = await Request(input, conversationId);
         setLoading(false);
 
         if (out.success) {
-            setInput(""); 
+            setLocalMessages([]); // Leeg lokale tijdelijke berichten
             await reFetchMessages();
             await reFetchConversations();
             setConversationId(out.current_conversation_id);
@@ -52,7 +63,7 @@ function RightSection({
             {error && <div className="errorComponent">{error}</div>}
             <div className="chat-section">
                 <div className="chat-messages" ref={chatMessagesRef}>
-                    {messages.map((message) => (
+                    {[...messages, ...localMessages].map((message) => (
                         <div
                             key={message.id}
                             className={
