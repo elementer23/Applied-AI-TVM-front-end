@@ -176,7 +176,7 @@
   border-right: 2px solid rgba(79,193,93,100);
   display: grid;
   grid-template-rows: 0.13fr 2fr 0fr 0fr;
-  min-width: 180px;
+  min-width: 100px;
 }
 
 .history-content {
