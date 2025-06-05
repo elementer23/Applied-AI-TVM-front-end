@@ -100,29 +100,29 @@ export async function Login(requested_data, navigate) {
  * @returns data depending on the outcome
  */
 
-export async function RegisterUser(requested_data) {
+export async function RegisterUser(data) {
     const token = sessionStorage.getItem("token");
 
+    const form = new URLSearchParams();
+    form.append("username", data.username);
+    form.append("password", data.password);
+    form.append("role", data.role);
+
     try {
-        // Stuur de data als JSON body!
-        const response = await api.post("/users/", requested_data, {
+        const response = await api.post("/users/", form, {
             headers: {
                 Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-            },
+                "Content-Type": "application/x-www-form-urlencoded"
+            }
         });
-
-        if (response.status === 200) {
-            return { success: true };
-        } else {
-            console.error("Iets ging er fout bij het registeren");
-            return { success: false, message: "Onbekende fout" };
-        }
+        if (response.status === 200) return { success: true };
+        return { success: false, message: "Onbekende fout" };
     } catch (error) {
-        console.error("Fout bij Registeren: " + error.message);
-        return { success: false, message: error.message };
+        return { success: false, message: error.response?.data?.detail || error.message };
     }
 }
+
+
 
 /**
  * It's logging out exactly what one would expect,

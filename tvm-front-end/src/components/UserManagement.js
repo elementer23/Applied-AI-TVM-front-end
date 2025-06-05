@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { GetAllUsers, UpdateUser, DeleteUser } from "../utils/Services";
+import { GetAllUsers, UpdateUser, DeleteUser, RegisterUser } from "../utils/Services";
 import Header from "./Header";
-import "../css/UserManagement.css"; 
+import "../css/UserManagement.css";
 
 function UserManagement() {
     const [users, setUsers] = useState([]);
@@ -10,6 +10,11 @@ function UserManagement() {
     const [feedback, setFeedback] = useState("");
     const [loading, setLoading] = useState(false);
 
+    // Nieuw voor gebruiker toevoegen
+    const [showAddForm, setShowAddForm] = useState(false);
+    const [addForm, setAddForm] = useState({ username: "", password: "", role: "user" });
+
+    // Laad gebruikerslijst
     const loadUsers = async () => {
         setLoading(true);
         try {
@@ -48,7 +53,7 @@ function UserManagement() {
             await UpdateUser(userId, {
                 username: editForm.username,
                 role: editForm.role,
-                password: editForm.password || undefined, // Stuur alleen als ingevuld
+                password: editForm.password || undefined, // Alleen sturen als ingevuld
             });
             setFeedback("Gebruiker bijgewerkt!");
             setEditingUserId(null);
@@ -74,13 +79,90 @@ function UserManagement() {
         }
     };
 
+    // Nieuw: handler voor gebruiker toevoegen
+    const handleAddChange = (e) => {
+        setAddForm({ ...addForm, [e.target.name]: e.target.value });
+    };
+
+    const handleAddUser = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        try {
+            await RegisterUser({
+                username: addForm.username,
+                password: addForm.password,
+                role: addForm.role,
+            });
+            setFeedback("Gebruiker aangemaakt!");
+            setShowAddForm(false);
+            setAddForm({ username: "", password: "", role: "user" });
+            loadUsers();
+        } catch {
+            setFeedback("Aanmaken mislukt!");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <>
             <Header variant="beheer" />
             <div className="user-management-centerwrap">
                 <div className="user-management-content">
                     <h1 className="beheer-title">Gebruikersbeheer</h1>
+                    {/* Feedback */}
                     {feedback && <div className="beheer-feedback">{feedback}</div>}
+
+                    {/* Gebruiker toevoegen knop */}
+                    <button
+                        className="beheer-btn beheer-btn-blue"
+                        style={{ marginBottom: "16px" }}
+                        onClick={() => setShowAddForm(v => !v)}
+                        disabled={loading}
+                    >
+                        {showAddForm ? "Annuleer" : "Gebruiker aanmaken"}
+                    </button>
+
+                    {/* Gebruiker toevoegen formulier */}
+                    {showAddForm && (
+                        <form
+                            className="beheer-add-form"
+                            style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 16 }}
+                            onSubmit={handleAddUser}
+                        >
+                            <input
+                                className="beheer-input"
+                                placeholder="Gebruikersnaam"
+                                name="username"
+                                required
+                                value={addForm.username}
+                                onChange={handleAddChange}
+                            />
+                            <input
+                                className="beheer-input"
+                                placeholder="Wachtwoord"
+                                name="password"
+                                type="password"
+                                required
+                                value={addForm.password}
+                                onChange={handleAddChange}
+                            />
+                            <select
+                                className="beheer-input"
+                                name="role"
+                                value={addForm.role}
+                                onChange={handleAddChange}
+                            >
+                                <option value="user">user</option>
+                                <option value="admin">admin</option>
+                            </select>
+                            <button className="beheer-btn beheer-btn-green" type="submit" disabled={loading}>
+                                Toevoegen
+                            </button>
+                        </form>
+                    )}
+
+                    {/* Bestaande gebruikers tabel */}
                     <table className="beheer-table">
                         <thead>
                             <tr>

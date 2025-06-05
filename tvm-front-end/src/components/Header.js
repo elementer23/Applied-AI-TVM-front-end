@@ -22,8 +22,6 @@ function Header({ variant }) {
     const handleNavigation = (option) => {
         if (option === "gebruikersbeheer") {
             navigate("/admin/users");
-        } else if (option === "account") {
-            navigate("/accountManager");
         } else if (option === "dashboard") {
             navigate("/textChanger");
         } else if (option === "main") {
@@ -60,12 +58,6 @@ function Header({ variant }) {
                                     Gebruikersbeheer
                                 </li>
                             )}
-                            <li
-                                className="dropdown-item"
-                                onClick={() => handleNavigation("account")}
-                            >
-                                Account aanmaken
-                            </li>
                             <li
                                 className="dropdown-item"
                                 onClick={() => handleNavigation("dashboard")}
