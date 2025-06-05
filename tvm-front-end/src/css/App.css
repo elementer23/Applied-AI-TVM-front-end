@@ -156,7 +156,7 @@
   color: black;
   border-right: 2px solid rgba(79,193,93,100);
   display: grid;
-  grid-template-rows: 0.25fr 2fr 0fr 0fr;
+  grid-template-rows: 0.13fr 2fr 0fr 0fr;
   min-width: 180px;
 }
 
