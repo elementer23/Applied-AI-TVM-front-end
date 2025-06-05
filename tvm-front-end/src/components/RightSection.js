@@ -81,12 +81,6 @@ function RightSection({
                 <button className="send-btn" onClick={handleSend}>
                     Verstuur
                 </button>
-                <button
-                    className="upload-btn"
-                    onClick={() => fileInputRef.current.click()}
-                >
-                    Bestand uploaden
-                </button>
                 <input
                     type="file"
                     ref={fileInputRef}

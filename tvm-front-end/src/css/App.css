@@ -136,15 +136,6 @@
 .send-btn {
   padding: 8px 14px;
   border: none;
-  background: #fff;
-  font-weight: bold;
-  cursor: pointer;
-  background-color: rgba(79, 193, 93, 0.25);
-}
-
-.upload-btn {
-  padding: 8px 14px;
-  border: none;
   border-left: 2px solid rgba(79, 193, 93, 100);
   border-top-right-radius: 20px;
   border-bottom-right-radius: 20px;
