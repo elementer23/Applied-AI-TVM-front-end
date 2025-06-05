@@ -78,12 +78,12 @@ function RightSection({
                 </div>
             </div>
             <div className="chat-input-row">
-                <input
-                    type="text"
+                <textarea
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     className="chat-input"
                     placeholder="Typ je bericht hier..."
+                    rows={1}
                 />
                 <button className="send-btn" onClick={handleSend}>
                     Verstuur
