@@ -977,39 +977,74 @@ export async function DeleteSingleSubcategory(subcategoryId, confirmation) {
     }
 }
 
+/**
+ * This function updates the user, based on the given id and values.
+ * Will update the user upon success, will throw an error upon failure.
+ * Will return false once the given user id, was invalid, didn't exist or wasn't a number.
+ * @param {*} userId
+ * @param {*} userData
+ * @returns a message or boolean
+ */
 export async function UpdateUser(userId, userData) {
     const token = sessionStorage.getItem("token");
+
+    if (!Number.isInteger(userId)) return false;
+
     try {
         const response = await api.put(`/users/${userId}`, userData, {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` },
         });
-        return response.data;
+
+        if (response.status === 200) {
+            return response.data;
+        }
     } catch (error) {
         console.error("Fout bij updaten gebruiker:", error);
         throw error;
     }
 }
 
+/**
+ * This function will retrieve all users from the database.
+ * Will return a set of data upon success, will return an empty
+ * array and an error upon failure.
+ * @returns a set of data or empty array
+ */
 export async function GetAllUsers() {
     const token = sessionStorage.getItem("token");
     try {
         const response = await api.get("/users/", {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` },
         });
-        return response.data;
+        if (response.status === 200) {
+            return response.data;
+        }
     } catch (error) {
         console.error("Fout bij ophalen gebruikers:", error);
         return [];
     }
 }
 
+/**
+ * This function will delete an user from the database.
+ * Will delete the user and return a message upon success,
+ * will return nothing and an error upon failure.
+ * Will return failure once the given user id was invalid, didn't exist or wasn't a numbers
+ * @param {*} userId
+ * @returns a message or a boolean
+ */
 export async function DeleteUser(userId) {
     const token = sessionStorage.getItem("token");
+
+    if (!Number.isInteger(userId)) return false;
+
     try {
         const response = await api.delete(`/users/${userId}`, {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` },
         });
-        return response.data;
+        if (response.status === 200) {
+            return response.data;
+        }
     } catch (error) {
         console.error("Fout bij verwijderen gebruiker:", error);
         throw error;
