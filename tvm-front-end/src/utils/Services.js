@@ -489,14 +489,10 @@ export async function GetAdvisoryTextById(textId) {
  * @param {*} adviceText
  * @returns a boolean or message
  */
-export async function UpdateAdvisoryText(
-    textId,
-    adviceText
-) {
+export async function UpdateAdvisoryText(textId, adviceText) {
     const token = sessionStorage.getItem("token");
 
-    if (!Number.isInteger(textId))
-        return { success: false };
+    if (!Number.isInteger(textId)) return { success: false };
 
     try {
         const response = await api.put(
