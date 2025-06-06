@@ -2,17 +2,26 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Logout } from "../utils/Services";
 
-function Header() {
+function Header({ variant }) {
     const navigate = useNavigate();
     const [showDropdown, setShowDropdown] = useState(false);
+    // const [user, setUser] = useState(null);
+
+    // useEffect(() => {
+    //     async function fetchUser() {
+    //         const userData = await GetCurrentUser();
+    //         setUser(userData);
+    //     }
+    //     fetchUser();
+    // }, []);
 
     const toggleDropdown = () => {
         setShowDropdown(!showDropdown);
     };
 
     const handleNavigation = (option) => {
-        if (option === "account") {
-            navigate("/accountManager");
+        if (option === "usermanagement") {
+            navigate("/usermanagement");
         } else if (option === "dashboard") {
             navigate("/categoryMain");
         } else if (option === "main") {
@@ -24,7 +33,11 @@ function Header() {
     };
 
     return (
-        <div className="section-header">
+        <div
+            className={`section-header ${
+                variant === "beheer" ? "section-header--beheer" : ""
+            }`}
+        >
             <img
                 className="image-header"
                 src="/images/tvmLogo.png"
@@ -38,14 +51,17 @@ function Header() {
                     alt="Profile"
                     onClick={toggleDropdown}
                 />
+
                 {showDropdown && (
                     <div className="dropdown-menu">
                         <ul>
-                            <li
+                            <li //{user?.role === "admin" && ( )} werkt momenteel niet
                                 className="dropdown-item"
-                                onClick={() => handleNavigation("account")}
+                                onClick={() =>
+                                    handleNavigation("usermanagement")
+                                }
                             >
-                                Account aanmaken
+                                Gebruikersbeheer
                             </li>
                             <li
                                 className="dropdown-item"
