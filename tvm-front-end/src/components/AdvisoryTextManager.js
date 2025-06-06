@@ -1,7 +1,6 @@
 import Header from "./Header";
 import styles from "../css/AdvisoryManager.module.css";
 import { useEffect, useState } from "react";
-// import { Trash2, PencilLine } from "lucide-react";
 import Category from "./advisoryTextManagerComponents/Category.js";
 import {
     GetAdvisoryTextBySubcategoryId,
@@ -9,6 +8,8 @@ import {
     GetAllSubcategoriesByCategory,
     UpdateAdvisoryText,
     DeleteAdvisoryText,
+    UpdateCategory,
+    DeleteSingleCategory,
 } from "../utils/Services";
 
 function AdvisoryTextManager() {
@@ -77,6 +78,34 @@ function AdvisoryTextManager() {
         }
     }
 
+    async function updateCategoryName(categoryId, categoryName) {
+        const data = await UpdateCategory(categoryId, categoryName);
+
+        if (data.success) {
+            setCategories((prevCategories) =>
+                prevCategories.map((cat) =>
+                    cat.id === categoryId ? { ...cat, name: categoryName } : cat
+                )
+            );
+            console.log(data.current_content);
+        }
+    }
+
+    async function deleteCategory(categoryId, confirmation) {
+        const data = await DeleteSingleCategory(categoryId, confirmation);
+
+        if (data.success) {
+            setCategories((prevCategories) =>
+                prevCategories.filter((prevCat) => prevCat.id !== selectedKey)
+            );
+            setSubcategories([]);
+            setAdvisoryText(null);
+            setSubSelectedKey(null);
+            setSelectedKey(null);
+            console.log(data.current_content);
+        }
+    }
+
     return (
         <div className="section right-section">
             <Header />
@@ -99,6 +128,8 @@ function AdvisoryTextManager() {
                             advisoryText={advisoryText}
                             onAdvisoryUpdate={updateAdvisoryText}
                             onAdvisoryDelete={deleteAdvisoryText}
+                            onCategoryUpdate={updateCategoryName}
+                            onCategoryDelete={deleteCategory}
                         />
                     ))}
             </div>

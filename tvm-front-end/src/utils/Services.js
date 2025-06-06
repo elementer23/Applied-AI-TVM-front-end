@@ -580,7 +580,7 @@ export async function DeleteAdvisoryText(textId) {
             },
         });
 
-        if (response.status === 200) {
+        if (response.status === 204) {
             return {
                 success: true,
                 current_response: response.data.content,

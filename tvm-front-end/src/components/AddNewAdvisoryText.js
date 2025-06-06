@@ -27,7 +27,6 @@ function AddNewAdvisoryText() {
             ...formData,
             categoryId: selectedKey,
         };
-        console.log("test");
         const content = await CreateAdvisoryText(customFormData);
         if (content.success) console.log("you added something");
     };
@@ -69,7 +68,9 @@ function AddNewAdvisoryText() {
                             name="categoryId"
                             id="categoryName"
                             className={styles.advisoryManagerInput}
-                            onChange={(e) => setSelectedKey(e.target.value)}
+                            onChange={(e) =>
+                                setSelectedKey(parseInt(e.target.value))
+                            }
                         >
                             {categories.map((category) => (
                                 <option key={category.id} value={category.id}>

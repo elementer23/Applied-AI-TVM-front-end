@@ -15,7 +15,11 @@ function Subcategory({
         <div>
             <div
                 className={styles.advisoryManagerSubcategoryPlatformItem}
-                onClick={() => setSubSelectedKey(subcategory.id)}
+                onClick={() =>
+                    setSubSelectedKey((checkKey) =>
+                        checkKey === subcategory.id ? null : subcategory.id
+                    )
+                }
             >
                 <span>{subcategory.name}</span>
             </div>

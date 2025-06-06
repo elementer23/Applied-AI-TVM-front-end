@@ -47,7 +47,7 @@ function AdvisoryText({ advisoryText, onAdvisoryUpdate, onAdvisoryDelete }) {
                         border: "none",
                         color: "grey",
                         cursor: "pointer",
-                        display: displayItems ? "none" : "block",
+                        display: displayItems ? "none" : "inline-block",
                     }}
                     title="Pas advies aan"
                 >
@@ -56,9 +56,9 @@ function AdvisoryText({ advisoryText, onAdvisoryUpdate, onAdvisoryDelete }) {
                 <button
                     className={styles.successBtn}
                     onClick={handleAdvisoryUpdate}
-                    style={{ display: displayItems ? "block" : "none" }}
+                    style={{ display: displayItems ? "inline-block" : "none" }}
                 >
-                    udpate
+                    update
                 </button>
                 <button
                     onClick={handleAdvisoryDelete}
@@ -67,7 +67,7 @@ function AdvisoryText({ advisoryText, onAdvisoryUpdate, onAdvisoryDelete }) {
                         border: "none",
                         color: "red",
                         cursor: "pointer",
-                        display: displayItems ? "none" : "block",
+                        display: displayItems ? "none" : "inline-block",
                     }}
                     title="Verwijder advies"
                 >
@@ -79,7 +79,7 @@ function AdvisoryText({ advisoryText, onAdvisoryUpdate, onAdvisoryDelete }) {
                         setDisplayItems(false);
                     }}
                     className={styles.cancelBtn}
-                    style={{ display: displayItems ? "block" : "none" }}
+                    style={{ display: displayItems ? "inline-block" : "none" }}
                 >
                     cancel
                 </button>
