@@ -980,3 +980,42 @@ export async function DeleteSingleSubcategory(subcategoryId, confirmation) {
         return { success: false };
     }
 }
+
+export async function UpdateUser(userId, userData) {
+    const token = sessionStorage.getItem("token");
+    try {
+        const response = await api.put(`/users/${userId}`, userData, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Fout bij updaten gebruiker:", error);
+        throw error;
+    }
+}
+
+export async function GetAllUsers() {
+    const token = sessionStorage.getItem("token");
+    try {
+        const response = await api.get("/users/", {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Fout bij ophalen gebruikers:", error);
+        return [];
+    }
+}
+
+export async function DeleteUser(userId) {
+    const token = sessionStorage.getItem("token");
+    try {
+        const response = await api.delete(`/users/${userId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Fout bij verwijderen gebruiker:", error);
+        throw error;
+    }
+}
