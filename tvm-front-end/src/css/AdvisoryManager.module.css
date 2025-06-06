@@ -17,10 +17,90 @@
 
 .advisoryManagerSection {
   padding: 10px;
+  padding-top: 20px;
   font-size: 14px;
   width: 100%;
   height: auto;
   color: #2c3e50;
+}
+
+.advisoryManagerCategoryPlatform {
+  width: 95%;
+  margin: auto;
+  margin-top: 60px;
+  font-size: 20px;
+  color: white;
+  height: auto;
+  background: #4FC15D;
+  background: linear-gradient(90deg, rgba(79, 193, 93, 1) 27%, rgba(187, 237, 197, 1));
+  border-radius: 10px;
+  padding-left: 10px;
+  padding-bottom: 10px;
+  padding-top: 10px;
+  transition: all 0.25s ease;
+}
+
+.advisoryManagerCategoryPlatform:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px -10px rgba(23, 171, 45, 0.6);
+  padding-left: 20px;
+  border: 2px solid rgba(187, 237, 197, 1);
+}
+
+.advisoryManagerSubcategoryPlatform {
+  width: 95%;
+  margin: auto;
+  font-size: 15px;
+  color: rgba(79, 193, 93, 1);
+  height: auto;
+  background: white;
+  border: 2px solid rgba(187, 237, 197, 1);
+  border-radius: 10px;
+}
+
+.advisoryManagerSubcategoryPlatformItem {
+  width: 95%;
+  height: auto;
+  background: white;
+  border-radius: 10px;
+  padding: 10px;
+  transition: all 0.25s ease;
+}
+
+.advisoryManagerSubcategoryPlatformItem:hover {
+  padding-left: 20px;
+  border-bottom: 4px solid rgba(187, 237, 197, 1);
+}
+
+.advisoryManagerAdviceTextPlatform {
+  display: flex; 
+  justify-content: space-between;
+  align-items: center; 
+  width: 95%;
+  margin-left: 1.5%; 
+  margin-right: 2.5%;
+  font-size: 15px;
+  height: auto;
+  background: white;
+  border-radius: 10px;
+  border: 2px solid rgba(187, 237, 197, 1);
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 10px;
+  transition: all 0.75s ease;
+}
+
+.advisoryManagerAdviceTextPlatform:hover {
+  margin: 0;
+}
+
+.advisoryManagerAdviceTextPlatformItemLeft {
+  width: 85%;
+}
+
+.advisoryManagerAdviceTextPlatformItemRight {
+  width: 15%;
+  text-align: right;
 }
 
 .successBtn {
@@ -59,6 +139,25 @@
   box-shadow: none;
   transform: none;
   background: whitesmoke;
+}
+
+.deleteBtn {
+  margin-top: 10px;
+  cursor: pointer;
+  font-weight: 500;
+  padding: 11px 28px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  border: none;
+  color: #fff;
+  background: #ff3e4e;
+  transition: all 0.25s ease;
+}
+
+.deleteBtn:hover {
+  box-shadow: 0 10px 20px -10px rgba(255, 62, 78, 0.6);
+  transform: translateY(-5px);
+  background: #ff3e4e;
 }
 
 .advisoryManagerInput {
