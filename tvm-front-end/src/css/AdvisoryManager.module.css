@@ -22,12 +22,16 @@
   width: 100%;
   height: auto;
   color: #2c3e50;
+  overflow: auto;
 }
 
 .advisoryManagerCategoryPlatform {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; 
   width: 95%;
   margin: auto;
-  margin-top: 60px;
+  margin-top: 40px;
   font-size: 20px;
   color: white;
   height: auto;
@@ -45,6 +49,15 @@
   box-shadow: 0 10px 20px -10px rgba(23, 171, 45, 0.6);
   padding-left: 20px;
   border: 2px solid rgba(187, 237, 197, 1);
+}
+
+.advisoryManagerCategoryPlatformItemLeft {
+  width: 85%;
+}
+
+.advisoryManagerCategoryPlatformItemRight {
+  width: 15%;
+  text-align: right;
 }
 
 .advisoryManagerSubcategoryPlatform {
