@@ -1,5 +1,13 @@
 import api from "./api";
-import { LoginError, RegisterError, RequestError } from "./errorHandler";
+import {
+    LoginError,
+    RegisterError,
+    RequestError,
+    RetrieveCategoriesError,
+    CreateCategoryError,
+    RetrieveSubCategoryByCategoryIdError,
+    CreateAdvisoryTextError,
+} from "./errorHandler";
 
 /**
  * Request function, this function expects text like input
@@ -552,12 +560,13 @@ export async function CreateAdvisoryText(formData) {
         if (response.status === 200 || response.status === 201) {
             return {
                 success: true,
-                current_response: response.data.content,
+                message: response.data,
             };
         }
     } catch (error) {
         console.error("Fout bij aanmaken van advies tekst:", error.message);
-        return { success: false };
+        const { current_state, message } = CreateAdvisoryTextError(error);
+        return { success: false, current_state, message };
     }
 }
 
@@ -656,9 +665,14 @@ export async function GetAllCategories() {
             };
         }
     } catch (error) {
-        console.error(error.message);
+        console.error(
+            "Error bij het ophalen van categorieën: " + error.message
+        );
+        const { current_state, message } = RetrieveCategoriesError(error);
         return {
             success: false,
+            current_state,
+            message,
         };
     }
 }
@@ -721,13 +735,16 @@ export async function CreateNewCategory(categoryName) {
         if (response.status === 200 || response.status === 201) {
             return {
                 success: true,
-                current_content: response.data.content,
+                message: response.data,
             };
         }
     } catch (error) {
-        console.error(error.message);
+        console.error("Fout bij aanmaken categorie: " + error.message);
+        const { current_state, message } = CreateCategoryError(error);
         return {
             success: false,
+            current_state,
+            message,
         };
     }
 }
@@ -864,9 +881,15 @@ export async function GetAllSubcategoriesByCategory(categoryId) {
             };
         }
     } catch (error) {
-        console.error(error.message);
+        console.error(
+            "Fout bij het ophalen van subcategorieën: " + error.message
+        );
+        const { current_state, message } =
+            RetrieveSubCategoryByCategoryIdError(error);
         return {
             success: false,
+            current_state,
+            message,
         };
     }
 }

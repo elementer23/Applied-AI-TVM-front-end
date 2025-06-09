@@ -73,3 +73,72 @@ export function RequestError(error) {
         message: "Network error",
     };
 }
+
+export function RetrieveCategoriesError(error) {
+    if (error) {
+        if (error.status === 404) {
+            return {
+                current_state: error.status,
+                message: error.response.data.detail,
+            };
+        }
+    }
+
+    return {
+        current_state: null,
+        message: "Network error",
+    };
+}
+
+export function CreateCategoryError(error) {
+    if (error) {
+        if (error.status === 400) {
+            return {
+                current_state: error.status,
+                message: error.response.data.detail,
+            };
+        } else if (error.status === 403) {
+            return {
+                current_state: error.status,
+                message: error.response.data.detail,
+            };
+        }
+    }
+
+    return {
+        current_state: null,
+        message: "Network error",
+    };
+}
+
+export function RetrieveSubCategoryByCategoryIdError(error) {
+    if (error) {
+        if (error.status === 404) {
+            return {
+                current_state: error.status,
+                message: error.response.data.detail,
+            };
+        }
+    }
+
+    return {
+        current_state: null,
+        message: "Network error",
+    };
+}
+
+export function CreateAdvisoryTextError(error) {
+    if (error) {
+        if (error.status === 400) {
+            return {
+                current_state: error.status,
+                message: error.response.data.detail,
+            };
+        }
+    }
+
+    return {
+        current_state: null,
+        message: "Network error",
+    };
+}
