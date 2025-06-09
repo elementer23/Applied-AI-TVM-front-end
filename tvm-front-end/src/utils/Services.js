@@ -7,6 +7,10 @@ import {
     CreateCategoryError,
     RetrieveSubCategoryByCategoryIdError,
     CreateAdvisoryTextError,
+    UpdateAdvisoryTextError,
+    DeleteAdvisoryTextError,
+    UpdateCategoryError,
+    DeleteSingleCategoryError,
 } from "./errorHandler";
 
 /**
@@ -518,12 +522,13 @@ export async function UpdateAdvisoryText(textId, adviceText) {
         if (response.status === 200) {
             return {
                 success: true,
-                current_content: response.data.content,
+                message: response.data,
             };
         }
     } catch (error) {
         console.error("Fout bij updaten van advies tekst:", error.message);
-        return { success: false };
+        const { current_state, message } = UpdateAdvisoryTextError(error);
+        return { success: false, current_state, message };
     }
 }
 
@@ -592,12 +597,13 @@ export async function DeleteAdvisoryText(textId) {
         if (response.status === 204) {
             return {
                 success: true,
-                current_response: response.data.content,
+                message: response.data,
             };
         }
     } catch (error) {
         console.error("Fout bij verwijderen van advies tekst:", error.message);
-        return { success: false };
+        const { current_state, message } = DeleteAdvisoryTextError(error);
+        return { success: false, current_state, message };
     }
 }
 
@@ -777,13 +783,16 @@ export async function UpdateCategory(categoryId, categoryName) {
         if (response.status === 200) {
             return {
                 success: true,
-                current_content: response.data.content,
+                message: response.data,
             };
         }
     } catch (error) {
-        console.error(error.message);
+        console.error("Fout bij updaten categorie: " + error.message);
+        const { current_state, message } = UpdateCategoryError(error);
         return {
             success: false,
+            current_state,
+            message,
         };
     }
 }
@@ -809,16 +818,19 @@ export async function DeleteSingleCategory(categoryId, confirmation) {
             },
         });
 
-        if (response.status === 200 || response.status === 204) {
+        if (response.status === 204) {
             return {
                 success: true,
-                current_content: response.data.content,
+                message: response.data,
             };
         }
     } catch (error) {
-        console.error(error.message);
+        console.error("Fout bij verwijderen categorie: " + error.message);
+        const { current_state, message } = DeleteSingleCategoryError(error);
         return {
             success: false,
+            current_state,
+            message,
         };
     }
 }
