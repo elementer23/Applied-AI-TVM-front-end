@@ -11,6 +11,7 @@ function Category({
     advisoryText,
     onAdvisoryUpdate,
     onAdvisoryDelete,
+    searchTerm,
 }) {
     const isSelected = selectedKey === category.id;
 
@@ -33,6 +34,7 @@ function Category({
                             advisoryText={advisoryText}
                             onAdvisoryUpdate={onAdvisoryUpdate}
                             onAdvisoryDelete={onAdvisoryDelete}
+                            searchTerm={searchTerm}
                         />
                     ))}
                 </div>

@@ -1,10 +1,12 @@
 .advisoryManagerHeader {
-  height: 50px;
   background: white;
-  overflow: hidden;
   border-bottom: 2px solid black;
-  align-items: start;
   width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
 }
 
 .advisoryManagerHeading {
@@ -181,4 +183,18 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
+}
+
+.searchBarContainer {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 2px solid #4fc15d;
 }
