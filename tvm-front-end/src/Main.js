@@ -14,16 +14,16 @@ function Main() {
         setConversations(data);
     }
 
-    useEffect(() => {
-        fetchConversations();
-    }, []);
-
     const fetchMessages = useCallback(async () => {
         if (selectedConversationId) {
             const data = await GetConversationMessages(selectedConversationId);
             setMessages(data);
         }
     }, [selectedConversationId]);
+
+    useEffect(() => {
+        fetchConversations();
+    }, []);
 
     useEffect(() => {
         fetchMessages();
@@ -35,11 +35,12 @@ function Main() {
                 conversations={conversations}
                 onSelectConversation={setSelectedConversationId}
                 reFetchConversations={fetchConversations}
-            />
+                reFetchMessages={fetchMessages}
+        />
             <RightSection
-                messages={messages}
                 conversationId={selectedConversationId}
                 setConversationId={setSelectedConversationId}
+                currentConversationMessages={messages}
                 reFetchMessages={fetchMessages}
                 reFetchConversations={fetchConversations}
             />
