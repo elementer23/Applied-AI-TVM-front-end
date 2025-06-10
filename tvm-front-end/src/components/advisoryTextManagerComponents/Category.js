@@ -15,6 +15,7 @@ function Category({
     onAdvisoryDelete,
     onCategoryUpdate,
     onCategoryDelete,
+    searchTerm,
 }) {
     const [displayItems, setDisplayItems] = useState(false);
     const [editedText, setEditedText] = useState(category.name);
@@ -134,6 +135,7 @@ function Category({
                             advisoryText={advisoryText}
                             onAdvisoryUpdate={onAdvisoryUpdate}
                             onAdvisoryDelete={onAdvisoryDelete}
+                            searchTerm={searchTerm}
                         />
                     ))}
                 </div>

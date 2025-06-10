@@ -22,6 +22,7 @@ function AdvisoryTextManager() {
     const [advisoryText, setAdvisoryText] = useState(null);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
+    const [searchTerm, setSearchTerm] = useState("");
 
     async function fetchAllCategories() {
         const data = await GetAllCategories();
@@ -37,11 +38,13 @@ function AdvisoryTextManager() {
 
     useEffect(() => {
         async function fetchSubcategories() {
-            const data = await GetAllSubcategoriesByCategory(selectedKey);
-            if (data.success) {
-                setSubcategories(data.current_response);
-            } else {
-                setSubcategories([]);
+            if (selectedKey !== null) {
+                const data = await GetAllSubcategoriesByCategory(selectedKey);
+                if (data.success) {
+                    setSubcategories(data.current_response);
+                } else {
+                    setSubcategories([]);
+                }
             }
         }
 
@@ -50,9 +53,13 @@ function AdvisoryTextManager() {
 
     useEffect(() => {
         async function fetchAdviceText() {
-            const data = await GetAdvisoryTextBySubcategoryId(subSelectedKey);
-            if (data.success) {
-                setAdvisoryText(data.current_response);
+            if (subSelectedKey !== null) {
+                const data = await GetAdvisoryTextBySubcategoryId(
+                    subSelectedKey
+                );
+                if (data.success) {
+                    setAdvisoryText(data.current_response);
+                }
             }
         }
 
@@ -143,6 +150,15 @@ function AdvisoryTextManager() {
                         <h3 className={styles.advisoryManagerHeading}>
                             Advies overzicht
                         </h3>
+                        <div className={styles.searchBarContainer}>
+                            <input
+                                type="text"
+                                placeholder="Zoeken..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className={styles.searchInput}
+                            />
+                        </div>
                     </div>
                     <div className={styles.advisoryManagerSection}>
                         {categories &&
@@ -160,6 +176,7 @@ function AdvisoryTextManager() {
                                     onAdvisoryDelete={deleteAdvisoryText}
                                     onCategoryUpdate={updateCategoryName}
                                     onCategoryDelete={deleteCategory}
+                                    searchTerm={searchTerm}
                                 />
                             ))}
                     </div>
