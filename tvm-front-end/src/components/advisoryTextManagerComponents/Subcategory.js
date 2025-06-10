@@ -1,6 +1,6 @@
 import styles from "../../css/AdvisoryManager.module.css";
 import AdvisoryText from "./AdvisoryText.js";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 function Subcategory({
     subcategory,
@@ -14,23 +14,22 @@ function Subcategory({
     const isSelected = subSelectedKey === subcategory.id;
     const matchRef = useRef(null);
 
-    const matchesSearch = () => {
+    const matchesSearch = useCallback(() => {
         if (!searchTerm) return false;
         const search = searchTerm.toLowerCase();
         const subName = subcategory.name?.toLowerCase() || "";
         const adviceText = advisoryText?.text?.toLowerCase() || "";
         return subName.includes(search) || adviceText.includes(search);
-    };
+    }, [advisoryText, searchTerm, subcategory]);
 
     useEffect(() => {
         if (matchesSearch() && matchRef.current) {
-            matchRef.current.scrollIntoView(
-                { 
-                    behavior: "smooth", 
-                    block: "center" 
-                });
+            matchRef.current.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+            });
         }
-    }, [searchTerm]);
+    }, [searchTerm, matchesSearch]);
 
     return (
         <div
