@@ -15,6 +15,7 @@ function Category({
     onAdvisoryDelete,
     onCategoryUpdate,
     onCategoryDelete,
+    searchTerm,
 }) {
     const [displayItems, setDisplayItems] = useState(false);
     const [editedText, setEditedText] = useState(category.name);
@@ -119,6 +120,12 @@ function Category({
 
             {isSelected && (
                 <div className={styles.advisoryManagerSubcategoryPlatform}>
+                    {subcategories.length === 0 && (
+                        <div>
+                            Momenteel geen subcategorieën voor de gevraagde
+                            categorie.
+                        </div>
+                    )}
                     {subcategories.map((subcategory) => (
                         <Subcategory
                             key={subcategory.id}
@@ -128,6 +135,7 @@ function Category({
                             advisoryText={advisoryText}
                             onAdvisoryUpdate={onAdvisoryUpdate}
                             onAdvisoryDelete={onAdvisoryDelete}
+                            searchTerm={searchTerm}
                         />
                     ))}
                 </div>

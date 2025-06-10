@@ -18,7 +18,7 @@ function CategoryMainScreen() {
                 <div></div>
                 <div className="history-content">
                     <p>
-                        <strong>Aanpasbare teksten</strong>
+                        <strong>Mogelijke opties</strong>
                     </p>
                     <ul>
                         <li className="text-change-item">

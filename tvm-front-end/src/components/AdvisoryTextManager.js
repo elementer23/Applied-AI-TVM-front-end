@@ -2,6 +2,7 @@ import Header from "./Header";
 import styles from "../css/AdvisoryManager.module.css";
 import { useEffect, useState } from "react";
 import Category from "./advisoryTextManagerComponents/Category.js";
+import "../css/Error.css";
 import {
     GetAdvisoryTextBySubcategoryId,
     GetAllCategories,
@@ -14,28 +15,36 @@ import {
 
 function AdvisoryTextManager() {
     const [categories, setCategories] = useState([]);
+    const [isCategory, setIsCategory] = useState(false);
     const [selectedKey, setSelectedKey] = useState(null);
     const [subcategories, setSubcategories] = useState([]);
     const [subSelectedKey, setSubSelectedKey] = useState(null);
     const [advisoryText, setAdvisoryText] = useState(null);
+    const [error, setError] = useState(null);
+    const [success, setSuccess] = useState(null);
+    const [searchTerm, setSearchTerm] = useState("");
 
-    useEffect(() => {
-        async function fetchAllCategories() {
-            const data = await GetAllCategories();
-            if (data.success) {
-                const categoryData = data.current_response;
-                setCategories(categoryData);
-            }
+    async function fetchAllCategories() {
+        const data = await GetAllCategories();
+        if (data.success) {
+            const categoryData = data.current_response;
+            setCategories(categoryData);
+            setIsCategory(true);
+        } else {
+            setIsCategory(false);
+            setCategories([]);
         }
-
-        fetchAllCategories();
-    }, []);
+    }
 
     useEffect(() => {
         async function fetchSubcategories() {
-            const data = await GetAllSubcategoriesByCategory(selectedKey);
-            if (data.success) {
-                setSubcategories(data.current_response);
+            if (selectedKey !== null) {
+                const data = await GetAllSubcategoriesByCategory(selectedKey);
+                if (data.success) {
+                    setSubcategories(data.current_response);
+                } else {
+                    setSubcategories([]);
+                }
             }
         }
 
@@ -44,9 +53,13 @@ function AdvisoryTextManager() {
 
     useEffect(() => {
         async function fetchAdviceText() {
-            const data = await GetAdvisoryTextBySubcategoryId(subSelectedKey);
-            if (data.success) {
-                setAdvisoryText(data.current_response);
+            if (subSelectedKey !== null) {
+                const data = await GetAdvisoryTextBySubcategoryId(
+                    subSelectedKey
+                );
+                if (data.success) {
+                    setAdvisoryText(data.current_response);
+                }
             }
         }
 
@@ -61,7 +74,11 @@ function AdvisoryTextManager() {
                 ...prevState,
                 text: adviceText,
             }));
-            console.log(data.current_content);
+            setSuccess(data.message);
+            setError(null);
+        } else {
+            setError(data.message);
+            setSuccess(null);
         }
     }
 
@@ -74,7 +91,11 @@ function AdvisoryTextManager() {
                 prevState.filter((subcat) => subcat.id !== subSelectedKey)
             );
             setSubSelectedKey(null);
-            console.log(data.current_response);
+            setSuccess(data.message);
+            setError(null);
+        } else {
+            setSuccess(null);
+            setError(data.message);
         }
     }
 
@@ -87,7 +108,11 @@ function AdvisoryTextManager() {
                     cat.id === categoryId ? { ...cat, name: categoryName } : cat
                 )
             );
-            console.log(data.current_content);
+            setSuccess(data.message);
+            setError(null);
+        } else {
+            setSuccess(null);
+            setError(data.message);
         }
     }
 
@@ -95,44 +120,68 @@ function AdvisoryTextManager() {
         const data = await DeleteSingleCategory(categoryId, confirmation);
 
         if (data.success) {
-            setCategories((prevCategories) =>
-                prevCategories.filter((prevCat) => prevCat.id !== selectedKey)
-            );
             setSubcategories([]);
             setAdvisoryText(null);
             setSubSelectedKey(null);
             setSelectedKey(null);
-            console.log(data.current_content);
+            fetchAllCategories();
+            setError(null);
+            setSuccess(data.message);
+        } else {
+            setError(data.message);
+            setSuccess(null);
         }
     }
+
+    useEffect(() => {
+        fetchAllCategories();
+    }, []);
 
     return (
         <div className="section right-section">
             <Header />
-            <div className={styles.advisoryManagerHeader}>
-                <h3 className={styles.advisoryManagerHeading}>
-                    Advies overzicht
-                </h3>
-            </div>
-            <div className={styles.advisoryManagerSection}>
-                {categories &&
-                    categories.map((category) => (
-                        <Category
-                            key={category.id}
-                            category={category}
-                            selectedKey={selectedKey}
-                            setSelectedKey={setSelectedKey}
-                            subcategories={subcategories}
-                            subSelectedKey={subSelectedKey}
-                            setSubSelectedKey={setSubSelectedKey}
-                            advisoryText={advisoryText}
-                            onAdvisoryUpdate={updateAdvisoryText}
-                            onAdvisoryDelete={deleteAdvisoryText}
-                            onCategoryUpdate={updateCategoryName}
-                            onCategoryDelete={deleteCategory}
-                        />
-                    ))}
-            </div>
+            {error && <div className="errorComponent">{error}</div>}
+            {success && <div className="successComponent">{success}</div>}
+            {!isCategory && <div>Er zijn momenteel geen categorieën.</div>}
+            {isCategory && (
+                <>
+                    {" "}
+                    <div className={styles.advisoryManagerHeader}>
+                        <h3 className={styles.advisoryManagerHeading}>
+                            Advies overzicht
+                        </h3>
+                        <div className={styles.searchBarContainer}>
+                            <input
+                                type="text"
+                                placeholder="Zoeken..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className={styles.searchInput}
+                            />
+                        </div>
+                    </div>
+                    <div className={styles.advisoryManagerSection}>
+                        {categories &&
+                            categories.map((category) => (
+                                <Category
+                                    key={category.id}
+                                    category={category}
+                                    selectedKey={selectedKey}
+                                    setSelectedKey={setSelectedKey}
+                                    subcategories={subcategories}
+                                    subSelectedKey={subSelectedKey}
+                                    setSubSelectedKey={setSubSelectedKey}
+                                    advisoryText={advisoryText}
+                                    onAdvisoryUpdate={updateAdvisoryText}
+                                    onAdvisoryDelete={deleteAdvisoryText}
+                                    onCategoryUpdate={updateCategoryName}
+                                    onCategoryDelete={deleteCategory}
+                                    searchTerm={searchTerm}
+                                />
+                            ))}
+                    </div>
+                </>
+            )}
         </div>
     );
 }
