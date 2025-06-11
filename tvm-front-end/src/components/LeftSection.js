@@ -1,7 +1,4 @@
-import {
-    DeleteSingleConversation,
-    StartNewConversation,
-} from "../utils/Services";
+import { DeleteSingleConversation, StartNewConversation } from "../utils/Services";
 import { useNavigate } from "react-router-dom";
 import { Trash2 } from "lucide-react";
 
@@ -9,15 +6,24 @@ function LeftSection({
     conversations,
     onSelectConversation,
     reFetchConversations,
+    reFetchMessages,
+    onNewConversationId, // <-- toegevoegd
 }) {
     const navigate = useNavigate();
+
     const handleNewConversation = async () => {
         const out = await StartNewConversation();
 
         if (out.success) {
-            await reFetchConversations();
-            onSelectConversation(out.id);
-        }
+            await reFetchConversations();        
+            onNewConversationId(out.id);          
+            await reFetchMessages();               
+}
+    };
+
+    const handleSelectConversation = async (conversationId) => {
+        onSelectConversation(conversationId);
+        await reFetchMessages();
     };
 
     const handleDeleteConversation = async (conversationId, e) => {
@@ -35,16 +41,12 @@ function LeftSection({
         <div className="section left-section">
             <div></div>
             <div className="history-content">
-                <p>
-                    <strong>Gesprek geschiedenis</strong>
-                </p>
+                <p><strong>Gesprek geschiedenis</strong></p>
                 <ul>
                     {conversations.map((conversation) => (
                         <li
                             key={conversation.id}
-                            onClick={() =>
-                                onSelectConversation(conversation.id)
-                            }
+                            onClick={() => handleSelectConversation(conversation.id)}
                             style={{
                                 cursor: "pointer",
                                 display: "flex",
@@ -54,16 +56,10 @@ function LeftSection({
                         >
                             <div>
                                 <strong>{conversation.title}</strong>{" "}
-                                <i>
-                                    {new Date(
-                                        conversation.created_at
-                                    ).toLocaleDateString()}
-                                </i>
+                                <i>{new Date(conversation.created_at).toLocaleDateString()}</i>
                             </div>
                             <button
-                                onClick={(e) =>
-                                    handleDeleteConversation(conversation.id, e)
-                                }
+                                onClick={(e) => handleDeleteConversation(conversation.id, e)}
                                 style={{
                                     background: "none",
                                     border: "none",

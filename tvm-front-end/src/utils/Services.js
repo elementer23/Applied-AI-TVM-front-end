@@ -22,7 +22,7 @@ import {
  * @param {*} conversationId
  * @returns output depending on the outcome
  */
-export async function Request(requestedInput, conversationId) {
+export async function sendAdviceRequest(requestedInput, conversationId) {
     const token = sessionStorage.getItem("token");
 
     let data = {

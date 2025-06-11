@@ -82,91 +82,6 @@
   overflow: hidden;
 }
 
-.chat-messages {
-  background: rgba(255,255,255,0.08); 
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
-  gap: 8px;
-  flex: 1;
-  overflow-y: auto;
-  padding: 10px;
-  min-height: 100px;
-  max-height: 100%;
-}
-
-.chat-message {
-  margin-bottom: 8px;
-  padding-left: 8px;
-  padding-right: 8px;
-  background-color: rgba(79, 193, 93, 0.25);
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
-  border-bottom-right-radius: 20px;
-  height: auto;
-  width: 90%;
-  text-align: left;
-}
-
-.chat-message.user {
-  text-align: right;
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 0px;
-}
-
-.chat-input-row {
-  width: 100%;
-  max-width: 100%;
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  flex-shrink: 0;
-  box-sizing: border-box;
-}
-
-.chat-input {
-  flex: 1;
-  padding: 8px 12px;
-  border-bottom-left-radius: 20px;
-  border-top-left-radius: 20px;
-  border-bottom-right-radius: 0px;
-  border-top-right-radius: 0px;
-  border: none;
-  font-size: 1rem;
-  background-color: rgba(79, 193, 93, 0.25);
-  box-sizing: border-box;
-  min-width: 0;
-  resize: none;
-  min-height: 40px;
-  max-height: 200px;
-  overflow-y: auto;
-  outline: none;
-  box-shadow: none;
-}
-
-.chat-input:focus {
-  box-shadow: none;
-  outline: none;
-}
-
-.send-btn {
-  padding: 8px 14px;
-  border: none;
-  border-left: 2px solid rgba(79, 193, 93, 100);
-  border-top-right-radius: 20px;
-  border-bottom-right-radius: 20px;
-  background: #fff;
-  font-weight: bold;
-  cursor: pointer;
-  background-color: rgba(79, 193, 93, 0.25);
-  flex-shrink: 0;
-  box-sizing: border-box;
-}
-
-.upload-btn:hover {
-  background: #e3e3e3;
-}
 
 /* Left Section */
 
@@ -323,4 +238,45 @@ textarea:focus {
 .login-form h1 {
   color: #4fc15d;
   text-align: center;
+}
+
+.advice-panels {
+  display: flex;
+  gap: 10rem;
+  margin-top: 1rem;
+}
+
+.advice-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 500px;
+  min-height: 600px;
+}
+
+.advice-textarea {
+  flex: 1;
+  min-height: 300px;
+  padding: 1rem;
+  border: 2px solid #45a049;
+  border-radius: 8px;
+  resize: vertical;
+  font-family: monospace;
+  font-size: 14px;
+}
+
+.generate-btn {
+  margin-top: 1.5rem;
+  padding: 0.8rem 1.5rem;
+  font-size: 16px;
+  background-color: rgba(79, 193, 93, 100);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.generate-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
