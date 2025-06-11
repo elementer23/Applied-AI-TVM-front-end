@@ -12,6 +12,7 @@ import {
     UpdateCategory,
     DeleteSingleCategory,
 } from "../utils/Services";
+import MessageOutcomeComponent from "./errorComponents/MessageOutcomeComponent.js";
 
 function AdvisoryTextManager() {
     const [categories, setCategories] = useState([]);
@@ -20,8 +21,10 @@ function AdvisoryTextManager() {
     const [subcategories, setSubcategories] = useState([]);
     const [subSelectedKey, setSubSelectedKey] = useState(null);
     const [advisoryText, setAdvisoryText] = useState(null);
-    const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(null);
+    const [outcomeHandler, setOutcomeHandler] = useState({
+        success: null,
+        error: null,
+    });
     const [searchTerm, setSearchTerm] = useState("");
 
     async function fetchAllCategories() {
@@ -74,11 +77,9 @@ function AdvisoryTextManager() {
                 ...prevState,
                 text: adviceText,
             }));
-            setSuccess(data.message);
-            setError(null);
+            setOutcomeHandler({ success: data.message, error: null });
         } else {
-            setError(data.message);
-            setSuccess(null);
+            setOutcomeHandler({ success: null, error: data.message });
         }
     }
 
@@ -91,11 +92,9 @@ function AdvisoryTextManager() {
                 prevState.filter((subcat) => subcat.id !== subSelectedKey)
             );
             setSubSelectedKey(null);
-            setSuccess(data.message);
-            setError(null);
+            setOutcomeHandler({ success: data.message, error: null });
         } else {
-            setSuccess(null);
-            setError(data.message);
+            setOutcomeHandler({ success: null, error: data.message });
         }
     }
 
@@ -108,11 +107,9 @@ function AdvisoryTextManager() {
                     cat.id === categoryId ? { ...cat, name: categoryName } : cat
                 )
             );
-            setSuccess(data.message);
-            setError(null);
+            setOutcomeHandler({ success: data.message, error: null });
         } else {
-            setSuccess(null);
-            setError(data.message);
+            setOutcomeHandler({ success: null, error: data.message });
         }
     }
 
@@ -125,11 +122,9 @@ function AdvisoryTextManager() {
             setSubSelectedKey(null);
             setSelectedKey(null);
             fetchAllCategories();
-            setError(null);
-            setSuccess(data.message);
+            setOutcomeHandler({ success: data.message, error: null });
         } else {
-            setError(data.message);
-            setSuccess(null);
+            setOutcomeHandler({ success: null, error: data.message });
         }
     }
 
@@ -140,8 +135,10 @@ function AdvisoryTextManager() {
     return (
         <div className="section right-section">
             <Header />
-            {error && <div className="errorComponent">{error}</div>}
-            {success && <div className="successComponent">{success}</div>}
+            <MessageOutcomeComponent
+                outcomeHandler={outcomeHandler}
+                setOutcomeHandler={setOutcomeHandler}
+            />
             {!isCategory && <div>Er zijn momenteel geen categorieën.</div>}
             {isCategory && (
                 <>

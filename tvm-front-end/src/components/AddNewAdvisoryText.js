@@ -1,7 +1,7 @@
 import Header from "./Header";
 import styles from "../css/AdvisoryManager.module.css";
 import { useEffect, useState } from "react";
-import "../css/Error.css";
+import MessageOutcomeComponent from "./errorComponents/MessageOutcomeComponent";
 import {
     CreateAdvisoryText,
     GetAllCategories,
@@ -14,8 +14,10 @@ function AddNewAdvisoryText() {
     const [selectedKey, setSelectedKey] = useState(null);
     const [subcategories, setSubcategories] = useState([]);
     const [isSubcategory, setIsSubcategory] = useState(false);
-    const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(null);
+    const [outcomeHandler, setOutcomeHandler] = useState({
+        success: null,
+        error: null,
+    });
     const [formData, setFormData] = useState({
         categoryId: null,
         subcategory: "",
@@ -70,13 +72,11 @@ function AddNewAdvisoryText() {
         };
         const data = await CreateAdvisoryText(customFormData);
         if (data.success) {
-            setSuccess(data.message);
-            setError(null);
+            setOutcomeHandler({ success: data.message, error: null });
             resetFormData();
             await fetchSubcategories(selectedKey);
         } else {
-            setSuccess(null);
-            setError(data.message);
+            setOutcomeHandler({ success: null, error: data.message });
         }
     };
 
@@ -87,8 +87,10 @@ function AddNewAdvisoryText() {
     return (
         <div className="section right-section">
             <Header />
-            {error && <div className="errorComponent">{error}</div>}
-            {success && <div className="successComponent">{success}</div>}
+            <MessageOutcomeComponent
+                outcomeHandler={outcomeHandler}
+                setOutcomeHandler={setOutcomeHandler}
+            />
             {!isCategory && (
                 <div>
                     Geen categorieën om advies teksten en subcategorieën aan toe

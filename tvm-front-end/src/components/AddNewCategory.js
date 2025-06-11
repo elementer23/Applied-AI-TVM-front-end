@@ -2,13 +2,15 @@ import { useState, useEffect } from "react";
 import styles from "../css/AdvisoryManager.module.css";
 import { GetAllCategories, CreateNewCategory } from "../utils/Services";
 import Header from "./Header";
-import "../css/Error.css";
+import MessageOutcomeComponent from "./errorComponents/MessageOutcomeComponent";
 
 function AddNewCategory() {
     const [categories, setCategories] = useState([]);
     const [input, setInput] = useState("");
-    const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(null);
+    const [outcomeHandler, setOutcomeHandler] = useState({
+        success: null,
+        error: null,
+    });
     const [isCategory, setIsCategory] = useState(false);
 
     async function fetchAllCategories() {
@@ -29,12 +31,10 @@ function AddNewCategory() {
 
         if (data.success) {
             setInput("");
-            setError(null);
-            setSuccess(data.message);
+            setOutcomeHandler({ success: data.message, error: null });
             await fetchAllCategories();
         } else {
-            setError(data.message);
-            setSuccess(null);
+            setOutcomeHandler({ success: null, error: data.message });
         }
     };
 
@@ -45,8 +45,10 @@ function AddNewCategory() {
     return (
         <div className="section right-section">
             <Header />
-            {error && <div className="errorComponent">{error}</div>}
-            {success && <div className="successComponent">{success}</div>}
+            <MessageOutcomeComponent
+                outcomeHandler={outcomeHandler}
+                setOutcomeHandler={setOutcomeHandler}
+            />
             <div className={styles.advisoryManagerHeader}>
                 <h3 className={styles.advisoryManagerHeading}>
                     Voeg categorie toe

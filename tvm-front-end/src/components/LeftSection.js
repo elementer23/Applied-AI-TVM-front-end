@@ -1,4 +1,7 @@
-import { DeleteSingleConversation, StartNewConversation } from "../utils/Services";
+import {
+    DeleteSingleConversation,
+    StartNewConversation,
+} from "../utils/Services";
 import { useNavigate } from "react-router-dom";
 import { Trash2 } from "lucide-react";
 
@@ -12,13 +15,13 @@ function LeftSection({
     const navigate = useNavigate();
 
     const handleNewConversation = async () => {
-        const out = await StartNewConversation();
+        const data = await StartNewConversation();
 
-        if (out.success) {
-            await reFetchConversations();        
-            onNewConversationId(out.id);          
-            await reFetchMessages();               
-}
+        if (data.success) {
+            await reFetchConversations();
+            onNewConversationId(data.id);
+            await reFetchMessages();
+        }
     };
 
     const handleSelectConversation = async (conversationId) => {
@@ -32,7 +35,11 @@ function LeftSection({
             "Weet je zeker dat je dit gesprek wilt verwijderen?"
         );
         if (confirmDelete) {
-            await DeleteSingleConversation(true, conversationId, navigate);
+            await DeleteSingleConversation(
+                confirmDelete,
+                conversationId,
+                navigate
+            );
             await reFetchConversations();
         }
     };
@@ -41,12 +48,16 @@ function LeftSection({
         <div className="section left-section">
             <div></div>
             <div className="history-content">
-                <p><strong>Gesprek geschiedenis</strong></p>
+                <p>
+                    <strong>Gesprek geschiedenis</strong>
+                </p>
                 <ul>
                     {conversations.map((conversation) => (
                         <li
                             key={conversation.id}
-                            onClick={() => handleSelectConversation(conversation.id)}
+                            onClick={() =>
+                                handleSelectConversation(conversation.id)
+                            }
                             style={{
                                 cursor: "pointer",
                                 display: "flex",
@@ -56,10 +67,16 @@ function LeftSection({
                         >
                             <div>
                                 <strong>{conversation.title}</strong>{" "}
-                                <i>{new Date(conversation.created_at).toLocaleDateString()}</i>
+                                <i>
+                                    {new Date(
+                                        conversation.created_at
+                                    ).toLocaleDateString()}
+                                </i>
                             </div>
                             <button
-                                onClick={(e) => handleDeleteConversation(conversation.id, e)}
+                                onClick={(e) =>
+                                    handleDeleteConversation(conversation.id, e)
+                                }
                                 style={{
                                     background: "none",
                                     border: "none",

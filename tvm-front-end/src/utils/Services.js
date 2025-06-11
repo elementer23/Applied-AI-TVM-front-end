@@ -11,6 +11,7 @@ import {
     DeleteAdvisoryTextError,
     UpdateCategoryError,
     DeleteSingleCategoryError,
+    GetConversationMessagesError,
 } from "./errorHandler";
 
 /**
@@ -100,8 +101,6 @@ export async function Login(requested_data, navigate) {
             );
             navigate("/main");
             return { success: true };
-        } else {
-            console.error(response.status + " Authentication failed!");
         }
     } catch (error) {
         console.error("Error in Login: " + error.message);
@@ -176,6 +175,7 @@ export async function Logout(navigate) {
 }
 
 /**
+ * @deprecated
  * A function to delete all conversations from the database that are binded to the user.
  * Will need a confirmation to make sure that the function has to be executed.
  * Will delete all conversations upon success, will give an error upon failure.
@@ -230,10 +230,6 @@ export async function StartNewConversation() {
                 userId: response.data.user_id,
                 createdAt: response.data.created_at,
             };
-        } else {
-            console.error(
-                "Iets ging fout bij het maken van een nieuw gesprek!"
-            );
         }
     } catch (error) {
         console.error("Fout bij nieuwe gesprek starten: " + error.message);
@@ -277,10 +273,6 @@ export async function DeleteSingleConversation(
 
             if (response.status === 200) {
                 navigate("/main");
-            } else {
-                console.error(
-                    "Er ging iets fout bij het verwijderen van een gesprek"
-                );
             }
         }
     } catch (error) {
@@ -321,14 +313,15 @@ export async function GetConversationMessages(conversationId) {
                 arr.push(item);
             }
 
-            return arr;
-        } else {
-            console.error("Iets ging er fout bij het ophalen van berichten");
-            return [];
+            return {
+                success: true,
+                current_response: arr,
+            };
         }
     } catch (error) {
         console.error("Fout bij ophalen van berichten: " + error.message);
-        return [];
+        const { current_state, message } = GetConversationMessagesError(error);
+        return { success: false, current_state, message };
     }
 }
 
@@ -356,11 +349,6 @@ export async function GetAllConversations() {
             }
 
             return arr;
-        } else {
-            console.error(
-                "Iets ging er fout bij het ophalen van alle gesprekken!"
-            );
-            return [];
         }
     } catch (error) {
         console.error("Fout bij het ophalen van gesprekken: " + error.message);

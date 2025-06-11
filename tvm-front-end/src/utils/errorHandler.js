@@ -6,11 +6,11 @@
  * @returns a status and message
  */
 export function LoginError(error) {
-    if (error.response) {
-        if (error.response?.status === 400) {
+    if (error) {
+        if (error.status === 400) {
             return {
-                current_state: error.response.status,
-                message: "Incorrect username or password!",
+                current_state: error.status,
+                message: error.response.data.detail,
             };
         }
     }
@@ -29,16 +29,11 @@ export function LoginError(error) {
  * @returns a status and message
  */
 export function RegisterError(error) {
-    if (error.response) {
-        if (error.response?.status === 400) {
+    if (error) {
+        if (error.status === 400) {
             return {
-                current_state: error.response.status,
-                message: "Username already registered!",
-            };
-        } else if (error.response?.status === 403) {
-            return {
-                current_state: error.response.status,
-                message: "Insufficient account level!",
+                current_state: error.status,
+                message: error.response.data.detail,
             };
         }
     }
@@ -58,10 +53,10 @@ export function RegisterError(error) {
  * @returns a status and message
  */
 export function RequestError(error) {
-    if (error.response) {
-        if (error.response?.status === 500) {
+    if (error) {
+        if (error.status === 500) {
             return {
-                current_state: error.response.status,
+                current_state: error.status,
                 message:
                     "Something went wrong during the retrieval of the answer",
             };
@@ -272,6 +267,22 @@ export function DeleteSingleCategoryError(error) {
                 message: error.response.data.detail,
             };
         } else if (error.status === 403) {
+            return {
+                current_state: error.status,
+                message: error.response.data.detail,
+            };
+        }
+    }
+
+    return {
+        current_state: null,
+        message: "Network error",
+    };
+}
+
+export function GetConversationMessagesError(error) {
+    if (error) {
+        if (error.status === 404) {
             return {
                 current_state: error.status,
                 message: error.response.data.detail,

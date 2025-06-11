@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Header from "./Header";
-import "../css/Error.css";
 import { sendAdviceRequest } from "../utils/Services";
+import MessageOutcomeComponent from "./errorComponents/MessageOutcomeComponent";
 
 function RightSection({
     conversationId,
@@ -12,14 +12,17 @@ function RightSection({
 }) {
     const [input, setInput] = useState("");
     const [output, setOutput] = useState("");
-    const [error, setError] = useState(null);
+    const [outcomeHandler, setOutcomeHandler] = useState({
+        success: null,
+        error: null,
+    });
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (!conversationId) {
             setInput("");
             setOutput("");
-            setError(null);
+            setOutcomeHandler({ success: null, error: null });
             return;
         }
 
@@ -43,27 +46,35 @@ function RightSection({
     const handleGenerateAdvice = async () => {
         if (!input.trim()) return;
         setLoading(true);
-        setError(null);
+        setOutcomeHandler({ success: null, error: null });
 
-        const out = await sendAdviceRequest(input, conversationId);
+        const data = await sendAdviceRequest(input, conversationId);
         setLoading(false);
 
-        if (out.success) {
-            setOutput(out.current_response || "Geen aangepast advies ontvangen.");
-            setConversationId(out.current_conversation_id);
+        if (data.success) {
+            setOutput(
+                data.current_response || "Geen aangepast advies ontvangen."
+            );
+            setConversationId(data.current_conversation_id);
             await reFetchMessages();
             await reFetchConversations();
         } else {
-            setError(out.message);
+            setOutcomeHandler({ success: null, error: data.message });
         }
     };
 
     return (
         <div className="section right-section">
             <Header />
-            {error && <div className="errorComponent">{error}</div>}
+            <MessageOutcomeComponent
+                outcomeHandler={outcomeHandler}
+                setOutcomeHandler={setOutcomeHandler}
+            />
 
-            <h2>Plak hieronder je adviesrapport. Je ontvangt automatisch een aangepaste versie terug.</h2>
+            <h2>
+                Plak hieronder je adviesrapport. Je ontvangt automatisch een
+                aangepaste versie terug.
+            </h2>
 
             <div className="advice-panels">
                 <div className="advice-panel">
@@ -87,8 +98,14 @@ function RightSection({
                 </div>
             </div>
 
-            <button className="generate-btn" onClick={handleGenerateAdvice} disabled={loading}>
-                {loading ? "Bezig met genereren..." : "Genereer aangepast adviesrapport"}
+            <button
+                className="generate-btn"
+                onClick={handleGenerateAdvice}
+                disabled={loading}
+            >
+                {loading
+                    ? "Bezig met genereren..."
+                    : "Genereer aangepast adviesrapport"}
             </button>
         </div>
     );
