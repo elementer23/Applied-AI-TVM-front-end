@@ -224,7 +224,6 @@ export async function StartNewConversation() {
         });
 
         if (response.status === 200) {
-            // navigate("/main");
             return {
                 success: true,
                 id: response.data.id,
