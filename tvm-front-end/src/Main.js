@@ -34,6 +34,7 @@ function Main() {
             <LeftSection
                 conversations={conversations}
                 onSelectConversation={setSelectedConversationId}
+                onNewConversationId={setSelectedConversationId}  
                 reFetchConversations={fetchConversations}
                 reFetchMessages={fetchMessages}
         />

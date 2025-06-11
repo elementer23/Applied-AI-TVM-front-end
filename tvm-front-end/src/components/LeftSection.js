@@ -15,9 +15,10 @@ function LeftSection({
         const out = await StartNewConversation();
 
         if (out.success) {
-            onNewConversationId(out.id); // geef ID van nieuw gesprek aan parent
-            await reFetchConversations(); // daarna pas gesprekken ophalen
-        }
+            await reFetchConversations();        
+            onNewConversationId(out.id);          
+            await reFetchMessages();               
+}
     };
 
     const handleSelectConversation = async (conversationId) => {
