@@ -239,10 +239,9 @@ textarea:focus {
   color: #4fc15d;
   text-align: center;
 }
-
 .advice-panels {
   display: flex;
-  gap: 10rem;
+  gap: 2rem;          
   margin-top: 1rem;
 }
 
@@ -250,21 +249,35 @@ textarea:focus {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-width: 500px;
+  min-width: 450px;
   min-height: 600px;
+  max-width: 900px;
+  box-sizing: border-box;
 }
 
 .advice-textarea {
   flex: 1;
-  min-height: 300px;
+  min-height: 200px;
   padding: 1rem;
   border: 2px solid #45a049;
   border-radius: 8px;
   resize: vertical;
   font-family: monospace;
   font-size: 14px;
+  width: 100%;           
+  box-sizing: border-box;
 }
 
+@media (max-width: 900px) {
+  .advice-panels {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .advice-panel {
+    min-width: 0;        
+    min-height: 200px;   
+  }
+}
 .generate-btn {
   margin-top: 1.5rem;
   padding: 0.8rem 1.5rem;
@@ -279,4 +292,36 @@ textarea:focus {
 .generate-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .main-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    height: auto;
+  }
+
+  .left-section,
+  .left-change-section {
+    grid-column: 1/2;
+    grid-row: 1/2;
+    border-right: none;
+    border-bottom: 2px solid rgba(79, 193, 93, 100);
+    height: auto;
+  }
+
+  .right-section {
+    grid-column: 1/2;
+    grid-row: 2/3;
+    padding: 20px;
+    height: auto;
+  }
+
+  .change-section {
+    grid-template-columns: 1fr;
+  }
+
+  .text-change-category {
+    min-width: 0;
+  }
 }
