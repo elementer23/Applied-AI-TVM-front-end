@@ -62,6 +62,8 @@ function AdvisoryTextManager() {
                 );
                 if (data.success) {
                     setAdvisoryText(data.current_response);
+                } else {
+                    setAdvisoryText(null);
                 }
             }
         }

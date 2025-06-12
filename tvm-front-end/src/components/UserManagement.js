@@ -1,39 +1,44 @@
 import { useEffect, useState } from "react";
-import { GetAllUsers, UpdateUser, DeleteUser, RegisterUser } from "../utils/Services";
+import {
+    GetAllUsers,
+    UpdateUser,
+    DeleteUser,
+    RegisterUser,
+} from "../utils/Services";
 import Header from "./Header";
 import "../css/UserManagement.css";
-
-// Helper om errors altijd als string te tonen
-function parseErrorDetail(detail) {
-    if (!detail) return "Onbekende fout";
-    if (Array.isArray(detail)) {
-        return detail.map(d => d.msg || JSON.stringify(d)).join(" | ");
-    }
-    if (typeof detail === "object") {
-        return JSON.stringify(detail);
-    }
-    return detail.toString();
-}
+import MessageOutcomeComponent from "./errorComponents/MessageOutcomeComponent";
 
 function UserManagement() {
     const [users, setUsers] = useState([]);
     const [editingUserId, setEditingUserId] = useState(null);
-    const [editForm, setEditForm] = useState({ username: "", role: "", password: "" });
-    const [feedback, setFeedback] = useState("");
+    const [editForm, setEditForm] = useState({
+        username: "",
+        role: "",
+        password: "",
+    });
+    const [outcomeHandler, setOutcomeHandler] = useState({
+        success: null,
+        error: null,
+    });
     const [loading, setLoading] = useState(false);
 
     // Nieuw voor gebruiker toevoegen
     const [showAddForm, setShowAddForm] = useState(false);
-    const [addForm, setAddForm] = useState({ username: "", password: "", role: "user" });
+    const [addForm, setAddForm] = useState({
+        username: "",
+        password: "",
+        role: "user",
+    });
 
     // Laad gebruikerslijst
     const loadUsers = async () => {
         setLoading(true);
         try {
             const data = await GetAllUsers();
-            setUsers(data);
+            setUsers(data.current_response);
         } catch (e) {
-            setFeedback("Kon gebruikers niet laden.");
+            setUsers([]);
         } finally {
             setLoading(false);
         }
@@ -46,13 +51,13 @@ function UserManagement() {
     const startEdit = (user) => {
         setEditingUserId(user.id);
         setEditForm({ username: user.username, role: user.role, password: "" });
-        setFeedback("");
+        setOutcomeHandler({ success: null, error: null });
     };
 
     const cancelEdit = () => {
         setEditingUserId(null);
         setEditForm({ username: "", role: "", password: "" });
-        setFeedback("");
+        setOutcomeHandler({ success: null, error: null });
     };
 
     const handleEditChange = (e) => {
@@ -61,36 +66,47 @@ function UserManagement() {
 
     const handleUpdate = async (userId) => {
         setLoading(true);
-        setFeedback("");
+        setOutcomeHandler({ success: null, error: null });
         try {
             await UpdateUser(userId, {
                 username: editForm.username,
                 role: editForm.role,
                 password: editForm.password || undefined,
             });
-            setFeedback("Gebruiker bijgewerkt!");
+            setOutcomeHandler({
+                success: "Gebruiker bijgewerkt!",
+                error: null,
+            });
             setEditingUserId(null);
             loadUsers();
         } catch (err) {
             // Custom error parsing
             const detail = err?.response?.data?.detail || err?.message;
-            setFeedback(parseErrorDetail(detail));
+            setOutcomeHandler({ success: null, error: detail });
         } finally {
             setLoading(false);
         }
     };
 
     const handleDelete = async (userId) => {
-        if (!window.confirm("Weet je zeker dat je deze gebruiker wilt verwijderen?")) return;
+        if (
+            !window.confirm(
+                "Weet je zeker dat je deze gebruiker wilt verwijderen?"
+            )
+        )
+            return;
         setLoading(true);
-        setFeedback("");
+        setOutcomeHandler({ success: null, error: null });
         try {
             await DeleteUser(userId);
-            setFeedback("Gebruiker verwijderd!");
+            setOutcomeHandler({
+                success: "Gebruiker verwijderd!",
+                error: null,
+            });
             loadUsers();
         } catch (err) {
             const detail = err?.response?.data?.detail || err?.message;
-            setFeedback(parseErrorDetail(detail));
+            setOutcomeHandler({ success: null, error: detail });
         } finally {
             setLoading(false);
         }
@@ -104,7 +120,7 @@ function UserManagement() {
     const handleAddUser = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setFeedback("");
+        setOutcomeHandler({ success: null, error: null });
         try {
             const res = await RegisterUser({
                 username: addForm.username,
@@ -112,16 +128,19 @@ function UserManagement() {
                 role: addForm.role,
             });
             if (res.success) {
-                setFeedback("Gebruiker aangemaakt!");
+                setOutcomeHandler({
+                    success: "Gebruiker aangemaakt!",
+                    error: null,
+                });
                 setShowAddForm(false);
                 setAddForm({ username: "", password: "", role: "user" });
                 loadUsers();
             } else {
-                setFeedback(parseErrorDetail(res.message));
+                setOutcomeHandler({ success: null, error: res.message });
             }
         } catch (err) {
             const detail = err?.response?.data?.detail || err?.message;
-            setFeedback(parseErrorDetail(detail));
+            setOutcomeHandler({ success: null, error: detail });
         } finally {
             setLoading(false);
         }
@@ -130,19 +149,19 @@ function UserManagement() {
     return (
         <>
             <Header variant="beheer" />
+            <MessageOutcomeComponent
+                outcomeHandler={outcomeHandler}
+                setOutcomeHandler={setOutcomeHandler}
+            />
             <div className="user-management-centerwrap">
                 <div className="user-management-content">
                     <h1 className="beheer-title">Gebruikersbeheer</h1>
-                    {/* Feedback */}
-                    {feedback && (
-                        <div className="beheer-feedback">{feedback}</div>
-                    )}
 
                     {/* Gebruiker toevoegen knop */}
                     <button
                         className="beheer-btn beheer-btn-blue"
                         style={{ marginBottom: "16px" }}
-                        onClick={() => setShowAddForm(v => !v)}
+                        onClick={() => setShowAddForm((v) => !v)}
                         disabled={loading}
                     >
                         {showAddForm ? "Annuleer" : "Gebruiker aanmaken"}
@@ -152,7 +171,12 @@ function UserManagement() {
                     {showAddForm && (
                         <form
                             className="beheer-add-form"
-                            style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 16 }}
+                            style={{
+                                display: "flex",
+                                gap: 12,
+                                alignItems: "center",
+                                marginBottom: 16,
+                            }}
                             onSubmit={handleAddUser}
                         >
                             <input
@@ -181,10 +205,20 @@ function UserManagement() {
                                 <option value="user">user</option>
                                 <option value="admin">admin</option>
                             </select>
-                            <button className="beheer-btn beheer-btn-green" type="submit" disabled={loading}>
+                            <button
+                                className="beheer-btn beheer-btn-green"
+                                type="submit"
+                                disabled={loading}
+                            >
                                 Toevoegen
                             </button>
                         </form>
+                    )}
+
+                    {users === 0 && (
+                        <div>
+                            Het ziet er naar uit dat er geen gebruikers zijn
+                        </div>
                     )}
 
                     {/* Bestaande gebruikers tabel */}
@@ -198,8 +232,15 @@ function UserManagement() {
                             </tr>
                         </thead>
                         <tbody>
-                            {users.map(user => (
-                                <tr key={user.id} className={editingUserId === user.id ? "beheer-row-editing" : ""}>
+                            {users.map((user) => (
+                                <tr
+                                    key={user.id}
+                                    className={
+                                        editingUserId === user.id
+                                            ? "beheer-row-editing"
+                                            : ""
+                                    }
+                                >
                                     <td>
                                         {editingUserId === user.id ? (
                                             <input
@@ -220,8 +261,12 @@ function UserManagement() {
                                                 onChange={handleEditChange}
                                                 className="beheer-input"
                                             >
-                                                <option value="user">user</option>
-                                                <option value="admin">admin</option>
+                                                <option value="user">
+                                                    user
+                                                </option>
+                                                <option value="admin">
+                                                    admin
+                                                </option>
                                             </select>
                                         ) : (
                                             user.role
@@ -239,13 +284,20 @@ function UserManagement() {
                                                     className="beheer-input"
                                                 />
                                                 <button
-                                                    onClick={() => handleUpdate(user.id)}
+                                                    onClick={() =>
+                                                        handleUpdate(user.id)
+                                                    }
                                                     disabled={loading}
                                                     className="beheer-btn beheer-btn-green"
                                                 >
                                                     Opslaan
                                                 </button>
-                                                <button onClick={cancelEdit} className="beheer-btn beheer-btn-grey">Annuleer</button>
+                                                <button
+                                                    onClick={cancelEdit}
+                                                    className="beheer-btn beheer-btn-grey"
+                                                >
+                                                    Annuleer
+                                                </button>
                                             </div>
                                         ) : (
                                             <button
@@ -258,7 +310,9 @@ function UserManagement() {
                                     </td>
                                     <td>
                                         <button
-                                            onClick={() => handleDelete(user.id)}
+                                            onClick={() =>
+                                                handleDelete(user.id)
+                                            }
                                             className="beheer-btn beheer-btn-red"
                                             disabled={loading}
                                         >

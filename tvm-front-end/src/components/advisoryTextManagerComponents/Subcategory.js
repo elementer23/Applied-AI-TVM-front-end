@@ -51,14 +51,21 @@ function Subcategory({
             >
                 <span>{subcategory.name}</span>
             </div>
-            {isSelected && advisoryText && (
-                <AdvisoryText
-                    advisoryText={advisoryText}
-                    onAdvisoryUpdate={(id, newText) =>
-                        onAdvisoryUpdate(id, newText)
-                    }
-                    onAdvisoryDelete={(id) => onAdvisoryDelete(id)}
-                />
+            {isSelected && (
+                <>
+                    {!advisoryText && (
+                        <div>Er is hier geen advies tekst voor beschikbaar</div>
+                    )}
+                    {advisoryText && (
+                        <AdvisoryText
+                            advisoryText={advisoryText}
+                            onAdvisoryUpdate={(id, newText) =>
+                                onAdvisoryUpdate(id, newText)
+                            }
+                            onAdvisoryDelete={(id) => onAdvisoryDelete(id)}
+                        />
+                    )}
+                </>
             )}
         </div>
     );

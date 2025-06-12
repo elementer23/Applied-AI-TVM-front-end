@@ -12,6 +12,12 @@ import {
     UpdateCategoryError,
     DeleteSingleCategoryError,
     GetConversationMessagesError,
+    GetAllAdvisoryTextsError,
+    GetAdvisoryTextByIdError,
+    RetrieveAdvisoryTextBySubcategoryIdError,
+    GetSingleCategoryError,
+    GetAllSubcategoriesError,
+    GetSingleSubcategoryError,
 } from "./errorHandler";
 
 /**
@@ -138,8 +144,6 @@ export async function RegisterUser(requested_data) {
 
         if (response.status === 200) {
             return { success: true };
-        } else {
-            console.error("Iets ging er fout bij het registeren");
         }
     } catch (error) {
         console.error("Fout bij Registeren: " + error.message);
@@ -482,7 +486,8 @@ export async function GetAdvisoryTextById(textId) {
         }
     } catch (error) {
         console.error("Fout bij ophalen van advies tekst:", error.message);
-        return { success: false };
+        const { current_state, message } = GetAdvisoryTextByIdError(error);
+        return { success: false, current_state, message };
     }
 }
 
@@ -538,7 +543,7 @@ export async function CreateAdvisoryText(formData) {
     const token = sessionStorage.getItem("token");
 
     if (formData.categoryId === null || !Number.isInteger(formData.categoryId))
-        return { success: false };
+        return { success: false, message: "invalid given number" };
 
     try {
         const response = await api.post(
@@ -629,9 +634,15 @@ export async function GetAdvisoryTextBySubcategoryId(subcategoryId) {
             };
         }
     } catch (error) {
-        console.error(error.message);
+        console.error(
+            "Fout bij advies tekst ophalen door subcategorie: " + error.message
+        );
+        const { current_state, message } =
+            RetrieveAdvisoryTextBySubcategoryIdError(error);
         return {
             success: false,
+            current_state,
+            message,
         };
     }
 }
@@ -687,7 +698,8 @@ export async function GetAllCategories() {
 export async function GetSingleCategory(categoryId) {
     const token = sessionStorage.getItem("token");
 
-    if (!Number.isInteger(categoryId)) return { success: false };
+    if (!Number.isInteger(categoryId))
+        return { success: false, message: "invalide id gegeven" };
 
     try {
         const response = await api.get(`/categories/${categoryId}`, {
@@ -703,9 +715,12 @@ export async function GetSingleCategory(categoryId) {
             };
         }
     } catch (error) {
-        console.error(error.message);
+        console.error("Fout bij ophalen category: " + error.message);
+        const { current_state, message } = GetSingleCategoryError(error);
         return {
             success: false,
+            current_state,
+            message,
         };
     }
 }
@@ -848,8 +863,9 @@ export async function GetAllSubcategories() {
             };
         }
     } catch (error) {
-        console.error(error.message);
-        return { success: false };
+        console.error("Fout bij ophalen subcategorieën: " + error.message);
+        const { current_state, message } = GetAllSubcategoriesError(error);
+        return { success: false, current_state, message };
     }
 }
 
@@ -908,7 +924,8 @@ export async function GetAllSubcategoriesByCategory(categoryId) {
 export async function GetSingleSubcategory(subcategoryId) {
     const token = sessionStorage.getItem("token");
 
-    if (!Number.isInteger(subcategoryId)) return { success: false };
+    if (!Number.isInteger(subcategoryId))
+        return { success: false, message: "Invalide subcategorie id" };
 
     try {
         const response = await api.get(`/subcategories/${subcategoryId}`, {
@@ -924,9 +941,14 @@ export async function GetSingleSubcategory(subcategoryId) {
             };
         }
     } catch (error) {
-        console.error(error.message);
+        console.error(
+            "Fout bij het ophalen van subcategorie met id: " + error.message
+        );
+        const { current_state, message } = GetSingleSubcategoryError(error);
         return {
             success: false,
+            current_state,
+            message,
         };
     }
 }
@@ -1027,7 +1049,7 @@ export async function UpdateUser(userId, userData) {
             return response.data;
         }
     } catch (error) {
-        console.error("Fout bij updaten gebruiker:", error);
+        console.error("Fout bij updaten gebruiker: " + error.message);
         throw error;
     }
 }
@@ -1041,15 +1063,20 @@ export async function UpdateUser(userId, userData) {
 export async function GetAllUsers() {
     const token = sessionStorage.getItem("token");
     try {
+        let arr = [];
         const response = await api.get("/users/", {
             headers: { Authorization: `Bearer ${token}` },
         });
         if (response.status === 200) {
-            return response.data;
+            for (var item of response.data) {
+                arr.push(item);
+            }
+            return {
+                current_response: arr,
+            };
         }
     } catch (error) {
         console.error("Fout bij ophalen gebruikers:", error);
-        return [];
     }
 }
 

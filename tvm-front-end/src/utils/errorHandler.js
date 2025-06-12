@@ -161,6 +161,11 @@ export function CreateAdvisoryTextError(error) {
                 current_state: error.status,
                 message: error.response.data.detail,
             };
+        } else if (error.status === 403) {
+            return {
+                current_state: error.status,
+                message: error.response.data.detail,
+            };
         }
     }
 
@@ -280,6 +285,14 @@ export function DeleteSingleCategoryError(error) {
     };
 }
 
+/**
+ * This function is a shorthand error storing fuction,
+ * to retrieve and initialize messages and states depending on the
+ * corresponding server errors. This one is specifically for
+ * retrieving conversation messages.
+ * @param {*} error
+ * @returns a status and message
+ */
 export function GetConversationMessagesError(error) {
     if (error) {
         if (error.status === 404) {
@@ -296,7 +309,135 @@ export function GetConversationMessagesError(error) {
     };
 }
 
+/**
+ * This function is a shorthand error storing fuction,
+ * to retrieve and initialize messages and states depending on the
+ * corresponding server errors. This one is specifically for
+ * retrieving all advisory texts.
+ * @param {*} error
+ * @returns a status and message
+ */
 export function GetAllAdvisoryTextsError(error) {
+    if (error) {
+        if (error.status === 404) {
+            return {
+                current_state: error.status,
+                message: error.response.data.detail,
+            };
+        }
+    }
+
+    return {
+        current_state: null,
+        message: "Network error",
+    };
+}
+
+/**
+ * This function is a shorthand error storing fuction,
+ * to retrieve and initialize messages and states depending on the
+ * corresponding server errors. This one is specifically for
+ * retrieving an advisory text by id.
+ * @param {*} error
+ * @returns a status and message
+ */
+export function GetAdvisoryTextByIdError(error) {
+    if (error) {
+        if (error.status === 404) {
+            return {
+                current_state: error.status,
+                message: error.response.data.detail,
+            };
+        }
+    }
+
+    return {
+        current_state: null,
+        message: "Network error",
+    };
+}
+
+/**
+ * This function is a shorthand error storing fuction,
+ * to retrieve and initialize messages and states depending on the
+ * corresponding server errors. This one is specifically for
+ * retrieving an advisory text by subcategory id.
+ * @param {*} error
+ * @returns a status and message
+ */
+export function RetrieveAdvisoryTextBySubcategoryIdError(error) {
+    if (error) {
+        if (error.status === 404) {
+            return {
+                current_state: error.status,
+                message: error.response.data.detail,
+            };
+        }
+    }
+
+    return {
+        current_state: null,
+        message: "Network error",
+    };
+}
+
+/**
+ * This function is a shorthand error storing fuction,
+ * to retrieve and initialize messages and states depending on the
+ * corresponding server errors. This one is specifically for
+ * retrieving a category by id.
+ * @param {*} error
+ * @returns a status and message
+ */
+export function GetSingleCategoryError(error) {
+    if (error) {
+        if (error.status === 404) {
+            return {
+                current_state: error.status,
+                message: error.response.data.detail,
+            };
+        }
+    }
+
+    return {
+        current_state: null,
+        message: "Network error",
+    };
+}
+
+/**
+ * This function is a shorthand error storing fuction,
+ * to retrieve and initialize messages and states depending on the
+ * corresponding server errors. This one is specifically for
+ * retrieving all subcategories.
+ * @param {*} error
+ * @returns a status and message
+ */
+export function GetAllSubcategoriesError(error) {
+    if (error) {
+        if (error.status === 404) {
+            return {
+                current_state: error.status,
+                message: error.response.data.detail,
+            };
+        }
+    }
+
+    return {
+        current_state: null,
+        message: "Network error",
+    };
+}
+
+/**
+ * This function is a shorthand error storing fuction,
+ * to retrieve and initialize messages and states depending on the
+ * corresponding server errors. This one is specifically for
+ * retrieving a subcategory by id.
+ * @param {*} error
+ * @returns a status and message
+ */
+export function GetSingleSubcategoryError(error) {
     if (error) {
         if (error.status === 404) {
             return {
