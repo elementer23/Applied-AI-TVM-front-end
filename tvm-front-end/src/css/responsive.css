@@ -1,0 +1,55 @@
+@media (max-width: 768px) {
+  .main-container {
+    grid-template-columns: 1fr;
+  }
+
+  .left-section {
+    grid-template-rows: auto auto auto;
+    height: auto;
+    border-right: none;
+    border-bottom: 2px solid rgba(79,193,93,100);
+  }
+
+  .right-section {
+    grid-column: 1/2;
+    padding: 20px;
+  }
+
+  .change-section {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .text-change-category {
+    min-width: auto;
+  }
+
+  .login-screen-container {
+    grid-template-rows: auto 1fr;
+  }
+
+  .login-form {
+    min-width: auto;
+  }
+
+  .user-management-content {
+    padding: 20px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .chat-input-row {
+    flex-direction: column;
+  }
+
+  .send-btn {
+    border-left: none;
+    border-top-right-radius: 0;
+    border-bottom-left-radius: 20px;
+  }
+}

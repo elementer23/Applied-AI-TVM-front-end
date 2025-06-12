@@ -210,4 +210,32 @@
   font-size: 1rem;
   border-radius: 8px;
   border: 2px solid #4fc15d;
+} 
+
+@media (max-width: 768px) {
+  .main-container {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .left-change-section {
+    grid-column: 1/2;
+    grid-template-rows: auto;
+    border-right: none;
+    border-bottom: 2px solid rgba(79,193,93,100);
+  }
+
+  .right-section {
+    grid-column: 1/2;
+    padding: 20px;
+  }
+
+  .change-section {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .text-change-category {
+    min-width: unset;
+  }
 }
