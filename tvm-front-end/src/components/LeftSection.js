@@ -10,7 +10,7 @@ function LeftSection({
     onSelectConversation,
     reFetchConversations,
     reFetchMessages,
-    onNewConversationId, // <-- toegevoegd
+    onNewConversationId, 
 }) {
     const navigate = useNavigate();
 

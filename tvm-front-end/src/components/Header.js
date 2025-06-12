@@ -55,6 +55,12 @@ function Header({ variant }) {
                 {showDropdown && (
                     <div className="dropdown-menu">
                         <ul>
+                            <li
+                                className="dropdown-item"
+                                onClick={() => handleNavigation("main")}
+                            >
+                                Hoofdmenu
+                            </li>
                             <li //{user?.role === "admin" && ( )} werkt momenteel niet
                                 className="dropdown-item"
                                 onClick={() =>
