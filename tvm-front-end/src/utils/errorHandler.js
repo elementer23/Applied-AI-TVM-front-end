@@ -295,3 +295,19 @@ export function GetConversationMessagesError(error) {
         message: "Network error",
     };
 }
+
+export function GetAllAdvisoryTextsError(error) {
+    if (error) {
+        if (error.status === 404) {
+            return {
+                current_state: error.status,
+                message: error.response.data.detail,
+            };
+        }
+    }
+
+    return {
+        current_state: null,
+        message: "Network error",
+    };
+}

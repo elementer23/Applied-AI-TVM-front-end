@@ -431,6 +431,7 @@ export async function GetAllAdvisoryTexts() {
     const token = sessionStorage.getItem("token");
 
     try {
+        let arr = [];
         const response = await api.get("/advisorytexts/", {
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -438,14 +439,19 @@ export async function GetAllAdvisoryTexts() {
         });
 
         if (response.status === 200) {
+            for (var item of response.data) {
+                arr.push(item);
+            }
+
             return {
                 success: true,
-                current_response: response.data,
+                current_response: arr,
             };
         }
     } catch (error) {
         console.error("Fout bij ophalen van advies teksten:", error.message);
-        return { success: false };
+        const { current_state, message } = GetAllAdvisoryTextsError(error);
+        return { success: false, current_state, message };
     }
 }
 
