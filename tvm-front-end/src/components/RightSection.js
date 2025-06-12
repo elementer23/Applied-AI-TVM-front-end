@@ -33,11 +33,14 @@ function RightSection({
             (a, b) => new Date(a.created_at) - new Date(b.created_at)
         );
 
-        const firstUserMsg = sorted.find((msg) => msg.is_user_message);
-        const firstAiMsg = sorted.find((msg) => !msg.is_user_message);
+        const userMessages = sorted.filter((msg) => msg.is_user_message);
+        const aiMessages = sorted.filter((msg) => !msg.is_user_message);
 
-        setInput(firstUserMsg?.content || "");
-        setOutput(firstAiMsg?.content || "");
+        const lastUserMsg = userMessages[userMessages.length - 1];
+        const lastAiMsg = aiMessages[aiMessages.length - 1];
+
+        setInput(lastUserMsg?.content || "");
+        setOutput(lastAiMsg?.content || "");
     }, [conversationId, currentConversationMessages]);
 
     const handleGenerateAdvice = async () => {
@@ -61,7 +64,8 @@ function RightSection({
     return (
         <div className="section right-section">
             <Header />
-            {error && <div className="errorComponent">{error}</div>}
+            <div className="scrollable-content">
+                {error && <div className="errorComponent">{error}</div>}
 
             <h2>Plak hieronder je adviesrapport. Je ontvangt automatisch een aangepaste versie terug.</h2>
 
@@ -86,6 +90,7 @@ function RightSection({
                     />
                 </div>
             </div>
+        </div>
 
             <button className="generate-btn" onClick={handleGenerateAdvice} disabled={loading}>
                 {loading ? "Bezig met genereren..." : "Genereer aangepast adviesrapport"}

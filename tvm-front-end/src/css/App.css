@@ -18,6 +18,13 @@
   overflow: hidden;
 }
 
+.scrollable-content {
+  flex: 1;
+  overflow-y: auto;
+  width: 100%;
+  padding-bottom: 1rem; 
+}
+
 .loading-indicator {
   font-style: italic;
   color: #888;
