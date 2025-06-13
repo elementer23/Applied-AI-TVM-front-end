@@ -2,17 +2,23 @@ import {
     DeleteSingleConversation,
     StartNewConversation,
 } from "../utils/Services";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Trash2 } from "lucide-react";
+import MessageOutcomeComponent from "./errorComponents/MessageOutcomeComponent";
 
 function LeftSection({
     conversations,
     onSelectConversation,
     reFetchConversations,
     reFetchMessages,
-    onNewConversationId, 
+    onNewConversationId,
 }) {
     const navigate = useNavigate();
+    const [outcomeHandler, setOutcomeHandler] = useState({
+        success: null,
+        error: null,
+    });
 
     const handleNewConversation = async () => {
         const data = await StartNewConversation();
@@ -35,18 +41,27 @@ function LeftSection({
             "Weet je zeker dat je dit gesprek wilt verwijderen?"
         );
         if (confirmDelete) {
-            await DeleteSingleConversation(
+            const data = await DeleteSingleConversation(
                 confirmDelete,
                 conversationId,
                 navigate
             );
-            await reFetchConversations();
+            if (data.success) {
+                await reFetchConversations();
+                setOutcomeHandler({ success: null, error: null });
+            } else {
+                setOutcomeHandler({ success: null, error: data.message });
+            }
         }
     };
 
     return (
         <div className="section left-section">
             <div></div>
+            <MessageOutcomeComponent
+                outcomeHandler={outcomeHandler}
+                setOutcomeHandler={setOutcomeHandler}
+            />
             <div className="history-content">
                 <p>
                     <strong>Gesprek geschiedenis</strong>

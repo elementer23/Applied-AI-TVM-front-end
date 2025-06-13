@@ -1,24 +1,5 @@
 import api from "./api";
-import {
-    LoginError,
-    RegisterError,
-    RequestError,
-    RetrieveCategoriesError,
-    CreateCategoryError,
-    RetrieveSubCategoryByCategoryIdError,
-    CreateAdvisoryTextError,
-    UpdateAdvisoryTextError,
-    DeleteAdvisoryTextError,
-    UpdateCategoryError,
-    DeleteSingleCategoryError,
-    GetConversationMessagesError,
-    GetAllAdvisoryTextsError,
-    GetAdvisoryTextByIdError,
-    RetrieveAdvisoryTextBySubcategoryIdError,
-    GetSingleCategoryError,
-    GetAllSubcategoriesError,
-    GetSingleSubcategoryError,
-} from "./errorHandler";
+import { RequestError, ErrorHandler } from "./errorHandler";
 
 /**
  * Request function, this function expects text like input
@@ -31,6 +12,14 @@ import {
  */
 export async function sendAdviceRequest(requestedInput, conversationId) {
     const token = sessionStorage.getItem("token");
+
+    if (!requestedInput.trim()) {
+        return {
+            success: false,
+            current_state: null,
+            message: "Het tekstveld is leeg!",
+        };
+    }
 
     let data = {
         input: requestedInput,
@@ -67,7 +56,6 @@ export async function sendAdviceRequest(requestedInput, conversationId) {
             };
         }
     } catch (error) {
-        console.error("Fout bij request:", error.message);
         const { current_state, message } = RequestError(error);
         return {
             success: false,
@@ -86,6 +74,14 @@ export async function sendAdviceRequest(requestedInput, conversationId) {
  * @param {*} navigate
  */
 export async function Login(requested_data, navigate) {
+    if (!requested_data.username.trim() || !requested_data.password.trim()) {
+        return {
+            success: false,
+            current_state: null,
+            message: "De velden moeten wel ingevuld worden!",
+        };
+    }
+
     //Call the URLSearchParams function and append the given username and password from the requested_data
     const form = new URLSearchParams();
     form.append("username", requested_data.username);
@@ -109,8 +105,7 @@ export async function Login(requested_data, navigate) {
             return { success: true };
         }
     } catch (error) {
-        console.error("Error in Login: " + error.message);
-        const { current_state, message } = LoginError(error);
+        const { current_state, message } = ErrorHandler(error);
 
         return {
             success: false,
@@ -130,6 +125,18 @@ export async function Login(requested_data, navigate) {
 export async function RegisterUser(requested_data) {
     const token = sessionStorage.getItem("token");
 
+    if (
+        !requested_data.username.trim() ||
+        !requested_data.password.trim() ||
+        !requested_data.role.trim()
+    ) {
+        return {
+            success: false,
+            current_state: null,
+            message: "Alle velden moeten worden ingevuld!",
+        };
+    }
+
     const form = new URLSearchParams();
     form.append("username", requested_data.username);
     form.append("password", requested_data.password);
@@ -146,8 +153,7 @@ export async function RegisterUser(requested_data) {
             return { success: true };
         }
     } catch (error) {
-        console.error("Fout bij Registeren: " + error.message);
-        const { current_state, message } = RegisterError(error);
+        const { current_state, message } = ErrorHandler(error);
 
         return { success: false, current_state, message };
     }
@@ -199,13 +205,9 @@ export async function DeleteAllPersonalConversations(confirmation, navigate) {
 
             if (response.status === 200) {
                 navigate("/main");
-            } else {
-                console.error("Iets ging fout bij het verwijderen!");
             }
         }
-    } catch (error) {
-        console.error("Fout bij gesprekken verwijderen: " + error.message);
-    }
+    } catch (error) {}
 }
 
 /**
@@ -236,7 +238,6 @@ export async function StartNewConversation() {
             };
         }
     } catch (error) {
-        console.error("Fout bij nieuwe gesprek starten: " + error.message);
         return { success: false };
     }
 }
@@ -260,7 +261,11 @@ export async function DeleteSingleConversation(
     const token = sessionStorage.getItem("token");
 
     if (!Number.isInteger(conversationId)) {
-        return false;
+        return {
+            success: false,
+            current_state: null,
+            message: "Invalide id gegeven",
+        };
     }
 
     try {
@@ -277,10 +282,18 @@ export async function DeleteSingleConversation(
 
             if (response.status === 200) {
                 navigate("/main");
+                return {
+                    success: true,
+                };
             }
         }
     } catch (error) {
-        console.error("Fout bij verwijderen gesprek: " + error.message);
+        const { current_state, message } = ErrorHandler(error);
+        return {
+            success: true,
+            current_state,
+            message,
+        };
     }
 }
 
@@ -297,7 +310,11 @@ export async function GetConversationMessages(conversationId) {
     const token = sessionStorage.getItem("token");
 
     if (!Number.isInteger(conversationId)) {
-        return false;
+        return {
+            success: false,
+            current_state: null,
+            message: "invalide id gegeven",
+        };
     }
 
     try {
@@ -323,8 +340,7 @@ export async function GetConversationMessages(conversationId) {
             };
         }
     } catch (error) {
-        console.error("Fout bij ophalen van berichten: " + error.message);
-        const { current_state, message } = GetConversationMessagesError(error);
+        const { current_state, message } = ErrorHandler(error);
         return { success: false, current_state, message };
     }
 }
@@ -355,7 +371,6 @@ export async function GetAllConversations() {
             return arr;
         }
     } catch (error) {
-        console.error("Fout bij het ophalen van gesprekken: " + error.message);
         return [];
     }
 }
@@ -384,7 +399,6 @@ export async function GetCurrentUser() {
             };
         }
     } catch (error) {
-        console.error("Fout bij ophalen huidige gebruiker:", error.message);
         return { success: false };
     }
 }
@@ -421,7 +435,6 @@ export async function RevokeRefreshToken() {
             };
         }
     } catch (error) {
-        console.error("Fout bij revoke token:", error);
         return { success: false };
     }
 }
@@ -453,8 +466,7 @@ export async function GetAllAdvisoryTexts() {
             };
         }
     } catch (error) {
-        console.error("Fout bij ophalen van advies teksten:", error.message);
-        const { current_state, message } = GetAllAdvisoryTextsError(error);
+        const { current_state, message } = ErrorHandler(error);
         return { success: false, current_state, message };
     }
 }
@@ -469,7 +481,8 @@ export async function GetAllAdvisoryTexts() {
 export async function GetAdvisoryTextById(textId) {
     const token = sessionStorage.getItem("token");
 
-    if (!Number.isInteger(textId)) return { success: false };
+    if (!Number.isInteger(textId))
+        return { success: false, message: "Invalide id gegeven" };
 
     try {
         const response = await api.get(`/advisorytexts/id=${textId}`, {
@@ -485,8 +498,7 @@ export async function GetAdvisoryTextById(textId) {
             };
         }
     } catch (error) {
-        console.error("Fout bij ophalen van advies tekst:", error.message);
-        const { current_state, message } = GetAdvisoryTextByIdError(error);
+        const { current_state, message } = ErrorHandler(error);
         return { success: false, current_state, message };
     }
 }
@@ -502,7 +514,8 @@ export async function GetAdvisoryTextById(textId) {
 export async function UpdateAdvisoryText(textId, adviceText) {
     const token = sessionStorage.getItem("token");
 
-    if (!Number.isInteger(textId)) return { success: false };
+    if (!Number.isInteger(textId) || !adviceText.trim())
+        return { success: false, message: "Het advies kan niet leeg zijn" };
 
     try {
         const response = await api.put(
@@ -524,8 +537,7 @@ export async function UpdateAdvisoryText(textId, adviceText) {
             };
         }
     } catch (error) {
-        console.error("Fout bij updaten van advies tekst:", error.message);
-        const { current_state, message } = UpdateAdvisoryTextError(error);
+        const { current_state, message } = ErrorHandler(error);
         return { success: false, current_state, message };
     }
 }
@@ -544,6 +556,9 @@ export async function CreateAdvisoryText(formData) {
 
     if (formData.categoryId === null || !Number.isInteger(formData.categoryId))
         return { success: false, message: "invalid given number" };
+
+    if (!formData.subcategory.trim() || !formData.advice_text.trim())
+        return { success: false, message: "velden kunnen niet leeg zijn!" };
 
     try {
         const response = await api.post(
@@ -567,8 +582,7 @@ export async function CreateAdvisoryText(formData) {
             };
         }
     } catch (error) {
-        console.error("Fout bij aanmaken van advies tekst:", error.message);
-        const { current_state, message } = CreateAdvisoryTextError(error);
+        const { current_state, message } = ErrorHandler(error);
         return { success: false, current_state, message };
     }
 }
@@ -583,7 +597,8 @@ export async function CreateAdvisoryText(formData) {
 export async function DeleteAdvisoryText(textId) {
     const token = sessionStorage.getItem("token");
 
-    if (!Number.isInteger(textId)) return { success: false };
+    if (!Number.isInteger(textId))
+        return { success: false, message: "Invalide id gegeven" };
 
     try {
         const response = await api.delete(`/advisorytexts/id=${textId}`, {
@@ -599,8 +614,7 @@ export async function DeleteAdvisoryText(textId) {
             };
         }
     } catch (error) {
-        console.error("Fout bij verwijderen van advies tekst:", error.message);
-        const { current_state, message } = DeleteAdvisoryTextError(error);
+        const { current_state, message } = ErrorHandler(error);
         return { success: false, current_state, message };
     }
 }
@@ -615,7 +629,8 @@ export async function DeleteAdvisoryText(textId) {
 export async function GetAdvisoryTextBySubcategoryId(subcategoryId) {
     const token = sessionStorage.getItem("token");
 
-    if (!Number.isInteger(subcategoryId)) return { success: false };
+    if (!Number.isInteger(subcategoryId))
+        return { success: false, message: "Invalide id gegeven." };
 
     try {
         const response = await api.get(
@@ -634,11 +649,7 @@ export async function GetAdvisoryTextBySubcategoryId(subcategoryId) {
             };
         }
     } catch (error) {
-        console.error(
-            "Fout bij advies tekst ophalen door subcategorie: " + error.message
-        );
-        const { current_state, message } =
-            RetrieveAdvisoryTextBySubcategoryIdError(error);
+        const { current_state, message } = ErrorHandler(error);
         return {
             success: false,
             current_state,
@@ -675,10 +686,7 @@ export async function GetAllCategories() {
             };
         }
     } catch (error) {
-        console.error(
-            "Error bij het ophalen van categorieën: " + error.message
-        );
-        const { current_state, message } = RetrieveCategoriesError(error);
+        const { current_state, message } = ErrorHandler(error);
         return {
             success: false,
             current_state,
@@ -715,8 +723,7 @@ export async function GetSingleCategory(categoryId) {
             };
         }
     } catch (error) {
-        console.error("Fout bij ophalen category: " + error.message);
-        const { current_state, message } = GetSingleCategoryError(error);
+        const { current_state, message } = ErrorHandler(error);
         return {
             success: false,
             current_state,
@@ -734,6 +741,9 @@ export async function GetSingleCategory(categoryId) {
  */
 export async function CreateNewCategory(categoryName) {
     const token = sessionStorage.getItem("token");
+
+    if (!categoryName.trim())
+        return { success: false, message: "Het veld mag niet leeg zijn!" };
 
     try {
         const response = await api.post(
@@ -753,8 +763,7 @@ export async function CreateNewCategory(categoryName) {
             };
         }
     } catch (error) {
-        console.error("Fout bij aanmaken categorie: " + error.message);
-        const { current_state, message } = CreateCategoryError(error);
+        const { current_state, message } = ErrorHandler(error);
         return {
             success: false,
             current_state,
@@ -775,7 +784,11 @@ export async function CreateNewCategory(categoryName) {
 export async function UpdateCategory(categoryId, categoryName) {
     const token = sessionStorage.getItem("token");
 
-    if (!Number.isInteger(categoryId)) return { success: false };
+    if (!Number.isInteger(categoryId))
+        return { success: false, message: "Invalide id gegeven" };
+
+    if (!categoryName.trim())
+        return { success: false, message: "Categorie mag niet leeg zijn!" };
 
     try {
         const response = await api.put(
@@ -795,8 +808,7 @@ export async function UpdateCategory(categoryId, categoryName) {
             };
         }
     } catch (error) {
-        console.error("Fout bij updaten categorie: " + error.message);
-        const { current_state, message } = UpdateCategoryError(error);
+        const { current_state, message } = ErrorHandler(error);
         return {
             success: false,
             current_state,
@@ -833,8 +845,7 @@ export async function DeleteSingleCategory(categoryId, confirmation) {
             };
         }
     } catch (error) {
-        console.error("Fout bij verwijderen categorie: " + error.message);
-        const { current_state, message } = DeleteSingleCategoryError(error);
+        const { current_state, message } = ErrorHandler(error);
         return {
             success: false,
             current_state,
@@ -863,8 +874,7 @@ export async function GetAllSubcategories() {
             };
         }
     } catch (error) {
-        console.error("Fout bij ophalen subcategorieën: " + error.message);
-        const { current_state, message } = GetAllSubcategoriesError(error);
+        const { current_state, message } = ErrorHandler(error);
         return { success: false, current_state, message };
     }
 }
@@ -902,11 +912,7 @@ export async function GetAllSubcategoriesByCategory(categoryId) {
             };
         }
     } catch (error) {
-        console.error(
-            "Fout bij het ophalen van subcategorieën: " + error.message
-        );
-        const { current_state, message } =
-            RetrieveSubCategoryByCategoryIdError(error);
+        const { current_state, message } = ErrorHandler(error);
         return {
             success: false,
             current_state,
@@ -941,10 +947,7 @@ export async function GetSingleSubcategory(subcategoryId) {
             };
         }
     } catch (error) {
-        console.error(
-            "Fout bij het ophalen van subcategorie met id: " + error.message
-        );
-        const { current_state, message } = GetSingleSubcategoryError(error);
+        const { current_state, message } = ErrorHandler(error);
         return {
             success: false,
             current_state,
@@ -1049,7 +1052,6 @@ export async function UpdateUser(userId, userData) {
             return response.data;
         }
     } catch (error) {
-        console.error("Fout bij updaten gebruiker: " + error.message);
         throw error;
     }
 }
@@ -1075,9 +1077,7 @@ export async function GetAllUsers() {
                 current_response: arr,
             };
         }
-    } catch (error) {
-        console.error("Fout bij ophalen gebruikers:", error);
-    }
+    } catch (error) {}
 }
 
 /**
@@ -1101,7 +1101,6 @@ export async function DeleteUser(userId) {
             return response.data;
         }
     } catch (error) {
-        console.error("Fout bij verwijderen gebruiker:", error);
         throw error;
     }
 }

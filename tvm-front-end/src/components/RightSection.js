@@ -47,7 +47,7 @@ function RightSection({
     }, [conversationId, currentConversationMessages]);
 
     const handleGenerateAdvice = async () => {
-        if (!input.trim()) return;
+        // if (!input.trim()) return;
         setLoading(true);
         setOutcomeHandler({ success: null, error: null });
 
