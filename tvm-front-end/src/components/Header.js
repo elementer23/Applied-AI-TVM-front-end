@@ -1,19 +1,19 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { Logout } from "../utils/Services";
+import { useState, useEffect } from "react";
+import { GetCurrentUser, Logout } from "../utils/Services";
+
 
 function Header({ variant }) {
     const navigate = useNavigate();
     const [showDropdown, setShowDropdown] = useState(false);
-    // const [user, setUser] = useState(null);
-
-    // useEffect(() => {
-    //     async function fetchUser() {
-    //         const userData = await GetCurrentUser();
-    //         setUser(userData);
-    //     }
-    //     fetchUser();
-    // }, []);
+    const [user, setUser] = useState(null);
+   useEffect(() => {
+  async function fetchUser() {
+    const userData = await GetCurrentUser();
+    setUser(userData.current_response); 
+  }
+  fetchUser();
+    }, []);
 
     const toggleDropdown = () => {
         setShowDropdown(!showDropdown);
@@ -34,9 +34,8 @@ function Header({ variant }) {
 
     return (
         <div
-            className={`section-header ${
-                variant === "beheer" ? "section-header--beheer" : ""
-            }`}
+            className={`section-header ${variant === "beheer" ? "section-header--beheer" : ""
+                }`}
         >
             <img
                 className="image-header"
@@ -61,14 +60,14 @@ function Header({ variant }) {
                             >
                                 Hoofdmenu
                             </li>
-                            <li //{user?.role === "admin" && ( )} werkt momenteel niet
-                                className="dropdown-item"
-                                onClick={() =>
-                                    handleNavigation("usermanagement")
-                                }
-                            >
-                                Gebruikersbeheer
-                            </li>
+                            {user?.role === "admin" && (
+                                <li
+                                    className="dropdown-item"
+                                    onClick={() => handleNavigation("usermanagement")}
+                                >
+                                    Gebruikersbeheer
+                                </li>
+                            )}
                             <li
                                 className="dropdown-item"
                                 onClick={() => handleNavigation("dashboard")}
