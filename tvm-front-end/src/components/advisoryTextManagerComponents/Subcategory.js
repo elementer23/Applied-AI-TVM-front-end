@@ -49,7 +49,7 @@ function Subcategory({
                     )
                 }
             >
-                <span>{subcategory.name}</span>
+                <span>{subcategory.name.replace(/[_]/g, " ")}</span>
             </div>
             {isSelected && (
                 <>
