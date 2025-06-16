@@ -69,7 +69,10 @@ function AddNewCategory() {
                                     {categories &&
                                         categories.map((category) => (
                                             <span key={category.id}>
-                                                {category.name + "; "}
+                                                {category.name.replace(
+                                                    /[_]/g,
+                                                    " "
+                                                ) + "; "}
                                             </span>
                                         ))}
                                     {" ) "}

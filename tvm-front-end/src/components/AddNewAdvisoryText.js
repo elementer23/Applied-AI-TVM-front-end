@@ -126,7 +126,10 @@ function AddNewAdvisoryText() {
                                                 key={category.id}
                                                 value={category.id}
                                             >
-                                                {category.name}
+                                                {category.name.replace(
+                                                    /[_]/g,
+                                                    " "
+                                                )}
                                             </option>
                                         ))}
                                 </select>
@@ -153,8 +156,10 @@ function AddNewAdvisoryText() {
                                                         <span
                                                             key={subcategory.id}
                                                         >
-                                                            {subcategory.name +
-                                                                "; "}
+                                                            {subcategory.name.replace(
+                                                                /[_]/g,
+                                                                " "
+                                                            ) + "; "}
                                                         </span>
                                                     )
                                                 )}

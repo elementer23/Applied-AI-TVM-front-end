@@ -54,7 +54,7 @@ function Category({
                 }}
             >
                 <div className={styles.advisoryManagerCategoryPlatformItemLeft}>
-                    {!displayItems && category.name}
+                    {!displayItems && category.name.replace(/[_]/g, " ")}
                     {displayItems && (
                         <input
                             type="text"
