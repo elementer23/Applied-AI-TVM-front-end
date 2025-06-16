@@ -215,7 +215,7 @@ function UserManagement() {
                         </form>
                     )}
 
-                    {users === 0 && (
+                    {users.length === 0 && (
                         <div>
                             Het ziet er naar uit dat er geen gebruikers zijn
                         </div>
