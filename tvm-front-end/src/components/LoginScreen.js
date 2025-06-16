@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Login } from "../utils/Services";
 import "../css/LoginScreen.css";
-import "../css/Error.css";
+import MessageOutcomeComponent from "./errorComponents/MessageOutcomeComponent";
 import { useNavigate } from "react-router-dom";
 
 function LoginScreen() {
@@ -9,8 +9,10 @@ function LoginScreen() {
         username: "",
         password: "",
     });
-
-    const [error, setError] = useState(null);
+    const [outcomeHandler, setOutcomeHandler] = useState({
+        success: null,
+        error: null,
+    });
 
     const navigate = useNavigate();
 
@@ -20,9 +22,9 @@ function LoginScreen() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const out = await Login(request, navigate);
-        if (!out.success) {
-            setError(out.message);
+        const data = await Login(request, navigate);
+        if (!data.success) {
+            setOutcomeHandler({ success: null, error: data.message });
         }
     };
 
@@ -40,7 +42,10 @@ function LoginScreen() {
                     alt="Profile"
                 />
             </div>
-            {error && <div className="errorComponent">{error}</div>}
+            <MessageOutcomeComponent
+                outcomeHandler={outcomeHandler}
+                setOutcomeHandler={setOutcomeHandler}
+            />
             <div className="login-screen-content">
                 <form onSubmit={handleSubmit} className="login-form">
                     <h2>Login</h2>

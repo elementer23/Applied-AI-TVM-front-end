@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Header from "./Header";
-import "../css/Error.css";
 import { sendAdviceRequest } from "../utils/Services";
+import MessageOutcomeComponent from "./errorComponents/MessageOutcomeComponent";
 
 function RightSection({
     conversationId,
@@ -12,14 +12,17 @@ function RightSection({
 }) {
     const [input, setInput] = useState("");
     const [output, setOutput] = useState("");
-    const [error, setError] = useState(null);
+    const [outcomeHandler, setOutcomeHandler] = useState({
+        success: null,
+        error: null,
+    });
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (!conversationId) {
             setInput("");
             setOutput("");
-            setError(null);
+            setOutcomeHandler({ success: null, error: null });
             return;
         }
 
@@ -44,57 +47,74 @@ function RightSection({
     }, [conversationId, currentConversationMessages]);
 
     const handleGenerateAdvice = async () => {
-        if (!input.trim()) return;
+        // if (!input.trim()) return;
         setLoading(true);
-        setError(null);
+        setOutcomeHandler({ success: null, error: null });
 
-        const out = await sendAdviceRequest(input, conversationId);
+        const data = await sendAdviceRequest(input, conversationId);
         setLoading(false);
 
-        if (out.success) {
-            setOutput(out.current_response || "Geen aangepast advies ontvangen.");
-            setConversationId(out.current_conversation_id);
+        if (data.success) {
+            setOutput(
+                data.current_response || "Geen aangepast advies ontvangen."
+            );
+            setConversationId(data.current_conversation_id);
             await reFetchMessages();
             await reFetchConversations();
         } else {
-            setError(out.message);
+            setOutcomeHandler({ success: null, error: data.message });
         }
     };
 
     return (
         <div className="section right-section">
             <Header />
+            <MessageOutcomeComponent
+                outcomeHandler={outcomeHandler}
+                setOutcomeHandler={setOutcomeHandler}
+            />
             <div className="scrollable-content">
-                {error && <div className="errorComponent">{error}</div>}
+                <h2>
+                    Plak hieronder je adviesrapport. Je ontvangt automatisch een
+                    aangepaste versie terug.
+                </h2>
 
-            <h2>Plak hieronder je adviesrapport. Je ontvangt automatisch een aangepaste versie terug.</h2>
+                <div className="advice-panels">
+                    <div className="advice-panel">
+                        <h3>Origineel Adviesrapport</h3>
+                        <textarea
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            placeholder="Plak hier je originele adviesrapport..."
+                            className="advice-textarea"
+                        />
+                    </div>
 
-            <div className="advice-panels">
-                <div className="advice-panel">
-                    <h3>Origineel Adviesrapport</h3>
-                    <textarea
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        placeholder="Plak hier je originele adviesrapport..."
-                        className="advice-textarea"
-                    />
+                    <div className="advice-panel">
+                        <h3>Aangepast Adviesrapport</h3>
+                        <textarea
+                            value={
+                                loading ? "AI is bezig met nadenken..." : output
+                            }
+                            readOnly
+                            placeholder="Het aangepaste advies verschijnt hier..."
+                            className={`advice-textarea ${
+                                loading ? "loading-output" : ""
+                            }`}
+                        />
+                    </div>
                 </div>
 
-                <div className="advice-panel">
-                    <h3>Aangepast Adviesrapport</h3>
-                    <textarea
-                        value={loading ? "AI is bezig met nadenken..." : output}
-                        readOnly
-                        placeholder="Het aangepaste advies verschijnt hier..."
-                        className={`advice-textarea ${loading ? "loading-output" : ""}`}
-                    />
-                </div>
+                <button
+                    className="generate-btn"
+                    onClick={handleGenerateAdvice}
+                    disabled={loading}
+                >
+                    {loading
+                        ? "Bezig met genereren..."
+                        : "Genereer aangepast adviesrapport"}
+                </button>
             </div>
-        </div>
-
-            <button className="generate-btn" onClick={handleGenerateAdvice} disabled={loading}>
-                {loading ? "Bezig met genereren..." : "Genereer aangepast adviesrapport"}
-            </button>
         </div>
     );
 }

@@ -3,11 +3,16 @@ import LeftSection from "./components/LeftSection";
 import RightSection from "./components/RightSection";
 import { useEffect, useState, useCallback } from "react";
 import { GetAllConversations, GetConversationMessages } from "./utils/Services";
+import MessageOutcomeComponent from "./components/errorComponents/MessageOutcomeComponent";
 
 function Main() {
     const [conversations, setConversations] = useState([]);
     const [selectedConversationId, setSelectedConversationId] = useState(null);
     const [messages, setMessages] = useState([]);
+    const [outcomeHandler, setOutcomeHandler] = useState({
+        success: null,
+        error: null,
+    });
 
     async function fetchConversations() {
         const data = await GetAllConversations();
@@ -17,7 +22,11 @@ function Main() {
     const fetchMessages = useCallback(async () => {
         if (selectedConversationId) {
             const data = await GetConversationMessages(selectedConversationId);
-            setMessages(data);
+            if (data.success) {
+                setMessages(data.current_response);
+            } else {
+                setOutcomeHandler({ success: null, error: data.message });
+            }
         }
     }, [selectedConversationId]);
 
@@ -31,6 +40,10 @@ function Main() {
 
     return (
         <div className="main-container">
+            <MessageOutcomeComponent
+                outcomeHandler={outcomeHandler}
+                setOutcomeHandler={setOutcomeHandler}
+            />
             <LeftSection
                 conversations={conversations}
                 onSelectConversation={setSelectedConversationId}
