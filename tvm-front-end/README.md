@@ -8,7 +8,7 @@ It can be done, by simply downloading the Windows installer and to follow the na
 
 ## Installing Node Modules
 
-Once the you've got the project on your pc, in your respected environment. The corresponding node modules should be installed, in order to properly run the project.
+Once you've got the project on your pc, in your respected environment. The corresponding node modules should be installed, in order to properly run the project.
 
 **(Be sure to execute the commands inside of the root folder of the project.)**
 
