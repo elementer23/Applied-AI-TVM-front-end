@@ -83,10 +83,10 @@ function RightSection({
                 <div className="advice-panel">
                     <h3>Aangepast Adviesrapport</h3>
                     <textarea
-                        value={output}
+                        value={loading ? "AI is bezig met nadenken..." : output}
                         readOnly
                         placeholder="Het aangepaste advies verschijnt hier..."
-                        className="advice-textarea"
+                        className={`advice-textarea ${loading ? "loading-output" : ""}`}
                     />
                 </div>
             </div>
