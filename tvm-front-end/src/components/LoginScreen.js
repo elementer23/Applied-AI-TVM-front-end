@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Login } from "../utils/Services";
 import "../css/LoginScreen.css";
 import MessageOutcomeComponent from "./errorComponents/MessageOutcomeComponent";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 function LoginScreen() {
     const [request, setRequest] = useState({

@@ -1,18 +1,17 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { useState, useEffect } from "react";
 import { GetCurrentUser, Logout } from "../utils/Services";
-
 
 function Header({ variant }) {
     const navigate = useNavigate();
     const [showDropdown, setShowDropdown] = useState(false);
     const [user, setUser] = useState(null);
-   useEffect(() => {
-  async function fetchUser() {
-    const userData = await GetCurrentUser();
-    setUser(userData.current_response); 
-  }
-  fetchUser();
+    useEffect(() => {
+        async function fetchUser() {
+            const userData = await GetCurrentUser();
+            setUser(userData.current_response);
+        }
+        fetchUser();
     }, []);
 
     const toggleDropdown = () => {
@@ -34,8 +33,9 @@ function Header({ variant }) {
 
     return (
         <div
-            className={`section-header ${variant === "beheer" ? "section-header--beheer" : ""
-                }`}
+            className={`section-header ${
+                variant === "beheer" ? "section-header--beheer" : ""
+            }`}
         >
             <img
                 className="image-header"
@@ -63,7 +63,9 @@ function Header({ variant }) {
                             {user?.role === "admin" && (
                                 <li
                                     className="dropdown-item"
-                                    onClick={() => handleNavigation("usermanagement")}
+                                    onClick={() =>
+                                        handleNavigation("usermanagement")
+                                    }
                                 >
                                     Gebruikersbeheer
                                 </li>
