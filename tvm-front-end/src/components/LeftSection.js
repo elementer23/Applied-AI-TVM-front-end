@@ -3,7 +3,7 @@ import {
     StartNewConversation,
 } from "../utils/Services";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { Trash2 } from "lucide-react";
 import MessageOutcomeComponent from "./errorComponents/MessageOutcomeComponent";
 

@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router";
 import LoginScreen from "./components/LoginScreen";
 import UserManagement from "./components/UserManagement";
 import Main from "./Main";

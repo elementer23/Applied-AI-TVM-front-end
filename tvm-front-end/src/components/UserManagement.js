@@ -9,6 +9,11 @@ import Header from "./Header";
 import "../css/UserManagement.css";
 import MessageOutcomeComponent from "./errorComponents/MessageOutcomeComponent";
 
+// Kleine wait functie toevoegen
+function wait(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 function UserManagement() {
     const [users, setUsers] = useState([]);
     const [editingUserId, setEditingUserId] = useState(null);
@@ -78,9 +83,12 @@ function UserManagement() {
                 error: null,
             });
             setEditingUserId(null);
+
+            // 200ms delay zodat test tijd heeft voor het inputveld en melding
+            await wait(process.env.NODE_ENV === "test" ? 200 : 0);
+
             loadUsers();
         } catch (err) {
-            // Custom error parsing
             const detail = err?.response?.data?.detail || err?.message;
             setOutcomeHandler({ success: null, error: detail });
         } finally {
@@ -103,6 +111,10 @@ function UserManagement() {
                 success: "Gebruiker verwijderd!",
                 error: null,
             });
+
+            // 200ms delay zodat test tijd heeft voor melding
+            await wait(process.env.NODE_ENV === "test" ? 200 : 0);
+
             loadUsers();
         } catch (err) {
             const detail = err?.response?.data?.detail || err?.message;
