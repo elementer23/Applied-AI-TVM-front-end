@@ -1,0 +1,67 @@
+import { useState } from "react";
+import AdvisoryTextManager from "./AdvisoryTextManager";
+import AddNewAdvisoryText from "./AddNewAdvisoryText";
+import AddNewCategory from "./AddNewCategory";
+
+/**
+ * This is a component that is the main screen,
+ * for adding categories, advisory texts and such.
+ * Mainly used to switch between the components
+ * as a baseline to show the components.
+ * @returns The CategoryMainScreen component
+ */
+function CategoryMainScreen() {
+    const [component, setComponent] = useState("advisory_text_manager");
+
+    const componentHandler = {
+        advisory_text_manager: <AdvisoryTextManager />,
+        add_new_advisory_text: <AddNewAdvisoryText />,
+        add_new_category: <AddNewCategory />,
+    };
+
+    return (
+        <div className="main-container">
+            <div className="left-change-section">
+                <div></div>
+                <div className="history-content">
+                    <p>
+                        <strong>Mogelijke opties</strong>
+                    </p>
+                    <ul>
+                        <li className="text-change-item">
+                            <button
+                                className="text-change-button"
+                                onClick={() =>
+                                    setComponent("advisory_text_manager")
+                                }
+                            >
+                                Overzicht
+                            </button>
+                        </li>
+                        <li className="text-change-item">
+                            <button
+                                className="text-change-button"
+                                onClick={() =>
+                                    setComponent("add_new_advisory_text")
+                                }
+                            >
+                                Advies tekst(en) toevoegen
+                            </button>
+                        </li>
+                        <li className="text-change-item">
+                            <button
+                                className="text-change-button"
+                                onClick={() => setComponent("add_new_category")}
+                            >
+                                Voeg nieuwe categorie toe
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            {componentHandler[component]}
+        </div>
+    );
+}
+
+export default CategoryMainScreen;

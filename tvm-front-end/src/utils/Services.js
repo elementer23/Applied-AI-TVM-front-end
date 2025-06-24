@@ -1,0 +1,1106 @@
+import api from "./api";
+import { RequestError, ErrorHandler } from "./errorHandler";
+
+/**
+ * Request function, this function expects text like input
+ * and will return a proper response from the AI upon a successful attempt.
+ * Will return an answer depending on the given input
+ * and will return an empty string upon a failed attempt.
+ * @param {*} requestedInput - the input in the form of a string
+ * @param {*} conversationId - the id of the conversation the input should be added to.
+ * @returns output depending on the outcome
+ */
+export async function sendAdviceRequest(requestedInput, conversationId) {
+    const token = sessionStorage.getItem("token");
+
+    if (!requestedInput.trim()) {
+        return {
+            success: false,
+            current_state: null,
+            message: "Het tekstveld is leeg!",
+        };
+    }
+
+    let data = {
+        input: requestedInput,
+    };
+
+    if (conversationId !== null) {
+        data.conversation_id = conversationId;
+    }
+
+    //Keep in mind that the given variable in this case "input", will have to be equal to the
+    //field variable in the back-end. Meaning that if there is a class in the back-end called i don't know,
+    //InputData and it has a field called input. Then input will be the variable to send with on the front-end.
+    //And if it's called something like message, then the variable on the front-end needs to be called message too.
+    //If it doesn't equal, then it won't receive the data and it will not perform an action.. most likely resulting
+    //in an error. So keep that in mind. back-end: input -> { input: requestedInput } else
+    //back-end: message -> { message: requestedInput }.
+
+    try {
+        const response = await api.post("/run", data, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        //The comment from above applies to what is returned as well. If you return something through a certain name like
+        //in this case "output", then it needs to be the same on the front-end as well. Or else you might send something
+        //which will work, but you won't get anything in return.
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                current_response: response.data.output,
+                current_conversation_id: response.data.conversation_id,
+            };
+        }
+    } catch (error) {
+        const { current_state, message } = RequestError(error);
+        return {
+            success: false,
+            current_state,
+            message,
+        };
+    }
+}
+
+/**
+ * Login function, makes a post request towards an endpoint in the back-end.
+ * Will login or deny the login based on the given values in the requested_data.
+ * Will set a new set of tokens upon successful login attempt and will set them in the session.
+ * Will navigate to the main page, once the login has succeeded.
+ * @param {*} requested_data - the requested data to login with
+ * @param {*} navigate - the useNavigate so the function can navigate after completion
+ */
+export async function Login(requested_data, navigate) {
+    if (!requested_data.username.trim() || !requested_data.password.trim()) {
+        return {
+            success: false,
+            current_state: null,
+            message: "De velden moeten wel ingevuld worden!",
+        };
+    }
+
+    //Call the URLSearchParams function and append the given username and password from the requested_data
+    const form = new URLSearchParams();
+    form.append("username", requested_data.username);
+    form.append("password", requested_data.password);
+
+    try {
+        const response = await api.post("/token", form, {
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+        });
+
+        if (response.status === 200) {
+            //set the token and refresh_token upon logging in
+            sessionStorage.setItem("token", response.data.access_token);
+            sessionStorage.setItem(
+                "refresh_token",
+                response.data.refresh_token
+            );
+            navigate("/main");
+            return { success: true };
+        }
+    } catch (error) {
+        const { current_state, message } = ErrorHandler(error);
+
+        return {
+            success: false,
+            current_state,
+            message,
+        };
+    }
+}
+
+/**
+ * This function registers a new user into the database.
+ * Will add a new user upon success, will not create a new user upon failure.
+ * Will return an error upon failure or a message upon success.
+ * @param {*} requested_data - the requested data to register a new user
+ * @returns data depending on the outcome
+ */
+export async function RegisterUser(requested_data) {
+    const token = sessionStorage.getItem("token");
+
+    if (
+        !requested_data.username.trim() ||
+        !requested_data.password.trim() ||
+        !requested_data.role.trim()
+    ) {
+        return {
+            success: false,
+            current_state: null,
+            message: "Alle velden moeten worden ingevuld!",
+        };
+    }
+
+    const form = new URLSearchParams();
+    form.append("username", requested_data.username);
+    form.append("password", requested_data.password);
+    form.append("role", "user");
+
+    try {
+        const response = await api.post("/users/?" + form.toString(), null, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 200) {
+            return { success: true };
+        }
+    } catch (error) {
+        const { current_state, message } = ErrorHandler(error);
+
+        return { success: false, current_state, message };
+    }
+}
+
+/**
+ * It's logging out exactly what one would expect,
+ * calls out the endpoint in the back-end. Deleting
+ * any existing token for the logged in user.
+ * Will do the same on the front-end, deleting them
+ * from the local storage. Before navigating the user
+ * back to the log in page.
+ * @param {*} navigate - the useNavigate to navigate after logging out
+ */
+export async function Logout(navigate) {
+    try {
+        const response = await api.post("/logout");
+
+        if (response.status === 200) {
+            sessionStorage.removeItem("token");
+            sessionStorage.removeItem("refresh_token");
+            navigate("/");
+        } else {
+            console.error(response.status + " Logging out failed!");
+        }
+    } catch (error) {
+        console.error(error.message);
+    }
+}
+
+/**
+ * @deprecated
+ * A function to delete all conversations from the database that are binded to the user.
+ * Will need a confirmation to make sure that the function has to be executed.
+ * Will delete all conversations upon success, will give an error upon failure.
+ * @param {*} confirmation - a boolean to confirm whether it should be deleted or not
+ * @param {*} navigate - the useNavigate to navigate after completion
+ */
+export async function DeleteAllPersonalConversations(confirmation, navigate) {
+    const token = sessionStorage.getItem("token");
+
+    try {
+        if (confirmation) {
+            const response = await api.delete("/conversations", {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (response.status === 200) {
+                navigate("/main");
+            }
+        }
+    } catch (error) {}
+}
+
+/**
+ * This function creates a new conversation for the user.
+ * Will create a new conversation upon success, will not
+ * create a new conversation upon failure.
+ * Will throw an error upon failure.
+ * Will return the current user the conversation correlates to
+ * and the created date and time the conversation was made.
+ * @returns a new conversation
+ */
+export async function StartNewConversation() {
+    const token = sessionStorage.getItem("token");
+
+    try {
+        const response = await api.post("/conversations", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                id: response.data.id,
+                userId: response.data.user_id,
+                createdAt: response.data.created_at,
+            };
+        }
+    } catch (error) {
+        return { success: false };
+    }
+}
+
+/**
+ * This function deletes a single conversation from the database, that is binded to the user.
+ * Will need a confirmation to make sure that the function has to be executed.
+ * Will delete a conversation upon succession, will not remove a conversation upon failure.
+ * Will return false once the given conversationId isn't a number.
+ * Will show an error upon failure.
+ * @param {*} confirmation - a boolean to confirm whether it should be deleted or not
+ * @param {*} conversationId - the conversation to delete with the corresponding id
+ * @param {*} navigate - the useNavigate to navigate with after completion
+ * @returns a boolean or nothing
+ */
+export async function DeleteSingleConversation(
+    confirmation,
+    conversationId,
+    navigate
+) {
+    const token = sessionStorage.getItem("token");
+
+    if (!Number.isInteger(conversationId)) {
+        return {
+            success: false,
+            current_state: null,
+            message: "Invalide id gegeven",
+        };
+    }
+
+    try {
+        if (confirmation) {
+            const response = await api.delete(
+                `/conversations/${conversationId}`,
+                { conversation_id: conversationId },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            if (response.status === 200) {
+                navigate("/main");
+                return {
+                    success: true,
+                };
+            }
+        }
+    } catch (error) {
+        const { current_state, message } = ErrorHandler(error);
+        return {
+            success: true,
+            current_state,
+            message,
+        };
+    }
+}
+
+/**
+ * This function retrieves all existing messages for a single conversation.
+ * Will return an array with necessary Message data upon success,
+ * will return an empty array upon failure.
+ * Will return false once the given conversation id isn't a number.
+ * Will error upon failure.
+ * @param {*} conversationId - the conversation id to show the corresponding messages with
+ * @returns a boolean or array
+ */
+export async function GetConversationMessages(conversationId) {
+    const token = sessionStorage.getItem("token");
+
+    if (!Number.isInteger(conversationId)) {
+        return {
+            success: false,
+            current_state: null,
+            message: "invalide id gegeven",
+        };
+    }
+
+    try {
+        let arr = [];
+        const response = await api.get(
+            `/conversations/${conversationId}/messages`,
+            { conversation_id: conversationId },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        if (response.status === 200) {
+            for (var item of response.data) {
+                arr.push(item);
+            }
+
+            return {
+                success: true,
+                current_response: arr,
+            };
+        }
+    } catch (error) {
+        const { current_state, message } = ErrorHandler(error);
+        return { success: false, current_state, message };
+    }
+}
+
+/**
+ * This function retrieves all conversations that are bonded to the user.
+ * Will return an array with necessary information upon success,
+ * will return an empty array upon failure or once there are no conversations.
+ * Will given an error upon failure.
+ * @returns an array
+ */
+export async function GetAllConversations() {
+    const token = sessionStorage.getItem("token");
+
+    try {
+        let arr = [];
+        const response = await api.get("/conversations", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 200) {
+            for (var item of response.data) {
+                arr.push(item);
+            }
+
+            return arr;
+        }
+    } catch (error) {
+        return [];
+    }
+}
+
+/**
+ * This function retrieves the current logged in user.
+ * Will return an username and a role that befits the current user.
+ * Will return corresponding data upon success and nothing upon failure.
+ * Will show an error upon failure.
+ * @returns a boolean or a set of data.
+ */
+export async function GetCurrentUser() {
+    const token = sessionStorage.getItem("token");
+
+    try {
+        const response = await api.get("/me", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                current_response: response.data,
+            };
+        }
+    } catch (error) {
+        return { success: false };
+    }
+}
+
+/**
+ * This function revokes the refresh token upon use.
+ * Will return a set of data and a success response upon success,
+ * will return a failure response upon failure.
+ * Will show an error upon failure.
+ * Keep in mind, this function can only be executed with admin level authentication.
+ * @returns a boolean or data response
+ */
+export async function RevokeRefreshToken() {
+    const refreshToken = sessionStorage("refresh_token");
+    const token = sessionStorage("token");
+
+    try {
+        const response = await api.post(
+            "/token/revoke",
+            {
+                refresh_token: refreshToken,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                current_response: response.data,
+            };
+        }
+    } catch (error) {
+        return { success: false };
+    }
+}
+
+/**
+ * This function will return all advisory texts from the database.
+ * Will return a set of data upon success, will return nothing and an error upon failure.
+ * @returns a boolean or set of data
+ */
+export async function GetAllAdvisoryTexts() {
+    const token = sessionStorage.getItem("token");
+
+    try {
+        let arr = [];
+        const response = await api.get("/advisorytexts/", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 200) {
+            for (var item of response.data) {
+                arr.push(item);
+            }
+
+            return {
+                success: true,
+                current_response: arr,
+            };
+        }
+    } catch (error) {
+        const { current_state, message } = ErrorHandler(error);
+        return { success: false, current_state, message };
+    }
+}
+
+/**
+ * This function returns a single advisory text based on the given id.
+ * Will return a set of data upon success and nothing with an error upon failure.
+ * Will return failure once the given id was incorrect, didn't exist or wasn't a number.
+ * @param {*} textId - the id to retrieve the advisory text with
+ * @returns a boolean or message
+ */
+export async function GetAdvisoryTextById(textId) {
+    const token = sessionStorage.getItem("token");
+
+    if (!Number.isInteger(textId))
+        return { success: false, message: "Invalide id gegeven" };
+
+    try {
+        const response = await api.get(`/advisorytexts/id=${textId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                current_response: response.data,
+            };
+        }
+    } catch (error) {
+        const { current_state, message } = ErrorHandler(error);
+        return { success: false, current_state, message };
+    }
+}
+
+/**
+ * This function updates the advisory text, depending on the id, category id and subcategory.
+ * Will return a message upon success, will return nothing and an error upon failure.
+ * Will return failure once the given id's are incorrect, not numbers or don't exist.
+ * @param {*} textId - the id to update the advisory text with
+ * @param {*} adviceText - the new text to update the advisory text with
+ * @returns a boolean or message
+ */
+export async function UpdateAdvisoryText(textId, adviceText) {
+    const token = sessionStorage.getItem("token");
+
+    if (!Number.isInteger(textId) || !adviceText.trim())
+        return { success: false, message: "Het advies kan niet leeg zijn" };
+
+    try {
+        const response = await api.put(
+            `/advisorytexts/id=${textId}`,
+            {
+                text: adviceText,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                message: response.data,
+            };
+        }
+    } catch (error) {
+        const { current_state, message } = ErrorHandler(error);
+        return { success: false, current_state, message };
+    }
+}
+
+/**
+ * This function creates a new advisory text based on
+ * the belonging category id and subcategory.
+ * Will return a message upon success, will return nothing and
+ * an error upon failure. Will fail once the id hasn't been set
+ * or once the categoryId isn't a number or if it doesn't exist.
+ * @param {*} formData - the form data to create a new advisory text
+ * @returns a boolean or message
+ */
+export async function CreateAdvisoryText(formData) {
+    const token = sessionStorage.getItem("token");
+
+    if (formData.categoryId === null || !Number.isInteger(formData.categoryId))
+        return { success: false, message: "invalid given number" };
+
+    if (!formData.subcategory.trim() || !formData.advice_text.trim())
+        return { success: false, message: "velden kunnen niet leeg zijn!" };
+
+    try {
+        const response = await api.post(
+            "/advisorytexts/",
+            {
+                category_id: formData.categoryId,
+                sub_category: formData.subcategory,
+                text: formData.advice_text,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        if (response.status === 200 || response.status === 201) {
+            return {
+                success: true,
+                message: response.data,
+            };
+        }
+    } catch (error) {
+        const { current_state, message } = ErrorHandler(error);
+        return { success: false, current_state, message };
+    }
+}
+
+/**
+ * This function deletes an advisory text depending on the given id.
+ * Will return a message upon success, will return nothing and an error upon failure.
+ * Will return failure once the given id is incorrect or isn't a number.
+ * @param {*} textId - the id to delete the advisory text with
+ * @returns a boolean or message
+ */
+export async function DeleteAdvisoryText(textId) {
+    const token = sessionStorage.getItem("token");
+
+    if (!Number.isInteger(textId))
+        return { success: false, message: "Invalide id gegeven" };
+
+    try {
+        const response = await api.delete(`/advisorytexts/id=${textId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 204) {
+            return {
+                success: true,
+                message: response.data,
+            };
+        }
+    } catch (error) {
+        const { current_state, message } = ErrorHandler(error);
+        return { success: false, current_state, message };
+    }
+}
+
+/**
+ * This function returns an advisory text based on the subcategory id.
+ * Will return a set of data upon success, will return nothing and an error upon failure.
+ * Will return failure once the given id was invalid, didn't exist or wasn't a number.
+ * @param {*} subcategoryId - the subcategory id to retrieve the corresponding advisory text with
+ * @returns a boolean or a set of data
+ */
+export async function GetAdvisoryTextBySubcategoryId(subcategoryId) {
+    const token = sessionStorage.getItem("token");
+
+    if (!Number.isInteger(subcategoryId))
+        return { success: false, message: "Invalide id gegeven." };
+
+    try {
+        const response = await api.get(
+            `/advisorytexts/subcategory/${subcategoryId}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                current_response: response.data,
+            };
+        }
+    } catch (error) {
+        const { current_state, message } = ErrorHandler(error);
+        return {
+            success: false,
+            current_state,
+            message,
+        };
+    }
+}
+
+/**
+ * This function retrieves all categories from the database.
+ * Will return data upon a successfull attempt, will return failure
+ * upon a failing attempt. Will show an error upon failure.
+ * @returns a boolean or corresponding data
+ */
+export async function GetAllCategories() {
+    const token = sessionStorage.getItem("token");
+
+    try {
+        let arr = [];
+        const response = await api.get("/categories/", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 200) {
+            for (var item of response.data) {
+                arr.push(item);
+            }
+
+            return {
+                success: true,
+                current_response: arr,
+            };
+        }
+    } catch (error) {
+        const { current_state, message } = ErrorHandler(error);
+        return {
+            success: false,
+            current_state,
+            message,
+        };
+    }
+}
+
+/**
+ * This function retrieves a single category belonging to a corresponding id.
+ * Will return data upon success, will return false upon failure.
+ * Will not work if the given id isn't a number.
+ * Will give an error upon failure.
+ * @param {*} categoryId - the id to retrieve the corresponding category with
+ * @returns a boolean or data
+ */
+export async function GetSingleCategory(categoryId) {
+    const token = sessionStorage.getItem("token");
+
+    if (!Number.isInteger(categoryId))
+        return { success: false, message: "invalide id gegeven" };
+
+    try {
+        const response = await api.get(`/categories/${categoryId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                current_response: response.data,
+            };
+        }
+    } catch (error) {
+        const { current_state, message } = ErrorHandler(error);
+        return {
+            success: false,
+            current_state,
+            message,
+        };
+    }
+}
+
+/**
+ * This function creates a new category by name.
+ * Will return data upon success and will return false upon failure.
+ * Will show a message upon success and an error upon failure.
+ * @param {*} categoryName - the name of the category to be added
+ * @returns a boolean or message
+ */
+export async function CreateNewCategory(categoryName) {
+    const token = sessionStorage.getItem("token");
+
+    if (!categoryName.trim())
+        return { success: false, message: "Het veld mag niet leeg zijn!" };
+
+    try {
+        const response = await api.post(
+            "/categories/",
+            { name: categoryName },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        if (response.status === 200 || response.status === 201) {
+            return {
+                success: true,
+                message: response.data,
+            };
+        }
+    } catch (error) {
+        const { current_state, message } = ErrorHandler(error);
+        return {
+            success: false,
+            current_state,
+            message,
+        };
+    }
+}
+
+/**
+ * This function updates a category by category id and a new name.
+ * Will return a success message upon a successful attempt,
+ * will return a failure response upon failure.
+ * Will show an error upon failure.
+ * @param {*} categoryId - the id to update the category with
+ * @param {*} categoryName - the new name to update the category with
+ * @returns a boolean or message
+ */
+export async function UpdateCategory(categoryId, categoryName) {
+    const token = sessionStorage.getItem("token");
+
+    if (!Number.isInteger(categoryId))
+        return { success: false, message: "Invalide id gegeven" };
+
+    if (!categoryName.trim())
+        return { success: false, message: "Categorie mag niet leeg zijn!" };
+
+    try {
+        const response = await api.put(
+            `/categories/${categoryId}`,
+            { name: categoryName },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                message: response.data,
+            };
+        }
+    } catch (error) {
+        const { current_state, message } = ErrorHandler(error);
+        return {
+            success: false,
+            current_state,
+            message,
+        };
+    }
+}
+
+/**
+ * This function deletes a single category based on the given id.
+ * Will need a confirmation to continue, to make sure that the action was deliberate.
+ * Will return a message upon success and false with an error upon failure.
+ * @param {*} categoryId - the id to delete the category with
+ * @param {*} confirmation - a boolean to confirm that the category has to be deleted
+ * @returns a boolean or message
+ */
+export async function DeleteSingleCategory(categoryId, confirmation) {
+    const token = sessionStorage.getItem("token");
+
+    if (!Number.isInteger(categoryId) || !confirmation)
+        return { success: false };
+
+    try {
+        const response = await api.delete(`/categories/${categoryId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 204) {
+            return {
+                success: true,
+                message: response.data,
+            };
+        }
+    } catch (error) {
+        const { current_state, message } = ErrorHandler(error);
+        return {
+            success: false,
+            current_state,
+            message,
+        };
+    }
+}
+
+/**
+ * This function retrieves all of the subcategories from the database.
+ * Will return data upon success, will return nothing and an error upon failure.
+ * @returns a boolean or data
+ */
+export async function GetAllSubcategories() {
+    const token = sessionStorage.getItem("token");
+
+    try {
+        const response = await api.get("/subcategories/", {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                current_response: response.data,
+            };
+        }
+    } catch (error) {
+        const { current_state, message } = ErrorHandler(error);
+        return { success: false, current_state, message };
+    }
+}
+
+/**
+ * This function returns all subcategories that belong to the given category id.
+ * Will return a set of data upon success, will return nothing and an error upon failure.
+ * Will return failure once category id is invalid, not a number or doesn't exist.
+ * @param {*} categoryId - the id to retrieve all the subcategories that correspond to the category id
+ * @returns a boolean or a set of data
+ */
+export async function GetAllSubcategoriesByCategory(categoryId) {
+    const token = sessionStorage.getItem("token");
+
+    if (!Number.isInteger(categoryId)) return { success: false };
+
+    try {
+        let arr = [];
+        const response = await api.get(
+            `/categories/${categoryId}/subcategories`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        if (response.status === 200) {
+            for (var item of response.data) {
+                arr.push(item);
+            }
+            return {
+                success: true,
+                current_response: arr,
+            };
+        }
+    } catch (error) {
+        const { current_state, message } = ErrorHandler(error);
+        return {
+            success: false,
+            current_state,
+            message,
+        };
+    }
+}
+
+/**
+ * This function retrieves a single subcategory based on the id.
+ * Will return a set of data upon success, will return nothing and an error upon failure.
+ * @param {*} subcategoryId - the id to retrieve the subcategory with
+ * @returns a boolean or data
+ */
+export async function GetSingleSubcategory(subcategoryId) {
+    const token = sessionStorage.getItem("token");
+
+    if (!Number.isInteger(subcategoryId))
+        return { success: false, message: "Invalide subcategorie id" };
+
+    try {
+        const response = await api.get(`/subcategories/${subcategoryId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                current_response: response.data,
+            };
+        }
+    } catch (error) {
+        const { current_state, message } = ErrorHandler(error);
+        return {
+            success: false,
+            current_state,
+            message,
+        };
+    }
+}
+
+/**
+ * @deprecated
+ * This function updates a subcategory based on the id and a new name.
+ * Will return a success message upon a successful attempt,
+ * will return nothing and an error upon failure.
+ * Will return failure once the given id isn't a number or
+ * once the given id doesn't exist.
+ * @param {*} subcategoryId - the id to update the corresponding subcategory with
+ * @param {*} subcategoryName - the new name to update the corresponding subcategory with
+ * @returns a boolean or message
+ */
+export async function UpdateSubcategory(subcategoryId, subcategoryName) {
+    const token = sessionStorage.getItem("token");
+
+    if (!Number.isInteger(subcategoryId)) return { success: false };
+
+    try {
+        const response = await api.put(
+            `/subcategories/${subcategoryId}`,
+            {
+                name: subcategoryName,
+            },
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        if (response.status === 200) {
+            return {
+                success: true,
+                current_content: response.data.content,
+            };
+        }
+    } catch (error) {
+        console.error(error.message);
+        return {
+            success: false,
+        };
+    }
+}
+
+/**
+ * @deprecated
+ * This function delets a subcategory based on the id.
+ * Will return a message upon success and nothing with an error upon failure.
+ * Will return failure once the given id is not a number or
+ * once the confirmation hasn't been made.
+ * @param {*} subcategoryId - the id to delete the corresponding subcategory with
+ * @param {*} confirmation - a boolean to confirm the deletion
+ * @returns a boolean or message
+ */
+export async function DeleteSingleSubcategory(subcategoryId, confirmation) {
+    const token = sessionStorage.getItem("token");
+
+    if (!Number.isInteger(subcategoryId) || !confirmation)
+        return { success: false };
+
+    try {
+        const response = await api.delete(`/subcategories/${subcategoryId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 200 || response.status === 204) {
+            return {
+                success: true,
+                current_content: response.data.content,
+            };
+        }
+    } catch (error) {
+        console.error(error.message);
+        return { success: false };
+    }
+}
+
+/**
+ * This function updates the user, based on the given id and values.
+ * Will update the user upon success, will throw an error upon failure.
+ * Will return false once the given user id, was invalid, didn't exist or wasn't a number.
+ * @param {*} userId - the id to update the corresponding user with
+ * @param {*} userData - the data to update the corresponding user with
+ * @returns a message or boolean
+ */
+export async function UpdateUser(userId, userData) {
+    const token = sessionStorage.getItem("token");
+
+    if (!Number.isInteger(userId)) return false;
+
+    try {
+        const response = await api.put(`/users/${userId}`, userData, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (response.status === 200) {
+            return response.data;
+        }
+    } catch (error) {
+        throw error;
+    }
+}
+
+/**
+ * This function will retrieve all users from the database.
+ * Will return a set of data upon success, will return an empty
+ * array and an error upon failure.
+ * @returns a set of data or empty array
+ */
+export async function GetAllUsers() {
+    const token = sessionStorage.getItem("token");
+    try {
+        let arr = [];
+        const response = await api.get("/users/", {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.status === 200) {
+            for (var item of response.data) {
+                arr.push(item);
+            }
+            return {
+                current_response: arr,
+            };
+        }
+    } catch (error) {}
+}
+
+/**
+ * This function will delete an user from the database.
+ * Will delete the user and return a message upon success,
+ * will return nothing and an error upon failure.
+ * Will return failure once the given user id was invalid, didn't exist or wasn't a numbers
+ * @param {*} userId - the id to delete the corresponding user with
+ * @returns a message or a boolean
+ */
+export async function DeleteUser(userId) {
+    const token = sessionStorage.getItem("token");
+
+    if (!Number.isInteger(userId)) return false;
+
+    try {
+        const response = await api.delete(`/users/${userId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.status === 200) {
+            return response.data;
+        }
+    } catch (error) {
+        throw error;
+    }
+}

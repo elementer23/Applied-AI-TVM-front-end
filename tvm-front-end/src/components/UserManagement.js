@@ -1,0 +1,352 @@
+import { useEffect, useState } from "react";
+import {
+    GetAllUsers,
+    UpdateUser,
+    DeleteUser,
+    RegisterUser,
+} from "../utils/Services";
+import Header from "./Header";
+import "../css/UserManagement.css";
+import MessageOutcomeComponent from "./errorComponents/MessageOutcomeComponent";
+
+// Kleine wait functie toevoegen
+function wait(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * This is a component which returns the UserManagement page,
+ * won't show the page once the authorization is not sufficient.
+ * Will be able to see the users, change the users, add
+ * the users and delete the users.
+ * @returns The UserManagement component
+ */
+function UserManagement() {
+    const [users, setUsers] = useState([]);
+    const [editingUserId, setEditingUserId] = useState(null);
+    const [editForm, setEditForm] = useState({
+        username: "",
+        role: "",
+        password: "",
+    });
+    const [outcomeHandler, setOutcomeHandler] = useState({
+        success: null,
+        error: null,
+    });
+    const [loading, setLoading] = useState(false);
+
+    // Nieuw voor gebruiker toevoegen
+    const [showAddForm, setShowAddForm] = useState(false);
+    const [addForm, setAddForm] = useState({
+        username: "",
+        password: "",
+        role: "user",
+    });
+
+    // Laad gebruikerslijst
+    const loadUsers = async () => {
+        setLoading(true);
+        try {
+            const data = await GetAllUsers();
+            setUsers(data.current_response);
+        } catch (e) {
+            setUsers([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadUsers();
+    }, []);
+
+    const startEdit = (user) => {
+        setEditingUserId(user.id);
+        setEditForm({ username: user.username, role: user.role, password: "" });
+        setOutcomeHandler({ success: null, error: null });
+    };
+
+    const cancelEdit = () => {
+        setEditingUserId(null);
+        setEditForm({ username: "", role: "", password: "" });
+        setOutcomeHandler({ success: null, error: null });
+    };
+
+    const handleEditChange = (e) => {
+        setEditForm({ ...editForm, [e.target.name]: e.target.value });
+    };
+
+    const handleUpdate = async (userId) => {
+        setLoading(true);
+        setOutcomeHandler({ success: null, error: null });
+        try {
+            await UpdateUser(userId, {
+                username: editForm.username,
+                role: editForm.role,
+                password: editForm.password || undefined,
+            });
+            setOutcomeHandler({
+                success: "Gebruiker bijgewerkt!",
+                error: null,
+            });
+            setEditingUserId(null);
+
+            // 200ms delay zodat test tijd heeft voor het inputveld en melding
+            await wait(process.env.NODE_ENV === "test" ? 200 : 0);
+
+            loadUsers();
+        } catch (err) {
+            const detail = err?.response?.data?.detail || err?.message;
+            setOutcomeHandler({ success: null, error: detail });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDelete = async (userId) => {
+        if (
+            !window.confirm(
+                "Weet je zeker dat je deze gebruiker wilt verwijderen?"
+            )
+        )
+            return;
+        setLoading(true);
+        setOutcomeHandler({ success: null, error: null });
+        try {
+            await DeleteUser(userId);
+            setOutcomeHandler({
+                success: "Gebruiker verwijderd!",
+                error: null,
+            });
+
+            // 200ms delay zodat test tijd heeft voor melding
+            await wait(process.env.NODE_ENV === "test" ? 200 : 0);
+
+            loadUsers();
+        } catch (err) {
+            const detail = err?.response?.data?.detail || err?.message;
+            setOutcomeHandler({ success: null, error: detail });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Nieuw: handler voor gebruiker toevoegen
+    const handleAddChange = (e) => {
+        setAddForm({ ...addForm, [e.target.name]: e.target.value });
+    };
+
+    const handleAddUser = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setOutcomeHandler({ success: null, error: null });
+        try {
+            const res = await RegisterUser({
+                username: addForm.username,
+                password: addForm.password,
+                role: addForm.role,
+            });
+            if (res.success) {
+                setOutcomeHandler({
+                    success: "Gebruiker aangemaakt!",
+                    error: null,
+                });
+                setShowAddForm(false);
+                setAddForm({ username: "", password: "", role: "user" });
+                loadUsers();
+            } else {
+                setOutcomeHandler({ success: null, error: res.message });
+            }
+        } catch (err) {
+            const detail = err?.response?.data?.detail || err?.message;
+            setOutcomeHandler({ success: null, error: detail });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <>
+            <Header variant="beheer" />
+            <MessageOutcomeComponent
+                outcomeHandler={outcomeHandler}
+                setOutcomeHandler={setOutcomeHandler}
+            />
+            <div className="user-management-centerwrap">
+                <div className="user-management-content">
+                    <h1 className="beheer-title">Gebruikersbeheer</h1>
+
+                    {/* Gebruiker toevoegen knop */}
+                    <button
+                        className="beheer-btn beheer-btn-blue"
+                        style={{ marginBottom: "16px" }}
+                        onClick={() => setShowAddForm((v) => !v)}
+                        disabled={loading}
+                    >
+                        {showAddForm ? "Annuleer" : "Gebruiker aanmaken"}
+                    </button>
+
+                    {/* Gebruiker toevoegen formulier */}
+                    {showAddForm && (
+                        <form
+                            className="beheer-add-form"
+                            style={{
+                                display: "flex",
+                                gap: 12,
+                                alignItems: "center",
+                                marginBottom: 16,
+                            }}
+                            onSubmit={handleAddUser}
+                        >
+                            <input
+                                className="beheer-input"
+                                placeholder="Gebruikersnaam"
+                                name="username"
+                                required
+                                value={addForm.username}
+                                onChange={handleAddChange}
+                            />
+                            <input
+                                className="beheer-input"
+                                placeholder="Wachtwoord"
+                                name="password"
+                                type="password"
+                                required
+                                value={addForm.password}
+                                onChange={handleAddChange}
+                            />
+                            <select
+                                className="beheer-input"
+                                name="role"
+                                value={addForm.role}
+                                onChange={handleAddChange}
+                            >
+                                <option value="user">user</option>
+                                <option value="admin">admin</option>
+                            </select>
+                            <button
+                                className="beheer-btn beheer-btn-green"
+                                type="submit"
+                                disabled={loading}
+                            >
+                                Toevoegen
+                            </button>
+                        </form>
+                    )}
+
+                    {users.length === 0 && (
+                        <div>
+                            Het ziet er naar uit dat er geen gebruikers zijn
+                        </div>
+                    )}
+
+                    {/* Bestaande gebruikers tabel */}
+                    <table className="beheer-table">
+                        <thead>
+                            <tr>
+                                <th>Gebruikersnaam</th>
+                                <th>Rol</th>
+                                <th>Wijzig</th>
+                                <th>Verwijder</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {users.map((user) => (
+                                <tr
+                                    key={user.id}
+                                    className={
+                                        editingUserId === user.id
+                                            ? "beheer-row-editing"
+                                            : ""
+                                    }
+                                >
+                                    <td>
+                                        {editingUserId === user.id ? (
+                                            <input
+                                                name="username"
+                                                value={editForm.username}
+                                                onChange={handleEditChange}
+                                                className="beheer-input"
+                                            />
+                                        ) : (
+                                            user.username
+                                        )}
+                                    </td>
+                                    <td>
+                                        {editingUserId === user.id ? (
+                                            <select
+                                                name="role"
+                                                value={editForm.role}
+                                                onChange={handleEditChange}
+                                                className="beheer-input"
+                                            >
+                                                <option value="user">
+                                                    user
+                                                </option>
+                                                <option value="admin">
+                                                    admin
+                                                </option>
+                                            </select>
+                                        ) : (
+                                            user.role
+                                        )}
+                                    </td>
+                                    <td>
+                                        {editingUserId === user.id ? (
+                                            <div className="beheer-edit-controls">
+                                                <input
+                                                    type="password"
+                                                    name="password"
+                                                    placeholder="Nieuw wachtwoord (optioneel)"
+                                                    value={editForm.password}
+                                                    onChange={handleEditChange}
+                                                    className="beheer-input"
+                                                />
+                                                <button
+                                                    onClick={() =>
+                                                        handleUpdate(user.id)
+                                                    }
+                                                    disabled={loading}
+                                                    className="beheer-btn beheer-btn-green"
+                                                >
+                                                    Opslaan
+                                                </button>
+                                                <button
+                                                    onClick={cancelEdit}
+                                                    className="beheer-btn beheer-btn-grey"
+                                                >
+                                                    Annuleer
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <button
+                                                onClick={() => startEdit(user)}
+                                                className="beheer-btn beheer-btn-blue"
+                                            >
+                                                Wijzig
+                                            </button>
+                                        )}
+                                    </td>
+                                    <td>
+                                        <button
+                                            onClick={() =>
+                                                handleDelete(user.id)
+                                            }
+                                            className="beheer-btn beheer-btn-red"
+                                            disabled={loading}
+                                        >
+                                            Verwijder
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    {loading && <div className="beheer-loader">Laden...</div>}
+                </div>
+            </div>
+        </>
+    );
+}
+
+export default UserManagement;
