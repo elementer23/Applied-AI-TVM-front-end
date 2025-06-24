@@ -4,6 +4,12 @@ import "../css/LoginScreen.css";
 import MessageOutcomeComponent from "./errorComponents/MessageOutcomeComponent";
 import { useNavigate } from "react-router";
 
+/**
+ * This component shows the login screen.
+ * Where one can login using an username and
+ * password.
+ * @returns The LoginScreen component
+ */
 function LoginScreen() {
     const [request, setRequest] = useState({
         username: "",

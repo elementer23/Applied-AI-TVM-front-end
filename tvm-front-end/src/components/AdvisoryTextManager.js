@@ -14,6 +14,16 @@ import {
 } from "../utils/Services";
 import MessageOutcomeComponent from "./errorComponents/MessageOutcomeComponent.js";
 
+/**
+ * This is a component which shows a page,
+ * with an overview of all categories,
+ * subcategories and advisory texts.
+ * Being the main page, which the components are loaded into.
+ * Being able to delete and update, categories,
+ * subcategories and advisory texts.
+ * Will show a message once there are no categories available.
+ * @returns The AdvisoryTextManager component
+ */
 function AdvisoryTextManager() {
     const [categories, setCategories] = useState([]);
     const [isCategory, setIsCategory] = useState(false);

@@ -5,6 +5,13 @@ import { useEffect, useState, useCallback } from "react";
 import { GetAllConversations, GetConversationMessages } from "./utils/Services";
 import MessageOutcomeComponent from "./components/errorComponents/MessageOutcomeComponent";
 
+/**
+ * This is a component which shows the Main page,
+ * where the user starts at. Loads in two components
+ * a left section and a right section.. to start a conversation
+ * with the AI.
+ * @returns The Main component
+ */
 function Main() {
     const [conversations, setConversations] = useState([]);
     const [selectedConversationId, setSelectedConversationId] = useState(null);

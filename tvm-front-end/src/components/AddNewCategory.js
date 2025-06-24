@@ -4,6 +4,13 @@ import { GetAllCategories, CreateNewCategory } from "../utils/Services";
 import Header from "./Header";
 import MessageOutcomeComponent from "./errorComponents/MessageOutcomeComponent";
 
+/**
+ * This is a component which shows a page,
+ * with the ability to add new categories.
+ * Will show a list of categories whom already exist
+ * or will show a message when there are no categories available.
+ * @returns The AddNewCategory component
+ */
 function AddNewCategory() {
     const [categories, setCategories] = useState([]);
     const [input, setInput] = useState("");

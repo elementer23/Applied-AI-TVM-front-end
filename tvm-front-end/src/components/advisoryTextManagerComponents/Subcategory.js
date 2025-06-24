@@ -2,6 +2,20 @@ import styles from "../../css/AdvisoryManager.module.css";
 import AdvisoryText from "./AdvisoryText.js";
 import { useCallback, useEffect, useRef } from "react";
 
+/**
+ * This is a component which contains the subcategories,
+ * that correlate to the earlier selected key belonging to
+ * Category. It will show the corresponding set of subcategories
+ * and will show a message once it's empty.
+ * @param {Array} subcategory - an array containing subcategories
+ * @param {*} subSelectedKey - the selected key containing the chosen id
+ * @param {*} setSubSelectedKey - the useState to set the chosen id with
+ * @param {Array} advisoryText - an array containing advisory texts
+ * @param {*} onAdvisoryUpdate - method to update the advisory text
+ * @param {*} onAdvisoryDelete - method to delete the advisory text
+ * @param {*} searchTerm - method that pushes the search term
+ * @returns The Subcategory component
+ */
 function Subcategory({
     subcategory,
     subSelectedKey,
@@ -14,6 +28,12 @@ function Subcategory({
     const isSelected = subSelectedKey === subcategory.id;
     const matchRef = useRef(null);
 
+    /**
+     * Uses the useCallback hook
+     * to check whether the given input
+     * is present inside off the subcategories
+     * and advisory texts
+     */
     const matchesSearch = useCallback(() => {
         if (!searchTerm) return false;
         const search = searchTerm.toLowerCase();

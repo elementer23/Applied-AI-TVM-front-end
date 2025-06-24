@@ -14,6 +14,13 @@ function wait(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/**
+ * This is a component which returns the UserManagement page,
+ * won't show the page once the authorization is not sufficient.
+ * Will be able to see the users, change the users, add
+ * the users and delete the users.
+ * @returns The UserManagement component
+ */
 function UserManagement() {
     const [users, setUsers] = useState([]);
     const [editingUserId, setEditingUserId] = useState(null);

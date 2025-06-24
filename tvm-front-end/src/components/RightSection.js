@@ -3,6 +3,21 @@ import Header from "./Header";
 import { sendAdviceRequest } from "../utils/Services";
 import MessageOutcomeComponent from "./errorComponents/MessageOutcomeComponent";
 
+/**
+ * This is a component which shows
+ * the right section of the Main component.
+ * Here one can talk to the Ai and request
+ * output upon a corresponding input.
+ * Will show a corresponding conversation
+ * depending on the id or an already previous
+ * started conversation.. continuing from there on.
+ * @param {*} conversationId - the id of the conversation to show
+ * @param {*} setConversationId - the state to set the conversation id with
+ * @param {*} currentConversationMessages - the messages of the chosen conversation
+ * @param {*} reFetchMessages - method to refetch the message to push through changes
+ * @param {*} reFetchConversations - method to refetch the conversations to push through changes
+ * @returns The RightSection component
+ */
 function RightSection({
     conversationId,
     setConversationId,
@@ -47,7 +62,6 @@ function RightSection({
     }, [conversationId, currentConversationMessages]);
 
     const handleGenerateAdvice = async () => {
-        // if (!input.trim()) return;
         setLoading(true);
         setOutcomeHandler({ success: null, error: null });
 

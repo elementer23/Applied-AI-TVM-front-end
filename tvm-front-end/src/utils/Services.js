@@ -6,8 +6,8 @@ import { RequestError, ErrorHandler } from "./errorHandler";
  * and will return a proper response from the AI upon a successful attempt.
  * Will return an answer depending on the given input
  * and will return an empty string upon a failed attempt.
- * @param {*} requestedInput
- * @param {*} conversationId
+ * @param {*} requestedInput - the input in the form of a string
+ * @param {*} conversationId - the id of the conversation the input should be added to.
  * @returns output depending on the outcome
  */
 export async function sendAdviceRequest(requestedInput, conversationId) {
@@ -70,8 +70,8 @@ export async function sendAdviceRequest(requestedInput, conversationId) {
  * Will login or deny the login based on the given values in the requested_data.
  * Will set a new set of tokens upon successful login attempt and will set them in the session.
  * Will navigate to the main page, once the login has succeeded.
- * @param {*} requested_data
- * @param {*} navigate
+ * @param {*} requested_data - the requested data to login with
+ * @param {*} navigate - the useNavigate so the function can navigate after completion
  */
 export async function Login(requested_data, navigate) {
     if (!requested_data.username.trim() || !requested_data.password.trim()) {
@@ -119,7 +119,7 @@ export async function Login(requested_data, navigate) {
  * This function registers a new user into the database.
  * Will add a new user upon success, will not create a new user upon failure.
  * Will return an error upon failure or a message upon success.
- * @param {*} requested_data
+ * @param {*} requested_data - the requested data to register a new user
  * @returns data depending on the outcome
  */
 export async function RegisterUser(requested_data) {
@@ -166,7 +166,7 @@ export async function RegisterUser(requested_data) {
  * Will do the same on the front-end, deleting them
  * from the local storage. Before navigating the user
  * back to the log in page.
- * @param {*} navigate
+ * @param {*} navigate - the useNavigate to navigate after logging out
  */
 export async function Logout(navigate) {
     try {
@@ -189,8 +189,8 @@ export async function Logout(navigate) {
  * A function to delete all conversations from the database that are binded to the user.
  * Will need a confirmation to make sure that the function has to be executed.
  * Will delete all conversations upon success, will give an error upon failure.
- * @param {*} confirmation
- * @param {*} navigate
+ * @param {*} confirmation - a boolean to confirm whether it should be deleted or not
+ * @param {*} navigate - the useNavigate to navigate after completion
  */
 export async function DeleteAllPersonalConversations(confirmation, navigate) {
     const token = sessionStorage.getItem("token");
@@ -248,9 +248,9 @@ export async function StartNewConversation() {
  * Will delete a conversation upon succession, will not remove a conversation upon failure.
  * Will return false once the given conversationId isn't a number.
  * Will show an error upon failure.
- * @param {*} confirmation
- * @param {*} conversationId
- * @param {*} navigate
+ * @param {*} confirmation - a boolean to confirm whether it should be deleted or not
+ * @param {*} conversationId - the conversation to delete with the corresponding id
+ * @param {*} navigate - the useNavigate to navigate with after completion
  * @returns a boolean or nothing
  */
 export async function DeleteSingleConversation(
@@ -303,7 +303,7 @@ export async function DeleteSingleConversation(
  * will return an empty array upon failure.
  * Will return false once the given conversation id isn't a number.
  * Will error upon failure.
- * @param {*} conversationId
+ * @param {*} conversationId - the conversation id to show the corresponding messages with
  * @returns a boolean or array
  */
 export async function GetConversationMessages(conversationId) {
@@ -475,7 +475,7 @@ export async function GetAllAdvisoryTexts() {
  * This function returns a single advisory text based on the given id.
  * Will return a set of data upon success and nothing with an error upon failure.
  * Will return failure once the given id was incorrect, didn't exist or wasn't a number.
- * @param {*} textId
+ * @param {*} textId - the id to retrieve the advisory text with
  * @returns a boolean or message
  */
 export async function GetAdvisoryTextById(textId) {
@@ -507,8 +507,8 @@ export async function GetAdvisoryTextById(textId) {
  * This function updates the advisory text, depending on the id, category id and subcategory.
  * Will return a message upon success, will return nothing and an error upon failure.
  * Will return failure once the given id's are incorrect, not numbers or don't exist.
- * @param {*} textId
- * @param {*} adviceText
+ * @param {*} textId - the id to update the advisory text with
+ * @param {*} adviceText - the new text to update the advisory text with
  * @returns a boolean or message
  */
 export async function UpdateAdvisoryText(textId, adviceText) {
@@ -548,7 +548,7 @@ export async function UpdateAdvisoryText(textId, adviceText) {
  * Will return a message upon success, will return nothing and
  * an error upon failure. Will fail once the id hasn't been set
  * or once the categoryId isn't a number or if it doesn't exist.
- * @param {*} formData
+ * @param {*} formData - the form data to create a new advisory text
  * @returns a boolean or message
  */
 export async function CreateAdvisoryText(formData) {
@@ -591,7 +591,7 @@ export async function CreateAdvisoryText(formData) {
  * This function deletes an advisory text depending on the given id.
  * Will return a message upon success, will return nothing and an error upon failure.
  * Will return failure once the given id is incorrect or isn't a number.
- * @param {*} textId
+ * @param {*} textId - the id to delete the advisory text with
  * @returns a boolean or message
  */
 export async function DeleteAdvisoryText(textId) {
@@ -623,7 +623,7 @@ export async function DeleteAdvisoryText(textId) {
  * This function returns an advisory text based on the subcategory id.
  * Will return a set of data upon success, will return nothing and an error upon failure.
  * Will return failure once the given id was invalid, didn't exist or wasn't a number.
- * @param {*} subcategoryId
+ * @param {*} subcategoryId - the subcategory id to retrieve the corresponding advisory text with
  * @returns a boolean or a set of data
  */
 export async function GetAdvisoryTextBySubcategoryId(subcategoryId) {
@@ -700,7 +700,7 @@ export async function GetAllCategories() {
  * Will return data upon success, will return false upon failure.
  * Will not work if the given id isn't a number.
  * Will give an error upon failure.
- * @param {*} categoryId
+ * @param {*} categoryId - the id to retrieve the corresponding category with
  * @returns a boolean or data
  */
 export async function GetSingleCategory(categoryId) {
@@ -736,7 +736,7 @@ export async function GetSingleCategory(categoryId) {
  * This function creates a new category by name.
  * Will return data upon success and will return false upon failure.
  * Will show a message upon success and an error upon failure.
- * @param {*} categoryName
+ * @param {*} categoryName - the name of the category to be added
  * @returns a boolean or message
  */
 export async function CreateNewCategory(categoryName) {
@@ -777,8 +777,8 @@ export async function CreateNewCategory(categoryName) {
  * Will return a success message upon a successful attempt,
  * will return a failure response upon failure.
  * Will show an error upon failure.
- * @param {*} categoryId
- * @param {*} categoryName
+ * @param {*} categoryId - the id to update the category with
+ * @param {*} categoryName - the new name to update the category with
  * @returns a boolean or message
  */
 export async function UpdateCategory(categoryId, categoryName) {
@@ -821,8 +821,8 @@ export async function UpdateCategory(categoryId, categoryName) {
  * This function deletes a single category based on the given id.
  * Will need a confirmation to continue, to make sure that the action was deliberate.
  * Will return a message upon success and false with an error upon failure.
- * @param {*} categoryId
- * @param {*} confirmation
+ * @param {*} categoryId - the id to delete the category with
+ * @param {*} confirmation - a boolean to confirm that the category has to be deleted
  * @returns a boolean or message
  */
 export async function DeleteSingleCategory(categoryId, confirmation) {
@@ -883,7 +883,7 @@ export async function GetAllSubcategories() {
  * This function returns all subcategories that belong to the given category id.
  * Will return a set of data upon success, will return nothing and an error upon failure.
  * Will return failure once category id is invalid, not a number or doesn't exist.
- * @param {*} categoryId
+ * @param {*} categoryId - the id to retrieve all the subcategories that correspond to the category id
  * @returns a boolean or a set of data
  */
 export async function GetAllSubcategoriesByCategory(categoryId) {
@@ -924,7 +924,7 @@ export async function GetAllSubcategoriesByCategory(categoryId) {
 /**
  * This function retrieves a single subcategory based on the id.
  * Will return a set of data upon success, will return nothing and an error upon failure.
- * @param {*} subcategoryId
+ * @param {*} subcategoryId - the id to retrieve the subcategory with
  * @returns a boolean or data
  */
 export async function GetSingleSubcategory(subcategoryId) {
@@ -963,8 +963,8 @@ export async function GetSingleSubcategory(subcategoryId) {
  * will return nothing and an error upon failure.
  * Will return failure once the given id isn't a number or
  * once the given id doesn't exist.
- * @param {*} subcategoryId
- * @param {*} subcategoryName
+ * @param {*} subcategoryId - the id to update the corresponding subcategory with
+ * @param {*} subcategoryName - the new name to update the corresponding subcategory with
  * @returns a boolean or message
  */
 export async function UpdateSubcategory(subcategoryId, subcategoryName) {
@@ -1001,8 +1001,8 @@ export async function UpdateSubcategory(subcategoryId, subcategoryName) {
  * Will return a message upon success and nothing with an error upon failure.
  * Will return failure once the given id is not a number or
  * once the confirmation hasn't been made.
- * @param {*} subcategoryId
- * @param {*} confirmation
+ * @param {*} subcategoryId - the id to delete the corresponding subcategory with
+ * @param {*} confirmation - a boolean to confirm the deletion
  * @returns a boolean or message
  */
 export async function DeleteSingleSubcategory(subcategoryId, confirmation) {
@@ -1034,8 +1034,8 @@ export async function DeleteSingleSubcategory(subcategoryId, confirmation) {
  * This function updates the user, based on the given id and values.
  * Will update the user upon success, will throw an error upon failure.
  * Will return false once the given user id, was invalid, didn't exist or wasn't a number.
- * @param {*} userId
- * @param {*} userData
+ * @param {*} userId - the id to update the corresponding user with
+ * @param {*} userData - the data to update the corresponding user with
  * @returns a message or boolean
  */
 export async function UpdateUser(userId, userData) {
@@ -1085,7 +1085,7 @@ export async function GetAllUsers() {
  * Will delete the user and return a message upon success,
  * will return nothing and an error upon failure.
  * Will return failure once the given user id was invalid, didn't exist or wasn't a numbers
- * @param {*} userId
+ * @param {*} userId - the id to delete the corresponding user with
  * @returns a message or a boolean
  */
 export async function DeleteUser(userId) {
