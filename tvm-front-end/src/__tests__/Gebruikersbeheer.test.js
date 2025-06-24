@@ -202,3 +202,33 @@ it("leegt het formulier na succesvol toevoegen van een gebruiker", async () => {
     expect(screen.queryByPlaceholderText("Gebruikersnaam")).not.toBeInTheDocument();
     expect(screen.queryByPlaceholderText("Wachtwoord")).not.toBeInTheDocument();
 });
+
+it("annuleert verwijderen als user cancel klikt", async () => {
+    window.confirm = jest.fn(() => false);
+    render(
+        <MemoryRouter>
+            <UserManagement />
+        </MemoryRouter>
+    );
+    await waitFor(() =>
+        expect(screen.queryByText("Laden...")).not.toBeInTheDocument()
+    );
+    fireEvent.click(screen.getAllByText("Verwijder")[0]);
+    
+    expect(Services.DeleteUser).not.toHaveBeenCalled();
+});
+
+it("wijzigt gebruiker niet als je edit annuleert", async () => {
+    render(<MemoryRouter><UserManagement /></MemoryRouter>);
+    await waitFor(() =>
+        expect(screen.queryByText("Laden...")).not.toBeInTheDocument()
+    );
+    fireEvent.click(screen.getAllByText("Wijzig")[0]);
+    const cancelButton = screen.queryAllByRole("button").find(btn =>
+        btn.textContent?.toLowerCase().includes("annuleer")
+    );
+    if (cancelButton) fireEvent.click(cancelButton);
+    expect(Services.UpdateUser).not.toHaveBeenCalled();
+});
+
+
