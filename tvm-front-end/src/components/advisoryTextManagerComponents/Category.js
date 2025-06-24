@@ -3,6 +3,24 @@ import { Trash2, PencilLine } from "lucide-react";
 import Subcategory from "./Subcategory";
 import { useState } from "react";
 
+/**
+ * This is a component which contains the Categories.
+ * Will show the corresponding category, through a means
+ * of a loop in AdvisoryTextManager.
+ * @param {Array} category - an array containing categories
+ * @param {*} selectedKey - the selected key containing the chosen category id
+ * @param {*} setSelectedKey - the useState method to set the id with
+ * @param {Array} subcategories - an array containing subcategories
+ * @param {*} subSelectedKey - the selected key containing the chosen subcategory id
+ * @param {*} setSubSelectedKey - the useState method to set the id with
+ * @param {Array} advisoryText - an array containing advisory texts
+ * @param {*} onAdvisoryUpdate - method to update advisory text with
+ * @param {*} onAdvisoryDelete - method to delete advisory text with
+ * @param {*} onCategoryUpdate - method to update category with
+ * @param {*} onCategoryDelete - method to delete category with
+ * @param {*} searchTerm - method to pass the search term with
+ * @returns The Category component
+ */
 function Category({
     category,
     selectedKey,

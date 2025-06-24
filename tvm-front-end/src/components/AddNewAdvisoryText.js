@@ -8,6 +8,14 @@ import {
     GetAllSubcategoriesByCategory,
 } from "../utils/Services";
 
+/**
+ * This is a component which shows
+ * a page.. with the ability to add
+ * a new advisory text. Will only show
+ * a simple message if there are no categories
+ * available.
+ * @returns The AddNewAdvisoryText component
+ */
 function AddNewAdvisoryText() {
     const [categories, setCategories] = useState([]);
     const [isCategory, setIsCategory] = useState(false);

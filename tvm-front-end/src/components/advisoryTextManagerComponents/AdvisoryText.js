@@ -2,6 +2,16 @@ import { Trash2, PencilLine } from "lucide-react";
 import styles from "../../css/AdvisoryManager.module.css";
 import { useState } from "react";
 
+/**
+ * This is a component which contains the advisory texts,
+ * that correlate to the earlier selected keys.. belonging to
+ * Category and subcategory. It will show the corresponding
+ * advisory text and will show a message once it's empty.
+ * @param {Array} advisoryText - an array containing advisory texts
+ * @param {Function} onAdvisoryUpdate - the function passed through in order to update the text
+ * @param {Function} onAdvisoryDelete - the function passed through in order to delete the text
+ * @returns The AdvisoryText component
+ */
 function AdvisoryText({ advisoryText, onAdvisoryUpdate, onAdvisoryDelete }) {
     const [displayItems, setDisplayItems] = useState(false);
     const [editedText, setEditedText] = useState(advisoryText.text);

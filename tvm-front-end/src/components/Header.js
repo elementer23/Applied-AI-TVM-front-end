@@ -2,6 +2,14 @@ import { useNavigate } from "react-router";
 import { useState, useEffect } from "react";
 import { GetCurrentUser, Logout } from "../utils/Services";
 
+/**
+ * This is a component which shows the header.
+ * Is mainly called in each component, also handles
+ * some of the navigation so one can switch
+ * to different pages.
+ * @param {String} variant - the variant of the header to load in, default is the basic
+ * @returns The Header component
+ */
 function Header({ variant }) {
     const navigate = useNavigate();
     const [showDropdown, setShowDropdown] = useState(false);

@@ -3,6 +3,13 @@ import AdvisoryTextManager from "./AdvisoryTextManager";
 import AddNewAdvisoryText from "./AddNewAdvisoryText";
 import AddNewCategory from "./AddNewCategory";
 
+/**
+ * This is a component that is the main screen,
+ * for adding categories, advisory texts and such.
+ * Mainly used to switch between the components
+ * as a baseline to show the components.
+ * @returns The CategoryMainScreen component
+ */
 function CategoryMainScreen() {
     const [component, setComponent] = useState("advisory_text_manager");
 

@@ -3,7 +3,7 @@
  * to retrieve and initialize messages and states depending on the
  * corresponding server errors. This one is specifically for
  * requests while talking to the AI.
- * @param {*} error
+ * @param {*} error - the given exception error in the catch
  * @returns a status and message
  */
 export function RequestError(error) {
@@ -23,6 +23,16 @@ export function RequestError(error) {
     };
 }
 
+/**
+ * This function is a short hand error overview,
+ * containing all the error status code that respond
+ * to codes in the back-end. Will show a corresponding message,
+ * depending on the given status code.
+ * Will show a default message once the error status code
+ * isn't present inside of the switch.
+ * @param {*} error - the given exception error in the catch
+ * @returns a corresponding message
+ */
 export function ErrorHandler(error) {
     if (error) {
         switch (error.status) {

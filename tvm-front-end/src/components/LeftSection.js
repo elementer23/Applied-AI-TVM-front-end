@@ -7,6 +7,18 @@ import { useNavigate } from "react-router";
 import { Trash2 } from "lucide-react";
 import MessageOutcomeComponent from "./errorComponents/MessageOutcomeComponent";
 
+/**
+ * This is a component which shows the left section
+ * on the Main component. Mostly shows a list of conversations,
+ * retrieving them, able to delete them or to
+ * start a new conversation.
+ * @param {Array} conversations - an array containing the conversations
+ * @param {*} onSelectConversation - the useState to set the conversation id with
+ * @param {*} reFetchConversations - method to refetch the conversations after changes
+ * @param {*} reFetchMessages - method to refetch the messages after changes
+ * @param {*} onNewConversationId - the useState to set the conversation id with after starting a new conversation
+ * @returns The LeftSection component
+ */
 function LeftSection({
     conversations,
     onSelectConversation,
