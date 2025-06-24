@@ -6,17 +6,6 @@ jest.mock("../css/AdvisoryManager.module.css", () => ({}));
 
 jest.mock("../components/Header", () => () => <div>Header</div>);
 
-jest.mock("../components/advisoryTextManagerComponents/Category", () => {
-    const React = require("react");
-    return (props) => {
-        React.useEffect(() => {
-            props.setSelectedKey(1);
-            props.setSubSelectedKey(1);
-        }, []);
-        return <div>Mocked Category damage_to_third_parties</div>;
-    };
-});
-
 describe("AdvisoryTextManager", () => {
     const mockCategories = [{ id: 1, name: "damage_to_third_parties" }];
 
@@ -90,8 +79,82 @@ describe("AdvisoryTextManager", () => {
 
         await waitFor(() => {
             expect(
-                screen.getByText(/Mocked Category damage_to_third_parties/i)
+                screen.getByText(/damage to third parties/i)
             ).toBeInTheDocument();
+        });
+    });
+
+    it("updates a category name when edited and submitted", async () => {
+        const mockUpdate = jest
+            .spyOn(Services, "UpdateCategory")
+            .mockResolvedValue({
+                success: true,
+                message: "Updated successfully",
+            });
+
+        render(<AdvisoryTextManager />);
+
+        fireEvent.click(await screen.findByTitle("Pas categorie aan"));
+
+        fireEvent.change(screen.getByDisplayValue("damage_to_third_parties"), {
+            target: { value: "updated_category" },
+        });
+
+        fireEvent.click(screen.getByText("update"));
+
+        await waitFor(() => {
+            expect(mockUpdate).toHaveBeenCalledWith(1, "updated_category");
+        });
+    });
+
+    it("deletes a category when double confirmation is accepted", async () => {
+        const mockDelete = jest
+            .spyOn(Services, "DeleteSingleCategory")
+            .mockResolvedValue({
+                success: true,
+                message: "Deleted successfully",
+            });
+
+        jest.spyOn(window, "confirm").mockImplementation(() => true);
+
+        render(<AdvisoryTextManager />);
+
+        fireEvent.click(await screen.findByTitle("Verwijder advies"));
+
+        await waitFor(() => {
+            expect(mockDelete).toHaveBeenCalledWith(1, true);
+        });
+
+        window.confirm.mockRestore();
+    });
+
+    it("updates an advisory text when edited and saved", async () => {
+        const mockUpdateAdvice = jest
+            .spyOn(Services, "UpdateAdvisoryText")
+            .mockResolvedValue({
+                success: true,
+                message: "Advice updated",
+            });
+
+        render(<AdvisoryTextManager />);
+
+        fireEvent.click(await screen.findByText(/damage to third parties/i));
+
+        fireEvent.click(await screen.findByText(/minrisk/i));
+
+        fireEvent.click(await screen.findByTitle("Pas advies aan"));
+
+        fireEvent.change(screen.getByPlaceholderText(/typ hier je advies/i), {
+            target: { value: "Updated text" },
+        });
+
+        fireEvent.click(screen.getByTestId("update-advisory-btn"));
+
+        await waitFor(() => {
+            expect(mockUpdateAdvice).toHaveBeenCalledWith(
+                undefined,
+                "Updated text"
+            );
         });
     });
 });

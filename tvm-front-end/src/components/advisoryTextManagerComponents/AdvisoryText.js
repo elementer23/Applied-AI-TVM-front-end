@@ -35,6 +35,7 @@ function AdvisoryText({ advisoryText, onAdvisoryUpdate, onAdvisoryDelete }) {
                             marginBottom: "10px",
                             marginTop: "10px",
                         }}
+                        placeholder="Typ hier je advies"
                         required
                     />
                 )}
@@ -57,6 +58,7 @@ function AdvisoryText({ advisoryText, onAdvisoryUpdate, onAdvisoryDelete }) {
                     className={styles.successBtn}
                     onClick={handleAdvisoryUpdate}
                     style={{ display: displayItems ? "inline-block" : "none" }}
+                    data-testid="update-advisory-btn"
                 >
                     update
                 </button>
